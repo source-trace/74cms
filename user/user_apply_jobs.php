@@ -249,7 +249,7 @@ elseif ($act=="app_save")
 			$addarr['notes']= $notes;
 			if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 			{
-			$addarr['notes']=utf8_to_gbk($addarr['notes']);
+			$addarr['notes']=iconv("utf-8",QISHI_DBCHARSET,$addarr['notes']);
 			}
 			$addarr['apply_addtime']=time();
 			$addarr['personal_look']=1;

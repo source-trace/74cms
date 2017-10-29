@@ -17,10 +17,6 @@ class wechatCallbackapiTest extends mysql
     }
     public function responseMsg()
     {
-		if(!$this->checkSignature())
-		{
-        	exit();
-        }
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
 		if (!empty($postStr))
 		{

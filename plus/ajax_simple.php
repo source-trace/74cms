@@ -262,7 +262,7 @@ elseif($act =='check_pwd')
 	$id=intval($_GET['id']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$pwd=utf8_to_gbk($pwd);
+	$pwd=iconv("utf-8",QISHI_DBCHARSET,$pwd);
 	}
 		$sql = "select * from ".table('simple')." where id = '{$id}' LIMIT 1";
 		$info=$db->getone($sql);

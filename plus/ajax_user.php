@@ -29,8 +29,8 @@ if($act =='do_login')
 	$url=isset($_POST['url'])?$_POST['url']:"";
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$username=utf8_to_gbk($username);
-	$password=utf8_to_gbk($password);
+	$username=iconv("utf-8",QISHI_DBCHARSET,$username);
+	$password=iconv("utf-8",QISHI_DBCHARSET,$password);
 	}
 	$captcha=get_cache('captcha');
 	if ($captcha['verify_userlogin']=="1")
@@ -38,7 +38,7 @@ if($act =='do_login')
 		$postcaptcha=$_POST['postcaptcha'];
 		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 		{
-		$postcaptcha=utf8_to_gbk($postcaptcha);
+		$postcaptcha=iconv("utf-8",QISHI_DBCHARSET,$postcaptcha);
 		}
 		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
 		{
@@ -70,7 +70,7 @@ elseif ($act=='do_reg')
 		$postcaptcha=$_POST['postcaptcha'];
 		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 		{
-		$postcaptcha=utf8_to_gbk($postcaptcha);
+		$postcaptcha=iconv("utf-8",QISHI_DBCHARSET,$postcaptcha);
 		}
 		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
 		{
@@ -84,8 +84,8 @@ elseif ($act=='do_reg')
 	$email = isset($_POST['email'])?trim($_POST['email']):exit("err");
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$username=utf8_to_gbk($username);
-	$password=utf8_to_gbk($password);
+	$username=iconv("utf-8",QISHI_DBCHARSET,$username);
+	$password=iconv("utf-8",QISHI_DBCHARSET,$password);
 	}
  	$register=user_register($username,$password,$member_type,$email);
 	if ($register>0)
@@ -119,7 +119,7 @@ elseif($act =='check_usname')
 	$usname=trim($_POST['usname']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$usname=utf8_to_gbk($usname);
+	$usname=iconv("utf-8",QISHI_DBCHARSET,$usname);
 	}
 	$user=get_user_inusername($usname);
  	empty($user)?exit("true"):exit("false");
@@ -130,7 +130,7 @@ elseif($act == 'check_email')
 	$email=trim($_POST['email']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$email=utf8_to_gbk($email);
+	$email=iconv("utf-8",QISHI_DBCHARSET,$email);
 	}
 	$user=get_user_inemail($email);
  	empty($user)?exit("true"):exit("false");

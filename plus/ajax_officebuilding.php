@@ -45,7 +45,7 @@ elseif($act == 'key')
 	$key=trim($_GET['key']);
 	if (!empty($key))
 	{
-	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0) $key=utf8_to_gbk($key);
+	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0) $key=iconv("utf-8",QISHI_DBCHARSET,$key);
 	$result = $db->query("select * from ".table('category')." where c_alias='QS_officebuilding' AND c_name LIKE '%{$key}%' ");
 	while($row = $db->fetch_array($result))
 	{

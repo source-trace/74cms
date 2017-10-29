@@ -93,7 +93,7 @@ elseif($act=="hotword")
 	$gbk_query=trim($_GET['query']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$gbk_query=utf8_to_gbk($gbk_query);
+	$gbk_query=iconv("utf-8",QISHI_DBCHARSET,$gbk_query);
 	}
 	$sql="SELECT * FROM ".table('hotword')." WHERE w_word like '%{$gbk_query}%' ORDER BY `w_hot` DESC LIMIT 0 , 10";
 	$result = $db->query($sql);

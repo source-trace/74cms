@@ -55,7 +55,7 @@ elseif ($act=='send_recommendjobs')
 		$postcaptcha=$_POST['postcaptcha'];
 		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 		{
-		$postcaptcha=utf8_to_gbk($postcaptcha);
+		$postcaptcha=iconv("utf-8",QISHI_DBCHARSET,$postcaptcha);
 		}
 		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
 		{
@@ -66,9 +66,9 @@ elseif ($act=='send_recommendjobs')
 
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$realname=utf8_to_gbk($realname);
-	$message=utf8_to_gbk($message);
-	$jobname=utf8_to_gbk($jobname);
+	$realname=iconv("utf-8",QISHI_DBCHARSET,$realname);
+	$message=iconv("utf-8",QISHI_DBCHARSET,$message);
+	$jobname=iconv("utf-8",QISHI_DBCHARSET,$jobname);
 	}
 	
 	$uid=intval($_SESSION['uid']);
@@ -118,7 +118,7 @@ elseif ($act=='send_recommendresume')
 		$postcaptcha=$_POST['postcaptcha'];
 		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 		{
-		$postcaptcha=utf8_to_gbk($postcaptcha);
+		$postcaptcha=iconv("utf-8",QISHI_DBCHARSET,$postcaptcha);
 		}
 		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
 		{
@@ -129,9 +129,9 @@ elseif ($act=='send_recommendresume')
 
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$realname=utf8_to_gbk($realname);
-	$message=utf8_to_gbk($message);
-	$resumename=utf8_to_gbk($resumename);
+	$realname=iconv("utf-8",QISHI_DBCHARSET,$realname);
+	$message=iconv("utf-8",QISHI_DBCHARSET,$message);
+	$resumename=iconv("utf-8",QISHI_DBCHARSET,$resumename);
 	}
 	$uid=intval($_SESSION['uid']);
 	$user=$db->getone("select * from ".table('members')." where uid ='{$uid}' LIMIT 1");

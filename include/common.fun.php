@@ -10,7 +10,6 @@
  * ============================================================================
 */
 if(!defined('IN_QISHI')) die('Access Denied!');
-if(!defined('IN_QISHI')) die('Access Denied!');
 function addslashes_deep($value)
 {
     if (empty($value))
@@ -32,25 +31,24 @@ function addslashes_deep($value)
 }
 function mystrip_tags($string)
 {
-	$string = new_html_special_chars($string);
 	$string = remove_xss($string);
+	$string = new_html_special_chars($string);
+	$string = strip_tags($string);
 	return $string;
 }
 function new_html_special_chars($string) {
-	$string = str_replace(array('&amp;', '&quot;', '&lt;', '&gt;'), array('&', '"', '<', '>'), $string);
-	$string = strip_tags($string);
+	if(!is_array($string)) return htmlspecialchars($string);
+	foreach($string as $key => $val) $string[$key] = new_html_special_chars($val);
 	return $string;
 }
 function remove_xss($string) { 
     $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S', '', $string);
 
-    $parm1 = Array('javascript', 'union','vbscript', 'expression', 'applet', 'xml', 'blink', 'link', 'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound', 'title', 'base');
+    $parm1 = Array('javascript', 'vbscript', 'expression', 'applet', 'union', 'xml', 'blink', 'link', 'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound', 'title', 'base');
 
     $parm2 = Array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onblur', 'onbounce', 'oncellchange', 'onchange', 'onclick', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavailable', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterchange', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onkeydown', 'onkeypress', 'onkeyup', 'onlayoutcomplete', 'onload', 'onlosecapture', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowenter', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onsubmit', 'onunload');
-	
-	$parm3 = Array('alert','sleep','load_file','confirm','prompt','benchmark','select','update','insert','delete','create','alter','drop','truncate');
 
-    $parm = array_merge($parm1, $parm2, $parm3); 
+    $parm = array_merge($parm1, $parm2); 
 
 	for ($i = 0; $i < sizeof($parm); $i++) { 
 		$pattern = '/'; 
@@ -64,7 +62,7 @@ function remove_xss($string) {
 			$pattern .= $parm[$i][$j]; 
 		}
 		$pattern .= '/i';
-		$string = preg_replace($pattern, '****', $string); 
+		$string = preg_replace($pattern, '', $string); 
 	}
 	return $string;
 }
@@ -804,128 +802,6 @@ function write_refresh_log($uid,$type){
 	$setsqlarr['type'] = $type;
 	$setsqlarr['addtime'] = time();
 	inserttable(table('refresh_log'),$setsqlarr);
-}
-/**
- * utf8תgbk
- * @param $utfstr
- */
-function utf8_to_gbk($utfstr) {
-	global $UC2GBTABLE;
-	$okstr = '';
-	if(empty($UC2GBTABLE)) {
-		define('CODETABLEDIR', dirname(__FILE__).DIRECTORY_SEPARATOR.'encoding'.DIRECTORY_SEPARATOR);
-		$filename = CODETABLEDIR.'gb-unicode.table';
-		$fp = fopen($filename, 'rb');
-		while($l = fgets($fp,15)) {        
-			$UC2GBTABLE[hexdec(substr($l, 7, 6))] = hexdec(substr($l, 0, 6));
-		}
-		fclose($fp);
-	}
-	$okstr = '';
-	$ulen = strlen($utfstr);
-	for($i=0; $i<$ulen; $i++) {
-		$c = $utfstr[$i];
-		$cb = decbin(ord($utfstr[$i]));
-		if(strlen($cb)==8) { 
-			$csize = strpos(decbin(ord($cb)),'0');
-			for($j = 0; $j < $csize; $j++) {
-				$i++; 
-				$c .= $utfstr[$i];
-			}
-			$c = utf8_to_unicode($c);
-			if(isset($UC2GBTABLE[$c])) {
-				$c = dechex($UC2GBTABLE[$c]+0x8080);
-				$okstr .= chr(hexdec($c[0].$c[1])).chr(hexdec($c[2].$c[3]));
-			} else {
-				$okstr .= '&#'.$c.';';
-			}
-		} else {
-			$okstr .= $c;
-		}
-	}
-	$okstr = trim($okstr);
-	return $okstr;
-}
-/**
- * gbkתutf8
- * @param $gbstr
- */
-function gbk_to_utf8($gbstr) {
-	global $CODETABLE;
-	if(empty($CODETABLE)) {
-		define('CODETABLEDIR', dirname(__FILE__).DIRECTORY_SEPARATOR.'encoding'.DIRECTORY_SEPARATOR);
-		$filename = CODETABLEDIR.'gb-unicode.table';
-		$fp = fopen($filename, 'rb');
-		while($l = fgets($fp,15)) { 
-			$CODETABLE[hexdec(substr($l, 0, 6))] = substr($l, 7, 6); 
-		}
-		fclose($fp);
-	}
-	$ret = '';
-	$utf8 = '';
-	while($gbstr) {
-		if(ord(substr($gbstr, 0, 1)) > 0x80) {
-			$thisW = substr($gbstr, 0, 2);
-			$gbstr = substr($gbstr, 2, strlen($gbstr));
-			$utf8 = '';
-			@$utf8 = unicode_to_utf8(hexdec($CODETABLE[hexdec(bin2hex($thisW)) - 0x8080]));
-			if($utf8 != '') {
-				for($i = 0; $i < strlen($utf8); $i += 3) $ret .= chr(substr($utf8, $i, 3));
-			}
-		} else {
-			$ret .= substr($gbstr, 0, 1);
-			$gbstr = substr($gbstr, 1, strlen($gbstr));
-		}
-	}
-	return $ret;
-}
-/**
- * utf8תunicode
- * @param  $c
- */
-function utf8_to_unicode($c) {
-	switch(strlen($c)) {
-		case 1:
-		  return ord($c);
-		case 2:
-		  $n = (ord($c[0]) & 0x3f) << 6;
-		  $n += ord($c[1]) & 0x3f;
-		  return $n;
-		case 3:
-		  $n = (ord($c[0]) & 0x1f) << 12;
-		  $n += (ord($c[1]) & 0x3f) << 6;
-		  $n += ord($c[2]) & 0x3f;
-		  return $n;
-		case 4:
-		  $n = (ord($c[0]) & 0x0f) << 18;
-		  $n += (ord($c[1]) & 0x3f) << 12;
-		  $n += (ord($c[2]) & 0x3f) << 6;
-		  $n += ord($c[3]) & 0x3f;
-		  return $n;
-	}
-}
-/**
- * unicodeתutf8
- * @param  $c
- */
-function unicode_to_utf8($c) {
-	$str = '';
-	if($c < 0x80) {
-		$str .= $c;
-	} elseif($c < 0x800) {
-		$str .= (0xC0 | $c >> 6);
-		$str .= (0x80 | $c & 0x3F);
-	} elseif($c < 0x10000) {
-		$str .= (0xE0 | $c >> 12);
-		$str .= (0x80 | $c >> 6 & 0x3F);
-		$str .= (0x80 | $c & 0x3F);
-	} elseif($c < 0x200000) {
-		$str .= (0xF0 | $c >> 18);
-		$str .= (0x80 | $c >> 12 & 0x3F);
-		$str .= (0x80 | $c >> 6 & 0x3F);
-		$str .= (0x80 | $c & 0x3F);
-	}
-	return $str;
 }
 
 

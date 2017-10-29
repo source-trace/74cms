@@ -167,7 +167,6 @@ elseif($act == 'del_img')
 	check_token();
 	$id=intval($_GET['id']);
 	$img=$_GET['img'];
-	$img=str_replace("../","***",$img);
 	$sql="update ".table('article')." set Small_img='' where id=".$id." LIMIT 1";
 	$db->query($sql);
 	@unlink($upfiles_dir.$img);
