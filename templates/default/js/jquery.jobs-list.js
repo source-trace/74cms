@@ -99,7 +99,7 @@ function recommend_jobs(ajaxurl)
 {
 	$(".recommend").unbind().click(function()
 	{
-		dialog("推荐给好友","url:get?"+ajaxurl+"plus/ajax_recommend.php?job="+$(this).attr("url")+"&act=recommendjobs","400px","auto","");
+ 		dialog("推荐给好友","url:get?"+ajaxurl+"plus/ajax_recommend.php?job="+$(this).attr("url")+"&act=recommendjobs","400px","auto","");
 	});
 }
 function favorites(ajaxurl)

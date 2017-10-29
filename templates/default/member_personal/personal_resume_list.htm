@@ -11,10 +11,16 @@
 <script src="{#$QISHI.site_template#}js/jquery.js" type='text/javascript' language="javascript"></script>
 <script src="{#$QISHI.site_template#}js/jquery.idTabs.min.js" type='text/javascript' language="javascript"></script>
 <script type="text/javascript" src="{#$QISHI.site_template#}js/jquery.vtip-min.js"></script>
+		
+<script src="{#$QISHI.site_template#}js/jquery.reasontip-min.js" type='text/javascript' language="javascript"></script>
+
 <script type="text/javascript">
 $(document).ready(function()
 {
 	$("#tabshow li:nth-child(2)>a").addClass("selected");
+	
+	vtip_reason("{#$QISHI.site_dir#}","resume_reason");
+
 });
 </script>
 </head>
@@ -46,7 +52,7 @@ $(document).ready(function()
 		  <table width="97%" border="0" cellpadding="0" cellspacing="0" class="link_lan"   align="center">
               <tr>
                 <td height="26" class="us_list_title"><label id="chkAll"><input type="checkbox" name="chkAll"  id="chk" title="全选/反选" />简历名称</label>                </td>
-                <td width="60" align="center" class="us_list_title">审核状态</td>
+                <td width="100" align="center" class="us_list_title">审核状态</td>
                 <td width="135" align="center" class="us_list_title">刷新时间</td>
                 <td width="85" class="us_list_title" align="center">完整指数</td>
                 <td width="10" class="us_list_title"></td>
@@ -64,14 +70,22 @@ $(document).ready(function()
 			 {#if $list.display=="2"#}<span style="color:#999999" class="vtip" title="半公开简历是指企业搜不到到简历，但是您可以主动给职位投递简历，建议设置为全公开">[半公开]</span>{#/if#}			</td>
                 <td align="center" >
 				 {#if $list.audit=="1"#}审核通过{#/if#}
-			{#if $list.audit=="2"#}审核中{#/if#}
-			{#if $list.audit=="3"#}审核未通过{#/if#}				</td>
+				{#if $list.audit=="2"#}审核中{#/if#}
+				{#if $list.audit=="3"#}
+		
+				审核未通过
+				 <img src="{#$QISHI.site_template#}images/99.gif"  border="0" class="reason vtip" id="{#$list.id#}" align="absmiddle" style="cursor:pointer;"  />
+	
+				
+				{#/if#}				
+				</td>
                 <td align="center"  style="color:#FF6600">{#$list.refreshtime|date_format:"%Y-%m-%d %H:%M"#}</td>
                 
                 <td width="60" class="vtip"   style=" cursor:help" title="简历完整指数为：<span style=color:#FF0000><strong>{#$list.complete_percent#}</strong> %</span><br />如完整指数小于<strong>60%</strong>，则系统视为无效简历。<br />简历完整指数越高，排名越靠前">
 				<div style="border:1px #006600 solid; width:80px; height:8px; font-size:0px">
 					  <div style="width:{#$list.complete_percent#}%;background-color:#99CC00; height:8px;font-size:0px"> </div>
-					  </div>				</td>
+					  </div>			
+				</td>
                 <td align="left" >{#$list.complete_percent#}%</td>
                 <td align="center" >
 				 {#if $list.talent=="2"#}

@@ -73,25 +73,43 @@ $(document).ready(function()
                 </tr>
                 <tr>
                   <td valign="top">发布普通招聘：
-				 
-				    <strong style="color:#009900">{#$list.jobs_ordinary#}</strong> 条 <br />
-					 下载高级简历：
-				 
-				    <strong style="color:#009900">{#$list.download_resume_senior#}</strong> 份                  </td>
-                  <td valign="top">下载普通简历： 
-				 
-				    <strong style="color:#009900">{#$list.download_resume_ordinary#}</strong> 份 <br />
-					邀请高级人才面试： 
-
-				    <strong style="color:#009900">{#$list.interview_senior#}</strong> 次                  </td>
-                  <td valign="top">邀请普通人才面试： 
-			
-				    <strong style="color:#009900">{#$list.interview_ordinary#}</strong> 次 <br />
-					
-				  人才库容量： 
-				    <strong style="color:#009900">{#$list.talent_pool#}</strong> <br />				 </td>
-                  
+				    <strong style="color:#009900">{#$list.jobs_ordinary#}</strong> 条 
+				  </td>					
+				  <td valign="top">下载高级简历：
+				    <strong style="color:#009900">{#$list.download_resume_senior#}</strong> 份  
+				 </td> 
+ 				  <td valign="top">下载普通简历： 
+				    <strong style="color:#009900">{#$list.download_resume_ordinary#}</strong> 份 
+				  </td>
+				  <td valign="top">邀请高级人才面试： 
+				    <strong style="color:#009900">{#$list.interview_senior#}</strong> 次    
+			      </td>              
+				 </tr>
+                <tr>
+                   <td valign="top">邀请普通人才面试： 
+				    <strong style="color:#009900">{#$list.interview_ordinary#}</strong> 次 
+				  </td>
+				 </tr>
+				<tr>
+				  <td valign="top">人才库容量： 
+				    <strong style="color:#009900">{#$list.talent_pool#}</strong>
+				  </td>
+ 				 <td>允许自由切换模板：{#if $list.change_templates=="1"#}<strong style="color:#009900">允许</strong>{#else#}<strong style="color:#009900">不允许</strong>{#/if#} </td>
+				 <td>允许开启电子地图：{#if $list.map_open=="1"#}<strong style="color:#009900">允许</strong>{#else#}<strong style="color:#009900">不允许</strong>{#/if#} </td>
+				 <td>&nbsp;</td>
                 </tr>
+				  <tr>
+					<td>推荐职位剩余：<strong style="color:#009900">{#$list.recommend_num#}</strong> 条</td>
+					<td>置顶职位剩余：<strong style="color:#009900">{#$list.stick_num#}</strong> 条</td>
+					<td>紧急职位剩余：<strong style="color:#009900">{#$list.emergency_num#}</strong> 条</td>
+					<td>套色职位剩余：<strong style="color:#009900">{#$list.highlight_num#}</strong> 条</td>
+				  </tr>
+				  <tr>
+					<td>推荐职位天数：<strong style="color:#009900">{#$list.recommend_days#} 天</strong></td>
+					<td>置顶职位天数：<strong style="color:#009900">{#$list.stick_days#}</strong> 天</td>
+					<td>紧急职位天数：<strong style="color:#009900">{#$list.emergency_days#}</strong> 天</td>
+					<td>套色职位天数：<strong style="color:#009900">{#$list.highlight_days#}</strong> 天</td>
+				  </tr>
                 <tr>
                   <td colspan="3">其他说明：
 				  {#if $list.added==""#}

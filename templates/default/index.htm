@@ -21,24 +21,7 @@
 $(document).ready(function()
 {
 	index("{#$QISHI.site_dir#}","{#$QISHI.site_template#}");
-	//紧急招聘
-				$(function(){
-				var _wrap=$('#emergencybox');
-				var _interval=2000;
-				var _moving;
-				_wrap.hover(function(){
-				clearInterval(_moving);
-				},function(){
-				_moving=setInterval(function(){
-				var _field=_wrap.find('div:first');
-				var _h=_field.height();
-				_field.animate({marginTop:-_h+'px'},600,function(){
-				_field.css('marginTop',0).appendTo(_wrap);
-				})
-				},_interval)
-				}).trigger('mouseleave');
-				});
-});
+ });
 </script>
 </head>
 <body>
@@ -209,15 +192,18 @@ $(document).ready(function()
  		<div class="topbox link_lan" id="">
 		<div class="tit"><h3>紧急招聘</h3></div>
 				<div id="emergencybox" class="emergencybox">
-							{#qishi_jobs_list set="列表名:jobs,显示数目:9,填补字符:...,职位名长度:12,紧急招聘:1,排序:rtime>desc"#}{#foreach from=$jobs item=jobslist#}<div  class="list">
-							<a href="{#$jobslist.jobs_url#}" target="_blank" class="jobsname">{#$jobslist.jobs_name#}</a>
-							&nbsp;	
-							<span>({#$jobslist.amount#}人)</span>					
-							&nbsp;
-							<img src="{#$QISHI.site_template#}images/61.gif" border="0" align="absmiddle" title="紧急招聘"  class="vtip"/>						
-							<br />
-							更新日期：{#$jobslist.refreshtime_cn#} 待遇：{#$jobslist.wage_cn#}
-							</div>{#/foreach#}							
+							{#qishi_jobs_list set="列表名:jobs,显示数目:9,填补字符:...,职位名长度:12,紧急招聘:1,排序:rtime>desc"#}
+							{#foreach from=$jobs item=jobslist#}
+								<div  class="list">
+									<a href="{#$jobslist.jobs_url#}" target="_blank" class="jobsname">{#$jobslist.jobs_name#}</a>
+									&nbsp;	
+									<span>({#$jobslist.amount#}人)</span>					
+									&nbsp;
+									<img src="{#$QISHI.site_template#}images/61.gif" border="0" align="absmiddle" title="紧急招聘"  class="vtip"/>						
+									<br />
+									更新日期：{#$jobslist.refreshtime_cn#} 待遇：{#$jobslist.wage_cn#}
+								</div>
+							{#/foreach#}							
 				</div>
 		</div>
 		<div class="tagbox" >
@@ -385,7 +371,7 @@ $(document).ready(function()
 	</div>
   </div>
   <div class="clear"></div
-</div>
+></div>
 <div class="links link_bk">
 	{#qishi_link set="列表名:link,显示数目:100,调用名称:QS_index,类型:1"#}
 	<strong>友情链接：</strong>
@@ -404,8 +390,5 @@ $(document).ready(function()
 </div>
 {#include file="footer.htm"#}
 {#qishi_ad set="显示数目:10,调用名称:QS_indexfloat,列表名:ad"#}{#foreach from=$ad  item=float#}{#$float#}{#/foreach#}
-
-
- 
 </body>
 </html>

@@ -151,7 +151,7 @@ elseif($act == 'mail_templates_edit')
 	$info['thisname']=trim($_GET['thisname']);
 	$smarty->assign('info',$info);
 	$smarty->assign('title',$title);
-	$smarty->assign('label',$label);
+ 	$smarty->assign('label',$label);
 	$smarty->assign('navlabel','templates');
 	$smarty->display('mail/admin_mail_templates_edit.htm');
 }
@@ -168,4 +168,108 @@ elseif($act == 'templates_save')
 	refresh_cache('mail_templates');
 	adminmsg("保存成功！",2,$link);
 }
+ elseif($act == 'send')
+{
+	get_token();
+	$smarty->assign('pageheader',"邮件营销");
+	
+	require_once(dirname(__FILE__).'/include/admin_mailqueue_fun.php');
+	require_once(QISHI_ROOT_PATH.'include/page.class.php');
+	$uid=intval($_GET['uid']);
+	$email=trim($_GET['email']);
+	
+	$wheresql=' WHERE m_uid='.$uid.' ORDER BY m_id DESC ';
+	$total_sql="SELECT COUNT(*) AS num FROM ".table('mailqueue').$wheresql;
+	$perpage=10;
+	$page = new page(array('total'=>$db->get_total($total_sql), 'perpage'=>$perpage));
+	$currenpage=$page->nowindex;
+	$offset=($currenpage-1)*$perpage;
+	$maillog = get_mailqueue($offset,$perpage,$wheresql);
+	
+	$url=trim($_REQUEST['url']);
+	if (empty($url))
+	{
+	$url="?act=send&email={$email}&uid={$uid}";
+	}
+	$smarty->assign('url',$url);
+	$smarty->assign('maillog',$maillog);
+	$smarty->assign('page',$page->show(3));
+	$smarty->display('mail/admin_mail_send.htm');
+}
+elseif($act == 'email_send')
+{
+	check_token();
+	$uid=intval($_POST['uid']);
+	$url=trim($_REQUEST['url']);
+	if (!$uid)
+	{
+	adminmsg('用户UID错误！',0);
+	}
+	$setsqlarr['m_mail']=trim($_POST['email'])?trim($_POST['email']):adminmsg('邮件地址必须填写！',1);
+	if (!preg_match("/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/",$setsqlarr['m_mail'])) 
+    {
+	adminmsg('邮箱格式错误！',1);
+    }
+	$setsqlarr['m_subject']=trim($_POST['subject'])?trim($_POST['subject']):adminmsg('邮件标题必须填写！',1);	
+	$setsqlarr['m_body']=trim($_POST['body'])?trim($_POST['body']):adminmsg('邮件内容必须填写！',1);
+	$setsqlarr['m_addtime']=time();
+	$setsqlarr['m_uid']=$uid;
+	if(smtp_mail($setsqlarr['m_mail'],$setsqlarr['m_subject'],$setsqlarr['m_body'])){
+		$setsqlarr['m_sendtime']=time();
+		$setsqlarr['m_type']=1;//发送成功
+		inserttable(table('mailqueue'),$setsqlarr);
+		unset($setsqlarr);
+		$link[0]['text'] = "返回上一页";
+		$link[0]['href'] = "{$url}";
+		adminmsg("发送成功！",2,$link);
+	}
+	else
+	{
+		$setsqlarr['m_sendtime']=time();
+		$setsqlarr['m_type']=2;//发送失败
+		inserttable(table('mailqueue'),$setsqlarr);
+		unset($setsqlarr);
+		$link[0]['text'] = "返回上一页";
+		$link[0]['href'] = "{$url}";
+		adminmsg("发送失败，错误未知！",0,$link);
+	}
+}
+elseif ($act=='again_send')
+{
+	$id=intval($_GET['id']);
+	if (empty($id))
+	{
+	adminmsg("请选择要发送的项目！",1);
+	}
+	$result = $db->getone("SELECT * FROM ".table('mailqueue')." WHERE  m_id = {$id} limit 1");
+	$wheresql=" m_id={$id} ";
+	if(smtp_mail($result['m_mail'],$result['m_subject'],$result['m_body'])){
+		$setsqlarr['m_sendtime']=time();
+		$setsqlarr['m_type']=1;//发送成功
+		!updatetable(table('mailqueue'),$setsqlarr,$wheresql);
+		adminmsg('发送成功',2);
+	}else{
+		$setsqlarr['m_sendtime']=time();
+		$setsqlarr['m_type']=2;
+		!updatetable(table('mailqueue'),$setsqlarr,$wheresql);
+		adminmsg('发送失败',0);
+	}
+		
+}
+elseif ($act=='del')
+{
+	$id=$_POST['id'];
+	if (empty($id))
+	{
+	adminmsg("请选择项目！",1);
+	}
+	if(!is_array($id)) $id=array($id);
+	$sqlin=implode(",",$id);
+	if (preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin))
+	{
+	$db->query("Delete from ".table('mailqueue')." WHERE m_id IN ({$sqlin}) ");
+	adminmsg("删除成功",2);
+	}
+}
+
 ?>

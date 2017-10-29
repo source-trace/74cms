@@ -35,7 +35,21 @@ if ($act=='resume_show')
 }
 elseif ($act=='refresh')
 {
-	refresh_resume($_SESSION['uid'])?showmsg('操作成功！',2):showmsg('操作失败！',0);
+	$refrestime=get_last_refresh_date($_SESSION['uid'],"2001");
+		$duringtime=time()-$refrestime['max(addtime)'];
+		$space = $_CFG['per_refresh_resume_space']*60;
+		$refresh_time = get_today_refresh_times($_SESSION['uid'],"2001");
+		if($_CFG['per_refresh_resume_time']!=0&&($refresh_time['count(*)']>=$_CFG['per_refresh_resume_time']))
+		{
+		showmsg("每天最多只能刷新".$_CFG['per_refresh_resume_time']."次,您今天已超过最大刷新次数限制！",2);	
+		}
+		elseif($duringtime<=$space){
+		showmsg($_CFG['per_refresh_resume_space']."分钟内不能重复刷新简历！",2);
+		}
+		else 
+		{
+		refresh_resume($_SESSION['uid'])?showmsg('操作成功！',2):showmsg('操作失败！',0);
+		}
 }
 //删除简历
 elseif ($act=='del_resume')
@@ -136,6 +150,7 @@ elseif ($act=='make1_save')
 	$setsqlarr['website']=trim($_POST['website']);
 	$setsqlarr['qq']=trim($_POST['qq']);
 	$setsqlarr['refreshtime']=$timestamp;
+	$setsqlarr['subsite_id']=intval($_CFG['subsite_id']);
 	$setsqlarr['display_name']=intval($_CFG['resume_privacy']);	
 	if (intval($_REQUEST['pid'])===0)
 	{	

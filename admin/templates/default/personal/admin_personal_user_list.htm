@@ -59,15 +59,17 @@ $(document).ready(function()
     </tr>
 	{#foreach from=$member item=list#}
       <tr>
+		
       <td class="admin_list admin_list_first">
         <input name="tuid[]" type="checkbox"   value="{#$list.uid#}"/>{#$list.username#}</td>
         <td class="admin_list">{#$list.email#}
+		<a href="admin_mail.php?act=send&email={#$list.email#}&uid={#$list.uid#}"> <img src="images/email.gif" border="0" title="发送邮件" /></a>
 		{#if $list.email_audit=="1"#}<span style="color:#009900">[验]</span>{#/if#}
 		</td>
 		<td align="center" class="admin_list">
-		 {#if $list.mobile#}{#$list.mobile#}{#else#}未填写{#/if#}
+		 {#if $list.mobile#}{#$list.mobile#}<a href="admin_sms.php?act=send&mobile={#$list.mobile#}&uid={#$list.uid#}"><img src="images/sms.gif" border="0" title="发送短信" /></a>{#else#}未填写{#/if#}
 		{#if $list.mobile_audit=="1"#}<span style="color:#009900">[验]</span>{#/if#}
-		</td>   
+		</td>  
         <td align="center" class="admin_list">
 		{#$list.reg_time|date_format:"%Y-%m-%d"#}		</td>
         <td align="center" class="admin_list">

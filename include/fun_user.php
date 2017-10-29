@@ -46,23 +46,27 @@ function user_register($username,$password,$member_type=0,$email,$uc_reg=true)
 			{
 				if(!$db->query("INSERT INTO ".table('members_points')." (uid) VALUES ('{$insert_id}')"))  return false;
 				if(!$db->query("INSERT INTO ".table('members_setmeal')." (uid) VALUES ('{$insert_id}')")) return false;
+				if($_CFG['operation_mode']=='1'){
 					$points=get_cache('points_rule');
-							if ($points['reg_points']['value']>0)
-							{
-								include_once(QISHI_ROOT_PATH.'include/fun_company.php');
-								report_deal($insert_id,$points['reg_points']['type'],$points['reg_points']['value']);
-								$operator=$points['reg_points']['type']=="1"?"+":"-";
-								write_memberslog($insert_id,1,9001,$username,"新注册会员,({$operator}{$points['reg_points']['value']}),(剩余:{$points['reg_points']['value']})");
-							}
-							if ($_CFG['reg_service']>0)
-							{
-								include_once(QISHI_ROOT_PATH.'include/fun_company.php');
-								set_members_setmeal($insert_id,$_CFG['reg_service']);
-								$setmeal=get_setmeal_one($_CFG['reg_service']);
-								write_memberslog($insert_id,1,9002,$username,"注册会员系统自动赠送：{$setmeal['setmeal_name']}");
-							}
+					if ($points['reg_points']['value']>0)
+					{
+						include_once(QISHI_ROOT_PATH.'include/fun_company.php');
+						report_deal($insert_id,$points['reg_points']['type'],$points['reg_points']['value']);
+						$operator=$points['reg_points']['type']=="1"?"+":"-";
+						write_memberslog($insert_id,1,9001,$username,"新注册会员,({$operator}{$points['reg_points']['value']}),(剩余:{$points['reg_points']['value']})");
+						//积分变更记录
+						write_setmeallog($insert_id,$username,"注册会员系统自动赠送：({$operator}{$points['reg_points']['value']}),(剩余:{$points['reg_points']['value']})",1,'0.00','1',1,1);
+					}
+				}elseif ($_CFG['operation_mode']=='2' && $_CFG['reg_service']>0){
+						include_once(QISHI_ROOT_PATH.'include/fun_company.php');
+						set_members_setmeal($insert_id,$_CFG['reg_service']);
+						$setmeal=get_setmeal_one($_CFG['reg_service']);
+						write_memberslog($insert_id,1,9002,$username,"注册会员系统自动赠送：{$setmeal['setmeal_name']}");
+						//套餐变更记录
+						write_setmeallog($insert_id,$username,"注册会员系统自动赠送：{$setmeal['setmeal_name']}",1,'0.00','1',2,1);
+				}
 			}
-			write_memberslog($insert_id,$member_type,1000,$username,"注册成为会员");
+ 			write_memberslog($insert_id,$member_type,1000,$username,"注册成为会员");
 return $insert_id;
 }
 //会员登录
@@ -101,7 +105,7 @@ function user_login($account,$password,$account_type=1,$uc_login=true,$expire=NU
 		$success=false;
 		}
 	}
-	return $login;	
+ 	return $login;	
 }
 //检测COOKIE
 function check_cookie($uid,$name,$pwd){
@@ -122,7 +126,7 @@ function check_cookie($uid,$name,$pwd){
   */
  function update_user_info($uid,$record=true,$setcookie=true,$cookie_expire=NULL)
  {
- 	global $timestamp, $online_ip,$db,$QS_cookiepath,$QS_cookiedomain;
+ 	global $timestamp, $online_ip,$db,$QS_cookiepath,$QS_cookiedomain,$_CFG;//3.4升级修改 引入变量$_CFG
 	$user = get_user_inid($uid);
 	if (empty($user))
 	{
@@ -144,11 +148,11 @@ function check_cookie($uid,$name,$pwd){
 	}
 	if ($record)
 	{
-		$last_login_time = $timestamp;
+    	$last_login_time = $timestamp;
 		$last_login_ip = $online_ip;
-		$sql = "UPDATE ".table('members')." SET last_login_time = '$last_login_time', last_login_ip = '$last_login_ip' WHERE uid='{$_SESSION[uid]}'  LIMIT 1";
+		$sql = "UPDATE ".table('members')." SET last_login_time = '$last_login_time', last_login_ip = '$last_login_ip' WHERE uid='{$_SESSION['uid']}'  LIMIT 1";
 		$db->query($sql);
-		if ($_SESSION['utype']=="1")
+ 		if ($_CFG['operation_mode']=='1' && $_SESSION['utype']=="1" )
 		{
 			$rule=get_cache('points_rule');
 			if ($rule['userlogin']['value']>0 )
@@ -158,13 +162,13 @@ function check_cookie($uid,$name,$pwd){
 				$info=$db->getone("SELECT uid FROM ".table('members_handsel')." WHERE uid ='{$_SESSION['uid']}' AND htype='userlogin' AND addtime>{$today}  LIMIT 1");
 				if(empty($info))
 				{				
-				$db->query("INSERT INTO ".table('members_handsel')." (uid,htype,addtime) VALUES ('{$_SESSION['uid']}', 'userlogin','{$time}')");
-				require_once(QISHI_ROOT_PATH.'include/fun_company.php');
-				report_deal($_SESSION['uid'],$rule['userlogin']['type'],$rule['userlogin']['value']);
-				$user_points=get_user_points($_SESSION['uid']);
-				$operator=$rule['userlogin']['type']=="1"?"+":"-";
-				$_SESSION['handsel_userlogin']=$operator.$rule['userlogin']['value'];
-				write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],date("Y-m-d")." 第一次登录，({$operator}{$rule['userlogin']['value']})，(剩余:{$user_points})");
+					$db->query("INSERT INTO ".table('members_handsel')." (uid,htype,addtime) VALUES ('{$_SESSION['uid']}', 'userlogin','{$time}')");
+					require_once(QISHI_ROOT_PATH.'include/fun_company.php');
+					report_deal($_SESSION['uid'],$rule['userlogin']['type'],$rule['userlogin']['value']);
+					$user_points=get_user_points($_SESSION['uid']);
+					$operator=$rule['userlogin']['type']=="1"?"+":"-";
+					$_SESSION['handsel_userlogin']=$operator.$rule['userlogin']['value'];
+					write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],date("Y-m-d")." 第一次登录，({$operator}{$rule['userlogin']['value']})，(剩余:{$user_points})");
 				}
 			}
 		}
@@ -247,7 +251,7 @@ function get_user_intaobao_access_token($access)
 	$sql = "select * from ".table('members')." where taobao_access_token = '{$access}' LIMIT 1";
 	return $db->getone($sql);
 }
-//获取随机字符串
+  //获取随机字符串
 function randstr($length=6)
 {
 $hash='';
@@ -280,4 +284,27 @@ function edit_password($arr,$check=true)
 	write_memberslog($_SESSION['uid'],$_SESSION['utype'],1004,$_SESSION['username'],"修改了密码");
 	return false;
 }
+
+//获取会员登录日志
+function get_user_loginlog($offset,$perpage,$get_sql= '')
+{
+	global $db;
+	$row_arr = array();
+	$limit=" LIMIT ".$offset.','.$perpage;
+	$result = $db->query("SELECT * FROM ".table('members_log')." ".$get_sql." ORDER BY log_id DESC ".$limit);
+	while($row = $db->fetch_array($result))
+	{
+	$row_arr[] = $row;
+	}
+	return $row_arr;
+}
+function get_loginlog_one($uid,$type)
+{
+	global $db;
+	$result = $db->getone("SELECT * FROM ".table('members_log')." WHERE log_uid={$uid} AND log_type={$type} ORDER BY log_id DESC LIMIT 1,1");
+	return $result;
+}
+
+
+
 ?>

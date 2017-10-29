@@ -44,6 +44,7 @@
       <label id="chkAll"><input type="checkbox" name=" " title="全选/反选" id="chk"/>类型</label></td>
       <td width="120"  align="center"   class="admin_list_tit">创建时间</td>
       <td width="100" align="center"  class="admin_list_tit"> IP </td>
+      <td width="100" align="center"  class="admin_list_tit"> IP归属地</td>
       <td width="300"     class="admin_list_tit">文件</td>
       <td   class="admin_list_tit" >错误描述</td>
     </tr>
@@ -52,13 +53,19 @@
       <td  class="admin_list admin_list_first">
         <input name="id[]" type="checkbox" id="id" value="{#$li.l_id#}"/>
 		{#$li.l_type_name#}
-	 
-	    </td>
+ 	    </td>
 		 <td  align="center" class="admin_list" >
 		 {#$li.l_time|date_format:"%Y-%m-%d %H:%M"#}
 	    </td>
         <td align="center"  class="admin_list">{#$li.l_ip#}</td>
-        <td  class="admin_list vtip"   title="{#$li.l_page#}">{#$li.l_page#}</td>
+        <td align="center"  class="admin_list">
+			{#if $li.l_address#}
+			{#$li.l_address#}
+			{#else#}	
+				未知
+			{#/if#}	
+		</td>
+         <td  class="admin_list vtip"   title="{#$li.l_page#}">{#$li.l_page#}</td>
         <td   class="admin_list vtip"  title="{#$li.l_str#}">{#$li.l_str#}</td>
       </tr>
       {#/foreach#}
@@ -68,8 +75,11 @@
 	{#/if#}	
 <table width="100%" border="0" cellspacing="10"  class="admin_list_btm">
 <tr>
-        <td><input name="ButDel" type="submit" class="admin_submit" id="ButDel"  value="删除所选"/>
-		</td>
+        <td>
+		<input name="ButDel" type="submit" class="admin_submit" id="ButDel"  value="删除所选"/>
+				
+		<input name="" type="button" class="admin_submit" id="ButPidel"  value="批量删除" onClick="window.location='?act=pidel_syslog'"/>
+				</td>
         <td width="305" align="right">
 	    </td>
       </tr>

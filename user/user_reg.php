@@ -34,7 +34,7 @@ if(!$_SESSION['uid'] && !$_SESSION['username'] && !$_SESSION['utype'] &&  $_COOK
 	header("Location:".url_rewrite('QS_login'));
 	}
 }
-elseif ($_SESSION['username'] && $_SESSION['utype'] &&  $_COOKIE['QS']['username'] && $_COOKIE['QS']['password'])
+ elseif ($_SESSION['username'] && $_SESSION['utype'] &&  $_COOKIE['QS']['username'] && $_COOKIE['QS']['password'])
 {
 	header("Location:".get_member_url($_SESSION['utype']));
 }

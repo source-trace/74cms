@@ -12,7 +12,7 @@ function tpl_modifier_qishi_categoryname($string)
 			if ($len>0) $cat['categoryname']=cut_str($cat['categoryname'],$len,0,'');
 			return $cat['categoryname'];
 		}
-		elseif ($type=="QS_district")
+ 		elseif ($type=="QS_district")
 		{
 			$cat=$db->getone("select categoryname from ".table('category_district')." WHERE  id='{$id}' LIMIT  1");
 			if ($len>0) $cat['categoryname']=cut_str($cat['categoryname'],$len,0,'');

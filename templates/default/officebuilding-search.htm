@@ -65,8 +65,7 @@ $(document).ready(function()
   <a href="{#"QS_jobslist"|qishi_url#}" >全能搜索</a>
   <a href="{#"QS_officebuilding"|qishi_url#}" class="select">按写字楼搜索</a>
   <a href="{#"QS_street"|qishi_url#}">按道路搜索</a>
-  <a href="{#"QS_map,id:1"|qishi_url#}">地图搜索</a>
-  <a href="{#"QS_jobtag"|qishi_url#}" >按标签搜索</a>
+   <a href="{#"QS_jobtag"|qishi_url#}" >按标签搜索</a>
   <div class="clear"></div>
 </div>
 <div class="jobsearchbox" id="jobsearchbox">
@@ -139,7 +138,7 @@ $(document).ready(function()
 </ul>
 </div>
 <!--职位列表 -->
-{#qishi_jobs_list  set="分页显示:1,列表名:jobslist,显示数目:GET[inforow],填补字符:...,职位名长度:13,企业名长度:19,描述长度:135,关键字:GET[key],职位分类:GET[jobcategory],职位大类:GET[category],职位小类:GET[subclass],地区分类:GET[citycategory],地区大类:GET[district],地区小类:GET[sdistrict],道路:GET[streetid],写字楼:GET[officebuildingid],行业:GET[trade],日期范围:GET[settr],学历:GET[education],工作经验:GET[experience],工资:GET[wage],职位性质:GET[nature],公司规模:GET[scale],排序:GET[sort]"#}
+{#qishi_jobs_list  set="分页显示:1,列表名:jobslist,列表页:QS_officebuilding,显示数目:GET[inforow],填补字符:...,职位名长度:13,企业名长度:19,描述长度:135,关键字:GET[key],职位分类:GET[jobcategory],职位大类:GET[category],职位小类:GET[subclass],地区分类:GET[citycategory],地区大类:GET[district],地区小类:GET[sdistrict],道路:GET[streetid],写字楼:GET[officebuildingid],行业:GET[trade],日期范围:GET[settr],学历:GET[education],工作经验:GET[experience],工资:GET[wage],职位性质:GET[nature],公司规模:GET[scale],排序:GET[sort]"#}
 <div class="jobs_list">
   <form action="" method="post"  name="formjobslist" id="formjobslist"  target="_blank">
     <div class="tit">

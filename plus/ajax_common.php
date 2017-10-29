@@ -93,7 +93,7 @@ elseif($act=="hotword")
 	$gbk_query=trim($_GET['query']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$gbk_query=iconv("utf-8",QISHI_DBCHARSET,$gbk_query);
+	$gbk_query=utf8_to_gbk($gbk_query);
 	}
 	$sql="SELECT * FROM ".table('hotword')." WHERE w_word like '%{$gbk_query}%' ORDER BY `w_hot` DESC LIMIT 0 , 10";
 	$result = $db->query($sql);
@@ -115,6 +115,10 @@ elseif($act=="joblisttip")
 {
 	$uid=intval($_GET['uid']);
 	$wheresql='';
+	if ($_CFG['subsite']=="1"  && $_CFG['subsite_filter_jobs']=="1")
+	{
+		$wheresql.=" AND (subsite_id=0 OR subsite_id=".intval($_CFG['subsite_id']).") ";
+	}	
 	$result = $db->query("SELECT * FROM ".table('jobs')." WHERE uid='{$uid}' {$wheresql} ORDER BY refreshtime desc limit 6");
 	$i=1;
 	while($row = $db->fetch_array($result))
@@ -152,6 +156,10 @@ elseif($act=="ajaxcomlist")
 	$wheresql='';
 	$ordersql='  ORDER BY refreshtime desc ';
 	$limitsql=" LIMIT ".$limit*15;
+	if ($_CFG['subsite']=='1'  && $_CFG['subsite_filter_jobs']=='1')
+	{
+		$wheresql.=" AND (subsite_id=0 OR subsite_id=".intval($_CFG['subsite_id']).") ";
+	}
 	if ($showtype=="category")
 	{
 		if ($categoryid>0)

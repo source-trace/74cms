@@ -78,6 +78,7 @@ elseif ($act=="addsave")
 	$setsqlarr['pwd_hash']=substr(md5(uniqid().mt_rand()),mt_rand(0,6),6);
 	$setsqlarr['pwd']=md5(md5($setsqlarr['pwd']).$setsqlarr['pwd_hash'].$QS_pwdhash);
 	$setsqlarr['addip']=$online_ip;
+	$setsqlarr['subsite_id']=intval($_CFG['subsite_id']);
 	require_once(QISHI_ROOT_PATH.'include/splitword.class.php');
 	$sp = new SPWord();
 	$setsqlarr['key']=$setsqlarr['jobname'].$setsqlarr['comname'].$setsqlarr['address'].$setsqlarr['detailed'];
@@ -261,7 +262,7 @@ elseif($act =='check_pwd')
 	$id=intval($_GET['id']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$pwd=iconv("utf-8",QISHI_DBCHARSET,$pwd);
+	$pwd=utf8_to_gbk($pwd);
 	}
 		$sql = "select * from ".table('simple')." where id = '{$id}' LIMIT 1";
 		$info=$db->getone($sql);

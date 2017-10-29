@@ -100,4 +100,5 @@ elseif($act == 'set_resumenotallow'){
 	$templates=label_replace($SMStemplates['set_resumenotallow']);
 	send_sms($userinfo['mobile'],$templates);
 }
+ 
 ?>

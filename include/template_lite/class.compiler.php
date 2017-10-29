@@ -23,7 +23,10 @@
  * http://templatelite.sourceforge.net
  *
  */
-
+ if(!defined('IN_QISHI'))
+ {
+ 	die('Access Denied!');
+ }
 class Template_Lite_Compiler extends Template_Lite {
 	// public configuration variables
 	var $left_delimiter			= "";

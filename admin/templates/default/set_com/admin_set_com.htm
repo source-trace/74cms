@@ -1,6 +1,6 @@
 {#include file="sys/admin_header.htm"#}
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
-<div class="admin_main_nr_dbox">
+		
+ <div class="admin_main_nr_dbox">
  <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
 	{#include file="set_com/admin_set_com_nav.htm"#}
@@ -79,13 +79,13 @@
 	  </table>
 	  
 	    </form>
-		  <div class="toptit">联系方式图形化<span class="admin_note">图形化需要将中文字体文件上传到data/contactimgfont/，字体文件命名为“cn.ttc”</span></div>
+		  <div class="toptit">联系方式图形化 <span class="admin_note">图形化需要将中文字体文件上传到data/contactimgfont/，字体文件命名为“cn.ttc”</span></div>
     <form action="?act=set_save" method="post" name="form1" id="form1">
  {#$inputtoken#}
     <table width="100%" border="0" cellspacing="5" cellpadding="1" style=" margin-bottom:3px;">
  
 	<tr>
-      <td align="right" width="200">企业联系方式： </td>
+      <td align="right" width="200">企业联系方式：</td>
       <td>
 	  
 	  <label><input name="contact_img_com" type="radio"   value="1"  {#if $config.contact_img_com=="1"#}checked=checked {#/if#}/>文字</label>
@@ -115,7 +115,7 @@
 	  </table>
 	  
 	    </form>
-	 <div class="toptit">认证与审核状态设置</div>
+<div class="toptit">认证与审核状态设置</div>
     <form action="?act=set_save" method="post" name="form1" id="form1">
  {#$inputtoken#}
     <table width="100%" border="0" cellspacing="5" cellpadding="1" style=" margin-bottom:3px;">
@@ -244,6 +244,8 @@
 		  </table>
 	  
 	    </form>
+		
+ 
 	 <div class="toptit">过期信息设置</div>
     <form action="?act=set_save" method="post" name="form1" id="form1">
  {#$inputtoken#}
@@ -271,7 +273,7 @@
 	  
 	    </form>
 		
-		
+ 		
 		
 	 <div class="toptit">其他设置</div>
     <form action="?act=set_save" method="post" name="form1" id="form1">

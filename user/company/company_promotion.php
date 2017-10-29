@@ -26,6 +26,10 @@ if ($act=='tpl')
 	{
 	$company_profile['tpl']=$_CFG['tpl_company'];
 	}
+	if($_CFG['operation_mode']=='2'){
+		$setmeal=get_user_setmeal($_SESSION['uid']);//获取会员套餐
+		$smarty->assign('setmeal',$setmeal);
+	}
 	$smarty->assign('mytpl',$company_profile['tpl']);
 	$smarty->assign('com_url',url_rewrite('QS_companyshow',array('id'=>$company_profile['id']),false));
 	$smarty->display('member_company/company_tpl.htm'); 
@@ -33,6 +37,10 @@ if ($act=='tpl')
 elseif ($act=='tpl_save')
 {
 	$seltpl=trim($_POST['tpl']);
+	if ($company_profile['tpl']=="")
+	{
+	$company_profile['tpl']=$_CFG['tpl_company'];
+	}
 	if ($company_profile['tpl']==$seltpl)
 	{
 	showmsg("设置成功！",2);
@@ -42,24 +50,44 @@ elseif ($act=='tpl_save')
 	{
 		showmsg("模版选择错误",0);
 	}
-	$user_points=get_user_points($_SESSION['uid']);
-	if ($comtpl['tpl_val']>$user_points)
-	{
+	if($_CFG['operation_mode']=='1'){
+		$user_points=get_user_points($_SESSION['uid']);
+		if ($comtpl['tpl_val']>$user_points)
+		{
+			$link[0]['text'] = "返回上一页";
+			$link[0]['href'] = 'javascript:history.go(-1)';
+			$link[1]['text'] = "充值积分";
+			$link[1]['href'] = 'company_service.php?act=order_add';
+			showmsg("你的".$_CFG['points_byname']."不够进行此次操作，请先充值！",1,$link);
+		}
+	}elseif($_CFG['operation_mode']=='2'){
+		$setmeal=get_user_setmeal($_SESSION['uid']);//获取会员套餐
 		$link[0]['text'] = "返回上一页";
 		$link[0]['href'] = 'javascript:history.go(-1)';
-		$link[1]['text'] = "充值积分";
-		$link[1]['href'] = 'company_service.php?act=order_add';
-		showmsg("你的".$_CFG['points_byname']."不够进行此次操作，请先充值！",1,$link);
+		$link[1]['text'] = "重新开通服务";
+		$link[1]['href'] = 'company_service.php?act=setmeal_list';
+		if ($setmeal['endtime']<time() && $setmeal['endtime']<>"0")
+		{					
+			showmsg("您的服务已经到期，请重新开通",1,$link);
+		}
+		if ($setmeal['change_templates']=='0')
+		{
+			showmsg("你的套餐{$setmeal['setmeal_name']},没有自由切换模板的权限，请尽快开通新套餐",1,$link);
+		}
 	}
 	$setsqlarr['tpl']=$seltpl;
 	updatetable(table('company_profile'),$setsqlarr," uid='{$_SESSION['uid']}'");
 	updatetable(table('jobs'),$setsqlarr," uid='{$_SESSION['uid']}'");
 	updatetable(table('jobs_tmp'),$setsqlarr," uid='{$_SESSION['uid']}'");
-	if ($comtpl['tpl_val']>0)
-	{
-	report_deal($_SESSION['uid'],2,$comtpl['tpl_val']);
-	$user_points=get_user_points($_SESSION['uid']);
-	write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"设置企业模版：{$comtpl['tpl_name']}，(-{$comtpl['tpl_val']})，(剩余:{$user_points})");
+ 	if($_CFG['operation_mode']=='1'){
+		if ($comtpl['tpl_val']>0)
+		{
+		report_deal($_SESSION['uid'],2,$comtpl['tpl_val']);
+		$user_points=get_user_points($_SESSION['uid']);
+		write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"设置企业模版：{$comtpl['tpl_name']}，(-{$comtpl['tpl_val']})，(剩余:{$user_points})");
+		}
+	}elseif($_CFG['operation_mode']=='2'){
+		write_memberslog($_SESSION['uid'],1,9002,$_SESSION['username'],"套餐：{$setmeal['setmeal_name']}，可自由切换模板，设置企业模版：{$comtpl['tpl_name']}");
 	}
 	write_memberslog($_SESSION['uid'],1,8007,$_SESSION['username'],"设置企业模版：{$comtpl['tpl_name']}");
 	showmsg("设置成功！",2);
@@ -67,7 +95,7 @@ elseif ($act=='tpl_save')
 elseif ($act=='promotion')
 {
 	$promotionid=intval($_GET['promotionid']);
-	$promotion=get_promotion_category_one($promotionid);
+	$promotion=get_promotion_category_one($promotionid);//获取某种推广方案的详细信息
 	$smarty->assign('title',"{$promotion['cat_name']} - 企业推广 - 企业会员中心 - {$_CFG['site_name']}");
 	$smarty->assign('promotion',$promotion);
 	$smarty->assign('time',time());
@@ -76,7 +104,13 @@ elseif ($act=='promotion')
 	{
 	showmsg("推广失败，你没有发布职位或职位状态为不可见",1);
 	}
-	$smarty->assign('list',get_promotion($_SESSION['uid'],$promotionid));	
+	$smarty->assign('list',get_promotion($_SESSION['uid'],$promotionid));	//获取已经使用过某种推广的职位
+	if ($_CFG['operation_mode']=='2'){
+		$setmeal=get_user_setmeal($_SESSION['uid']);//获取会员套餐
+		$data=get_setmeal_promotion($_SESSION['uid'],$promotionid);//获取会员某种推广的剩余条数和天数，名称，总条数
+		$smarty->assign('data',$data);
+		$smarty->assign('setmeal',$setmeal);
+	}
 	$smarty->display('member_company/company_promotion.htm');
 }
 elseif ($act=='promotion_add')
@@ -86,7 +120,19 @@ elseif ($act=='promotion_add')
 	$smarty->assign('title',"{$promotion['cat_name']} - 企业推广 - 企业会员中心 - {$_CFG['site_name']}");
 	$smarty->assign('promotion',$promotion);
 	$smarty->assign('jobs',get_auditjobs($_SESSION['uid']));
-	$smarty->assign('user_points',get_user_points($_SESSION['uid']));
+	if ($_CFG['operation_mode']=='2')
+	{
+		$setmeal=get_user_setmeal($_SESSION['uid']);//获取会员套餐
+		if($setmeal['endtime']<time() && $setmeal['endtime']<>'0'){
+			$end=1;
+			$smarty->assign('end',$end);//判断套餐是否到期
+		}
+		$data=get_setmeal_promotion($_SESSION['uid'],$promotionid);//获取会员某种推广的剩余条数和天数，名称，总条数
+		$smarty->assign('setmeal',$setmeal);
+		$smarty->assign('data',$data);
+	}elseif($_CFG['operation_mode']=='1'){
+		$smarty->assign('user_points',get_user_points($_SESSION['uid']));
+	}
 	$smarty->display('member_company/company_promotion_add.htm');
 }
 elseif ($act=='promotion_add_save')
@@ -96,17 +142,29 @@ elseif ($act=='promotion_add_save')
 	if ($jobsid>0 && $days>0)
 	{
 		$pro_cat=get_promotion_category_one(intval($_POST['promotionid']));
-		if ($pro_cat['cat_points']>0)
-		{
-			$points=$pro_cat['cat_points']*$days;
-			$user_points=get_user_points($_SESSION['uid']);
-			if ($points>$user_points)
+		if($_CFG['operation_mode']=='1'){
+			if ($pro_cat['cat_points']>0)
 			{
-			$link[0]['text'] = "返回上一页";
-			$link[0]['href'] = 'javascript:history.go(-1)';
-			$link[1]['text'] = "充值积分";
-			$link[1]['href'] = 'company_service.php?act=order_add';
-			showmsg("你的".$_CFG['points_byname']."不够进行此次操作，请先充值！",1,$link);
+				$points=$pro_cat['cat_points']*$days;
+				$user_points=get_user_points($_SESSION['uid']);
+				if ($points>$user_points)
+				{
+				$link[0]['text'] = "返回上一页";
+				$link[0]['href'] = 'javascript:history.go(-1)';
+				$link[1]['text'] = "充值积分";
+				$link[1]['href'] = 'company_service.php?act=order_add';
+				showmsg("你的".$_CFG['points_byname']."不够进行此次操作，请先充值！",1,$link);
+				}
+			}
+		}elseif($_CFG['operation_mode']=='2'){
+			$setmeal=get_setmeal_promotion($_SESSION['uid'],intval($_POST['promotionid']));//获取会员套餐
+			$num=$setmeal['num'];
+			if(($setmeal['endtime']<time() && $setmeal['endtime']<>'0') || $num<=0){
+				$link[0]['text'] = "返回上一页";
+				$link[0]['href'] = 'javascript:history.go(-1)';
+				$link[1]['text'] = "重新开通服务";
+				$link[1]['href'] = 'company_service.php?act=setmeal_list';
+				showmsg("你的套餐已到期或套餐内剩余{$pro_cat['cat_name']}不够，请尽快开通新套餐",1,$link);
 			}
 		}
 		$info=get_promotion_one($jobsid,$_SESSION['uid'],$_POST['promotionid']);
@@ -129,13 +187,17 @@ elseif ($act=='promotion_add_save')
 			if (inserttable(table('promotion'),$setsqlarr))
 			{
 				set_job_promotion($jobsid,$setsqlarr['cp_promotionid'],$_POST['val']);
-				
-				if ($pro_cat['cat_points']>0)
+				$jobs=get_jobs_one($jobsid,$_SESSION['uid']);
+				if ($_CFG['operation_mode']=='1' && $pro_cat['cat_points']>0)
 				{
-					$jobs=get_jobs_one($jobsid,$_SESSION['uid']);
 					report_deal($_SESSION['uid'],2,$points);
 					$user_points=get_user_points($_SESSION['uid']);
 					write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"{$pro_cat['cat_name']}：<strong>{$jobs['jobs_name']}</strong>，推广 {$days} 天，(-{$points})，(剩余:{$user_points})");
+				}elseif($_CFG['operation_mode']=='2'){
+					$user_pname=trim($_POST['pro_name']);
+					action_user_setmeal($_SESSION['uid'],$user_pname); //更新套餐中相应推广方式的条数
+					$setmeal=get_user_setmeal($_SESSION['uid']);//获取会员套餐
+					write_memberslog($_SESSION['uid'],1,9002,$_SESSION['username'],"{$pro_cat['cat_name']}：<strong>{$jobs['jobs_name']}</strong>，推广 {$days} 天，套餐内剩余{$pro_cat['cat_name']}条数：{$setmeal[$user_pname]}条。");//9002是套餐操作
 				}
 				write_memberslog($_SESSION['uid'],1,3004,$_SESSION['username'],"{$pro_cat['cat_name']}：<strong>{$jobs['jobs_name']}</strong>，推广 {$days} 天。");
 				if ($_POST['golist'])
@@ -161,7 +223,7 @@ elseif ($act=='promotion_add_save')
 	showmsg("参数错误",0);
 	}
 }
-elseif ($act=='promotion_edit')
+ elseif ($act=='promotion_edit')
 {
 	$jobsid=intval($_GET['jobsid']);
 	$promotionid=intval($_GET['promotionid']);
@@ -183,10 +245,10 @@ elseif ($act=='promotion_edit_save')
 	$catinfo=get_promotion_category_one($promotionid);
 	$points=$catinfo['cat_points']*$days;
 	$user_points=get_user_points($_SESSION['uid']);
-	if ($points>$user_points)
+	if ($_CFG['operation_mode']=='1' && $points>$user_points)
 	{
 			$link[0]['text'] = "返回上一页";
-			$link[0]['href'] ='javascript:history.go(-1)';
+			$link[0]['href'] = 'javascript:history.go(-1)';
 			$link[1]['text'] = "充值积分";
 			$link[1]['href'] = 'company_service.php?act=order_add';
 			showmsg("你的".$_CFG['points_byname']."不够进行此次操作，请先充值！",1,$link);
@@ -216,7 +278,7 @@ elseif ($act=='promotion_edit_save')
 		if (!updatetable(table('promotion'),$setsqlarr," cp_id='{$id}' AND cp_uid='{$_SESSION['uid']}' ")) showmsg("保存失败！",0);
 		if ($days>0)
 		{			
-			if ($catinfo['cat_points']>0)
+			if ($_CFG['operation_mode']=='1' && $catinfo['cat_points']>0)
 			{				
 				report_deal($_SESSION['uid'],2,$points);
 				$user_points=get_user_points($_SESSION['uid']);

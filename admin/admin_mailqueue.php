@@ -61,9 +61,11 @@ elseif($act == 'mailqueue_add_save')
     {
 	adminmsg('邮箱格式错误！',1);
     }
+	$uid=$db->getone('select uid from '.table('members')." where email= '{$setsqlarr['m_mail']}' limit 1 ");
 	$setsqlarr['m_subject']=trim($_POST['m_subject'])?replace_label($_POST['m_subject']):adminmsg('邮件标题必须填写！',1);	
 	$setsqlarr['m_body']=trim($_POST['m_body'])?replace_label($_POST['m_body']):adminmsg('邮件内容必须填写！',1);
 	$setsqlarr['m_addtime']=time();
+	$setsqlarr['m_uid']=$uid['uid'];
 	$link[0]['text'] = "继续添加";
 	$link[0]['href'] = '?act=mailqueue_add';
 	$link[1]['text'] = "返回列表";
@@ -133,7 +135,8 @@ elseif($act == 'mailqueue_batchadd_save')
 	$n=0;
 	while($user = $db->fetch_array($result))
 	{
-		$setsqlarr['m_mail']=$user['email'];
+ 		$setsqlarr['m_uid']=$user['uid'];
+ 		$setsqlarr['m_mail']=$user['email'];
 		$setsqlarr['m_subject']=replace_label($m_subject,$user);	
 		$setsqlarr['m_body']=replace_label($m_body,$user);
 		$setsqlarr['m_addtime']=time();

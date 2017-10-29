@@ -9,12 +9,17 @@
 <meta name="copyright" content="74cms.com" />
 <link href="{#$QISHI.site_template#}css/user.css" rel="stylesheet" type="text/css" />
 <script src="{#$QISHI.site_template#}js/jquery.js" type='text/javascript' language="javascript"></script>
-
 <script src="{#$QISHI.site_template#}js/jquery.idTabs.min.js" type='text/javascript' language="javascript"></script>
+		
+<script src="{#$QISHI.site_template#}js/jquery.reasontip-min.js" type='text/javascript' language="javascript"></script>
+
 <script type="text/javascript">
 $(document).ready(function()
 {
 	$("#tabshow li:nth-child(2)>a").addClass("selected");
+	
+	vtip_reason("{#$QISHI.site_dir#}","resume_reason");
+
 });
 </script>
 <body>
@@ -61,7 +66,12 @@ $(document).ready(function()
 			  简历审核状态：
 			  {#if $resume_basic.audit=="1"#}已通过审核{#/if#}
 			{#if $resume_basic.audit=="2"#}正在审核中{#/if#}
-			{#if $resume_basic.audit=="3"#}审核未通过,请修改{#/if#}
+			{#if $resume_basic.audit=="3"#}
+		
+				审核未通过请修改
+				 <img src="{#$QISHI.site_template#}images/99.gif"  border="0" class="reason vtip" id="{#$resume_basic.id#}" align="absmiddle" style="cursor:pointer;"  />
+	
+			{#/if#}
 			</td>
               </tr>
             <tr>
@@ -308,7 +318,8 @@ $(document).ready(function()
           <td height="30" bgcolor="#F5FAFC"  style="border-bottom:1px #C9D9E7 solid;"><span style="color:#0066CC; padding-left:20px;"><strong>工作经历</strong></span></td>
         </tr>
 		<tr>
-		  <td  style="border-bottom:1px #C9D9E7 solid;">{#if $resume_work#}
+		  <td  style="border-bottom:1px #C9D9E7 solid;">
+		  {#if $resume_work#}
             <table width="100%" border="0" cellspacing="1" cellpadding="5"  class="link_lan">
               <tr>
                 <td width="180" height="23" align="center" style=" border-bottom:1px #CCCCCC dashed; color:#003399; ">起止年月</td>

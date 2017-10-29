@@ -16,10 +16,16 @@ if ($act=='index')
 {
 	$uid=intval($_SESSION['uid']);
 	$smarty->assign('title','企业会员中心 - '.$_CFG['site_name']);
+
+	require_once(QISHI_ROOT_PATH.'include/fun_user.php');
+	$smarty->assign('loginlog',get_loginlog_one($uid,'1001'));
+
 	$smarty->assign('user',$user);
 	$smarty->assign('points',get_user_points($uid));
 	$smarty->assign('concern_id',get_concern_id($uid));
 	$smarty->assign('company',$company_profile);
+	if ($_CFG['operation_mode']=='2')
+	{
 		$setmeal=get_user_setmeal($uid);
 		$smarty->assign('setmeal',$setmeal);
 		if ($setmeal['endtime']>0)
@@ -54,6 +60,7 @@ if ($act=='index')
 					}
 		
 		}
+	}
 	$smarty->assign('msg_total1',$db->get_total("SELECT COUNT(*) AS num FROM ".table('pms')." WHERE (msgfromuid='{$uid}' OR msgtouid='{$uid}') AND `new`='1' AND `replyuid`<>'{$uid}' AND msgtype=1"));
 	$smarty->assign('msg_total2',$db->get_total("SELECT COUNT(*) AS num FROM ".table('pms')." WHERE (msgfromuid='{$uid}' OR msgtouid='{$uid}') AND `new`='1' AND `replyuid`<>'{$uid}' AND msgtype=2"));
 	$smarty->display('member_company/company_index.htm');

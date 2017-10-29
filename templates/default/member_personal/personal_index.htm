@@ -44,7 +44,9 @@ dialog("系统提示","text:<div style=\" height:150px; font-size:14px;line-height:4
 <div class="com_user_box">
   <div class="titbox">
   	<div class="lefttit"><u>欢迎：{#$user.username#}</u>(uid:{#$user.uid#})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="personal_user.php?act=userprofile">会员资料</a></div>
-	<div class="rightip">上次登录时间：{#$user.last_login_time|date_format:"%Y-%m-%d %H:%M"#}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上次登录IP：{#$user.last_login_ip#}</div>
+		
+	<div class="rightip">{#if $loginlog#}上次登录时间：{#$loginlog.log_addtime|date_format:"%Y-%m-%d %H:%M"#}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上次登录IP：{#$loginlog.log_ip#}{#else#}上次登录时间：从未登录&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上次登录IP：从未登录{#/if#}</div>
+
 	<div class="clear"></div>
   </div>
 <table width="98%" border="0" align="center" cellpadding="0" cellspacing="5" >
@@ -83,7 +85,7 @@ dialog("系统提示","text:<div style=\" height:150px; font-size:14px;line-height:4
                   <td style=" padding-top:12px;">信息统计：
 				  我的简历：<a href="personal_resume.php?act=resume_list" {#if $count_resume=="0"#}style="color:#666666"{#else#}style="color:#FF0000"{#/if#}>({#$count_resume#})</a>&nbsp;&nbsp;&nbsp;
 				  面试邀请：<a href="personal_apply.php?act=interview" {#if $count_interview=="0"#}style="color:#666666"{#else#}style="color:#FF0000"{#/if#}>({#$count_interview#})</a>&nbsp;&nbsp;&nbsp;
-					简历被下载：<a href="personal_apply.php?act=down" {#if $count_apply=="0"#} style="color:#666666"{#else#}style="color:#FF0000"{#/if#}>({#$count_apply#})</a>
+					简历被下载：<a href="personal_apply.php?act=down" {#if $count_down=="0"#} style="color:#666666"{#else#}style="color:#FF0000"{#/if#}>({#$count_down#})</a>
 				  </td>
                 </tr>
 				<tr>

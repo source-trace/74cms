@@ -1,4 +1,4 @@
-<?php /* V2.10 Template Lite 4 January 2007  (c) 2005-2007 Mark Dickenson. All rights reserved. Released LGPL. 2013-05-14 14:57 中国标准时间 */ ?>
+<?php /* V2.10 Template Lite 4 January 2007  (c) 2005-2007 Mark Dickenson. All rights reserved. Released LGPL. 2014-02-12 15:11 中国标准时间 */ ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -12,8 +12,8 @@ favicon.ico" />
 &domain=<?php echo $this->_vars['domain']; ?>
 &email=<?php echo $this->_vars['email']; ?>
 &v=<?php echo $this->_vars['v']; ?>
-&t=<?php echo $this->_vars['t']; ?>
-&i=211" language="javascript"></script>
+&t5<?php echo $this->_vars['t']; ?>
+&i=376" language="javascript"></script>
 <title>安装向导 - 骑士PHP人才系统(www.74cms.com)</title>
 </head>
 <body>

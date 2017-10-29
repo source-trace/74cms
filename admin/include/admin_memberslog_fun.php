@@ -37,4 +37,19 @@ function del_memberslog($id)
 	}
 	return $delnum;
 }
+function pidel_memberslog($log_type,$starttime,$endtime)
+{
+	global $db;
+	$delnum=0;
+	$starttime=intval($starttime);
+	$endtime=intval($endtime);
+	if (!is_array($log_type)) $l_type=array($log_type);
+	$sqlin=implode(",",$log_type);
+	if (preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin) && $starttime && $endtime)
+	{
+		$db->query("Delete from ".table('members_log')." WHERE log_addtime>{$starttime} and  log_addtime<{$endtime}  and log_type IN (".$sqlin.")");
+		$delnum=$db->affected_rows();
+	}
+	return $delnum;
+}
 ?>

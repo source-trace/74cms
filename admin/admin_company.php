@@ -188,7 +188,9 @@ elseif($act == 'jobs_perform')
 		{
 			check_permissions($_SESSION['admin_purview'],"jobs_audit");
 			$audit=intval($_POST['audit']);
-			if ($n=edit_jobs_audit($yid,$audit))
+			$pms_notice=intval($_POST['pms_notice']);
+			$reason=trim($_POST['reason']);
+			if ($n=edit_jobs_audit($yid,$audit,$reason,$pms_notice))
 			{
 			adminmsg("审核成功！响应行数 {$n}",2);			
 			}
@@ -235,7 +237,8 @@ elseif($act == 'edit_jobs')
 	$jobs=get_jobs_one($id);
 	$smarty->assign('url',$_SERVER["HTTP_REFERER"]);
 	$smarty->assign('jobs',$jobs);
-	$smarty->display('company/admin_company_jobs_edit.htm');
+	$smarty->assign('jobsaudit',get_jobsaudit_one($id));
+ 	$smarty->display('company/admin_company_jobs_edit.htm');
 }
 elseif ($act=='editjobs_save')
 {
@@ -244,6 +247,7 @@ elseif ($act=='editjobs_save')
 	$id=intval($_POST['id']);
 	$company_id=intval($_POST['company_id']);
     $company_profile=get_company_one_id($company_id);
+	$setsqlarr['subsite_id']=intval($_POST['subsite_id']);
 	$setsqlarr['display']=intval($_POST['display']);
 	$setsqlarr['audit']=intval($_POST['audit']);
 	$setsqlarr['sex']=intval($_POST['sex']);
@@ -280,6 +284,11 @@ elseif ($act=='editjobs_save')
 	$setsqlarr_contact['address']=trim($_POST['address']);
 	$setsqlarr_contact['email']=trim($_POST['email']);
 	$setsqlarr_contact['notify']=trim($_POST['notify']);
+		$setsqlarr_contact['contact_show']=intval($_POST['contact_show']);
+	$setsqlarr_contact['email_show']=intval($_POST['email_show']);
+	$setsqlarr_contact['telephone_show']=intval($_POST['telephone_show']);
+	$setsqlarr_contact['address_show']=intval($_POST['address_show']);
+	$setsqlarr_contact['qq_show']=intval($_POST['qq_show']);
 	
 	$wheresql=" id='".$id."' ";
 	$tb1=$db->getone("select * from ".table('jobs')." where id='{$id}' LIMIT 1");
@@ -294,6 +303,7 @@ elseif ($act=='editjobs_save')
 	$wheresql=" pid=".$id;
 	if (!updatetable(table('jobs_contact'),$setsqlarr_contact,$wheresql)) adminmsg("保存失败！",0);
 	//
+	$searchtab['subsite_id']=$setsqlarr['subsite_id'];
 	$searchtab['nature']=$setsqlarr['nature'];
 	$searchtab['sex']=$setsqlarr['sex'];
 	$searchtab['category']=$setsqlarr['category'];
@@ -346,19 +356,25 @@ elseif($act == 'company_list')
 		$settr=strtotime("-".intval($_GET['settr'])." day");
 		$wheresql=empty($wheresql)?" WHERE addtime> ".$settr:$wheresql." AND addtime> ".$settr;
 	}
-	$joinsql=" LEFT JOIN ".table('members')." AS m ON c.uid=m.uid  ";
+	$operation_mode=$_CFG['operation_mode'];
+	if($operation_mode=='1'){
+		$joinsql=" LEFT JOIN ".table('members')." AS m ON c.uid=m.uid  LEFT JOIN ".table('members_points')." AS p ON c.uid=p.uid";
+	}else{
+		$joinsql=" LEFT JOIN ".table('members')." AS m ON c.uid=m.uid  LEFT JOIN ".table('members_setmeal')." AS p ON c.uid=p.uid";
+	}
 	$total_sql="SELECT COUNT(*) AS num FROM ".table('company_profile')." AS c".$joinsql.$wheresql;
 	$total_val=$db->get_total($total_sql);
 	$page = new page(array('total'=>$total_val, 'perpage'=>$perpage));
 	$currenpage=$page->nowindex;
 	$offset=($currenpage-1)*$perpage;
-	$clist = get_company($offset,$perpage,$joinsql.$wheresql.$oederbysql);
+	$clist = get_company($offset,$perpage,$joinsql.$wheresql.$oederbysql,$operation_mode);
 	$smarty->assign('pageheader',"企业管理");
 	$smarty->assign('clist',$clist);
 	$smarty->assign('certificate_dir',$certificate_dir);
 	$smarty->assign('page',$page->show(3));
 	$smarty->display('company/admin_company_list.htm');
 }
+
 elseif($act == 'company_perform')
 {
 	check_token();
@@ -382,9 +398,11 @@ elseif($act == 'company_perform')
 	}
 	if (trim($_POST['set_audit']))
 	{
-	check_permissions($_SESSION['admin_purview'],"com_audit");
-	$audit=$_POST['audit'];
-	!edit_company_audit($u_id,intval($audit))?adminmsg("设置失败！",0):adminmsg("设置成功！",2);
+		check_permissions($_SESSION['admin_purview'],"com_audit");
+		$audit=$_POST['audit'];
+		$pms_notice=intval($_POST['pms_notice']);
+		$reason=trim($_POST['reason']);
+		!edit_company_audit($u_id,intval($audit),$reason,$pms_notice)?adminmsg("设置失败！",0):adminmsg("设置成功！",2);
 	}
 	elseif (!empty($_POST['set_refresh']))
 		{
@@ -414,6 +432,8 @@ elseif($act == 'edit_company_profile')
 	$smarty->assign('pageheader',"企业管理");
 	$company_profile=get_company_one_id($yid);
 	$smarty->assign('url',$_SERVER["HTTP_REFERER"]);
+	$smarty->assign('comaudit',get_comaudit_one($yid));
+
 	$smarty->assign('company_profile',$company_profile);
 	$smarty->assign('certificate_dir',$certificate_dir);//营业执照路径
 	$smarty->display('company/admin_company_profile_edit.htm');
@@ -449,6 +469,11 @@ elseif ($act=='company_profile_save')
 	$setsqlarr['yellowpages']=intval($_POST['yellowpages']);
 	$setsqlarr['website']=trim($_POST['website']);
 	$setsqlarr['contents']=trim($_POST['contents'])?trim($_POST['contents']):adminmsg('请填写公司简介！',1);
+		$setsqlarr['contact_show']=intval($_POST['contact_show']);
+	$setsqlarr['email_show']=intval($_POST['email_show']);
+	$setsqlarr['telephone_show']=intval($_POST['telephone_show']);
+	$setsqlarr['address_show']=intval($_POST['address_show']);
+		
 	$wheresql=" id='{$id}' ";
 	$link[0]['text'] = "返回列表";
 	$link[0]['href'] = $_POST['url'];
@@ -465,7 +490,7 @@ elseif ($act=='company_profile_save')
 				$jobarr['officebuilding_cn']=$setsqlarr['officebuilding_cn'];
 				if (!updatetable(table('jobs'),$jobarr," uid=".intval($_POST['cuid'])."")) adminmsg('修改职位部分出错！',0);
 				if (!updatetable(table('jobs_tmp'),$jobarr," uid=".intval($_POST['cuid'])."")) adminmsg('修改职位部分出错！',0);
-				//if (!updatetable(table('jobfair_exhibitors'),array('companyname'=>$jobarr['companyname'])," uid=".intval($_POST['cuid'])."")) showmsg('修改公司名称出错！',0);
+				// if (!updatetable(table('jobfair_exhibitors'),array('companyname'=>$jobarr['companyname'])," uid=".intval($_POST['cuid'])."")) adminmsg('修改公司名称出错！',0);
 				$soarray['trade']=$jobarr['trade'];
 				$soarray['scale']=$jobarr['scale'];
 				$soarray['street']=$setsqlarr['street'];
@@ -491,19 +516,20 @@ elseif($act == 'order_list')
 	check_permissions($_SESSION['admin_purview'],"ord_show");
 		require_once(QISHI_ROOT_PATH.'include/page.class.php');
 		require_once(ADMIN_ROOT_PATH.'include/admin_pay_fun.php');
-	$wheresql="";
+	$wheresql=" WHERE o.utype=1 ";
 	$oederbysql=" order BY o.addtime DESC ";
 	$key=isset($_GET['key'])?trim($_GET['key']):"";
 	$key_type=isset($_GET['key_type'])?intval($_GET['key_type']):"";
 	if ($key && $key_type>0)
 	{
-		if     ($key_type===1)$wheresql=" WHERE c.companyname like '%{$key}%'";
-		elseif ($key_type===2)$wheresql=" WHERE m.username = '{$key}'";
-		elseif ($key_type===3)$wheresql=" WHERE o.oid ='".trim($key)."'";
+		if     ($key_type===1)$wheresql=" WHERE o.utype=1 AND c.companyname like '%{$key}%'";
+		elseif ($key_type===2)$wheresql=" WHERE o.utype=1 AND m.username = '{$key}'";
+		elseif ($key_type===3)$wheresql=" WHERE o.utype=1 AND o.oid ='".trim($key)."'";
 		$oederbysql="";
 	}
 	else
 	{	
+		$wheresqlarr['o.utype']='1';
 		!empty($_GET['is_paid'])? $wheresqlarr['o.is_paid']=intval($_GET['is_paid']):'';
 		!empty($_GET['typename'])?$wheresqlarr['o.payment_name']=trim($_GET['typename']):'';
 		if (is_array($wheresqlarr)) $wheresql=wheresql($wheresqlarr);
@@ -598,6 +624,7 @@ elseif($act == 'meal_members')
 		elseif ($key_type===2)$wheresql.=" AND b.uid = '".intval($key)."' ";
 		elseif ($key_type===3)$wheresql.=" AND b.email = '{$key}'";
 		elseif ($key_type===4)$wheresql.=" AND b.mobile like '{$key}%'";
+		elseif ($key_type===5)$wheresql.=" AND c.companyname like '{$key}%'";
 		$oederbysql="";
 	}
 	else
@@ -621,19 +648,91 @@ elseif($act == 'meal_members')
 			}			
 		}
 	}
-	$joinsql=" LEFT JOIN ".table('members')." as b ON a.uid=b.uid ";
+	$joinsql=" LEFT JOIN ".table('members')." as b ON a.uid=b.uid  LEFT JOIN ".table('company_profile')." as c ON a.uid=c.uid ";
 	$total_sql="SELECT COUNT(*) AS num FROM ".table('members_setmeal')." as a ".$joinsql.$wheresql;
 	$total_val=$db->get_total($total_sql);
 	$page = new page(array('total'=>$total_val, 'perpage'=>$perpage));
 	$currenpage=$page->nowindex;
 	$offset=($currenpage-1)*$perpage;
 	$member = get_meal_members_list($offset,$perpage,$joinsql.$wheresql.$oederbysql);
-	$smarty->assign('pageheader',"已购买套餐会员");
+	$smarty->assign('pageheader',"企业管理");
+	$smarty->assign('navlabel','meal_members');
 	$smarty->assign('member',$member);
 	$smarty->assign('setmeal',get_setmeal());	
 	$smarty->assign('page',$page->show(3));
 	$smarty->display('company/admin_company_meal_members.htm');
 }
+elseif($act == 'meal_log')
+{
+	get_token();
+	require_once(QISHI_ROOT_PATH.'include/page.class.php');
+	$oederbysql=" order BY a.log_id DESC ";
+	$key=isset($_GET['key'])?trim($_GET['key']):"";
+	$key_type=isset($_GET['key_type'])?intval($_GET['key_type']):"";
+	$operation_mode=$_CFG['operation_mode'];
+	$wheresql=" WHERE a.log_mode={$operation_mode} AND a.log_utype=1";
+	if ($key && $key_type>0)
+	{
+		if     ($key_type===1)$wheresql.="  AND a.log_username = '{$key}'";
+		elseif ($key_type===2)$wheresql.="  AND a.log_uid = '".intval($key)."' ";
+		elseif ($key_type===3)$wheresql.=" AND c.companyname like '{$key}%'";
+		$oederbysql=" order BY a.log_id DESC ";
+	}
+	else
+	{	
+		if (!empty($_GET['log_type']))
+		{
+			$log_type=intval($_GET['log_type']);
+			$wheresql.=" AND  a.log_type=".$log_type;
+		}
+		if (!empty($_GET['settr']))
+		{
+			$settr=intval($_GET['settr']);
+			$settr=strtotime("-{$settr} day");
+			$wheresql.=" AND a.log_addtime> ".$settr;
+		}
+		if (!empty($_GET['is_money']))
+		{
+			$is_money=intval($_GET['is_money']);
+			$wheresql.= " AND a.log_ismoney={$is_money}";
+		}
+	}
+	if($operation_mode=='1'){
+		$joinsql=" LEFT JOIN ".table('members_points')." as b ON a.log_uid=b.uid  LEFT JOIN ".table('company_profile')." as c ON a.log_uid=c.uid ";
+	}else{
+		$joinsql=" LEFT JOIN ".table('members_setmeal')." as b ON a.log_uid=b.uid  LEFT JOIN ".table('company_profile')." as c ON a.log_uid=c.uid ";
+	}
+	$total_sql="SELECT COUNT(*) AS num FROM ".table('members_charge_log')." as a ".$joinsql.$wheresql;
+	$total_val=$db->get_total($total_sql);
+	$page = new page(array('total'=>$total_val, 'perpage'=>$perpage));
+	$currenpage=$page->nowindex;
+	$offset=($currenpage-1)*$perpage;
+	$meallog = get_meal_members_log($offset,$perpage,$joinsql.$wheresql.$oederbysql,$operation_mode);
+	$smarty->assign('pageheader','企业管理');
+	$smarty->assign('navlabel','meal_log');
+	$smarty->assign('meallog',$meallog);
+	$smarty->assign('page',$page->show(3));
+	$smarty->display('company/admin_company_meal_log.htm');
+}
+elseif($act == 'meal_log_pie')
+{
+	require_once(ADMIN_ROOT_PATH.'include/admin_flash_statement_fun.php');
+	$pie_type=!empty($_GET['pie_type'])?intval($_GET['pie_type']):1;
+	meal_log_pie($pie_type,1);	
+	$smarty->assign('pageheader',"企业管理");
+	$smarty->assign('navlabel','meal_log_pie');
+	$smarty->display('company/admin_company_meal_log_pie.htm');
+}
+elseif($act == 'meallog_del')
+{
+	check_permissions($_SESSION['admin_purview'],"meallog_del");
+	check_token();
+	$id =!empty($_REQUEST['id'])?$_REQUEST['id']:adminmsg("你没有选择记录！",1);
+	$num=del_meal_log($id);
+	if ($num>0){adminmsg("删除成功！共删除".$num."行",2);}else{adminmsg("删除失败！",0);}
+}
+
+
 elseif($act == 'meal_delay')
 {
 			$tuid =!empty($_REQUEST['tuid'])?$_REQUEST['tuid']:adminmsg("你没有选择会员！",1);
@@ -767,7 +866,7 @@ elseif($act == 'members_add_save')
 	{
 	adminmsg('该 Email 已经被注册！',1);
 	}
-	$sql['pwd_hash'] = randstr();
+ 	$sql['pwd_hash'] = randstr();
 	$sql['password'] = md5(md5($sql['password']).$sql['pwd_hash'].$QS_pwdhash);
 	$sql['reg_time']=time();
 	$sql['reg_ip']=$online_ip;
@@ -776,10 +875,21 @@ elseif($act == 'members_add_save')
 			{
 			$db->query("INSERT INTO ".table('members_points')." (uid) VALUES ('{$insert_id}')");
 			$db->query("INSERT INTO ".table('members_setmeal')." (uid) VALUES ('{$insert_id}')");
+				if(intval($_POST['is_money']) && $_POST['log_amount']){
+					$amount=round($_POST['log_amount'],2);
+					$ismoney=2;
+				}else{
+					$amount='0.00';
+					$ismoney=1;
+				}
 				$regpoints_num=intval($_POST['regpoints_num']);
 				if ($_POST['regpoints']=="y")
 				{
 				write_memberslog($insert_id,1,9001,$sql['username'],"<span style=color:#FF6600>注册会员系统自动赠送!(+{$regpoints_num})</span>");
+						//会员积分变更记录。管理员后台修改会员的积分。3表示：管理员后台修改
+				$notes="操作人：{$_SESSION['admin_name']},说明：后台添加企业会员并赠送(+{$regpoints_num})积分，收取费用：{$amount}元";
+				write_setmeallog($insert_id,$sql['username'],$notes,4,$amount,$ismoney,1,1);
+					
 				report_deal($insert_id,1,$regpoints_num);
 				}
 				$reg_service=intval($_POST['reg_service']);
@@ -788,6 +898,14 @@ elseif($act == 'members_add_save')
 				$service=get_setmeal_one($reg_service);
 				write_memberslog($insert_id,1,9002,$sql['username'],"开通服务({$service['setmeal_name']})");
 				set_members_setmeal($insert_id,$reg_service);
+						//会员积分变更记录。管理员后台修改会员的积分。3表示：管理员后台修改
+				$notes="操作人：{$_SESSION['admin_name']},说明：后台添加企业会员并开通服务({$service['setmeal_name']})，收取费用：{$amount}元";
+				write_setmeallog($insert_id,$sql['username'],$notes,4,$amount,$ismoney,2,1);
+					
+				}
+				if(intval($_POST['is_money']) && $_POST['log_amount'] && !$notes){
+				$notes="操作人：{$_SESSION['admin_name']},说明：后台添加企业会员，未赠送积分，未开通套餐，收取费用：{$amount}元";
+				write_setmeallog($insert_id,$sql['username'],$notes,4,$amount,2,2,1);
 				}			
 			}
 	$link[0]['text'] = "返回列表";
@@ -879,10 +997,22 @@ elseif($act == 'userpoints_edit')
 	$link[0]['href'] = $_POST['url'];
 	$user=get_user($_POST['company_uid']);
 	$points_type=intval($_POST['points_type']);	
-	$points=get_user_points($user['uid']);
 	$t=$points_type==1?"+":"-";
 	report_deal($user['uid'],$points_type,intval($_POST['points']));
+	$points=get_user_points($user['uid']);
 	write_memberslog(intval($_POST['company_uid']),1,9001,$user['username']," 管理员操作积分({$t}{$_POST['points']})，(剩余:{$points})，备注：".$_POST['points_notes']);
+		//会员积分变更记录。管理员后台修改会员的积分。3表示：管理员后台修改
+		$user=get_user($_POST['company_uid']);
+		if(intval($_POST['is_money']) && $_POST['log_amount']){
+			$amount=round($_POST['log_amount'],2);
+			$ismoney=2;
+		}else{
+			$amount='0.00';
+			$ismoney=1;
+		}
+		$notes="操作人：{$_SESSION['admin_name']},说明：修改会员 {$user['username']} 积分 ({$t}{$_POST['points']})。收取积分金额：{$amount} 元，备注：{$_POST['points_notes']}";
+		write_setmeallog($_POST['company_uid'],$user['username'],$notes,3,$amount,$ismoney,1,1);
+			
 	adminmsg('保存成功！',2);
 }
 elseif($act == 'set_setmeal_save')
@@ -895,6 +1025,18 @@ elseif($act == 'set_setmeal_save')
 		{
 		$link[0]['text'] = "返回列表";
 		$link[0]['href'] = $_POST['url'];
+		//会员套餐变更记录。管理员后台修改会员套餐：重新开通套餐。3表示：管理员后台修改
+		$user=get_user($_POST['company_uid']);
+		if(intval($_POST['is_money']) && $_POST['log_amount']){
+			$amount=round($_POST['log_amount'],2);
+			$ismoney=2;
+		}else{
+			$amount='0.00';
+			$ismoney=1;
+		}
+		$notes="操作人：{$_SESSION['admin_name']},说明：为会员 {$user['username']} 重新开通服务，收取服务金额：{$amount}元，服务ID：{$_POST['reg_service']}。";
+		write_setmeallog($_POST['company_uid'],$user['username'],$notes,4,$amount,$ismoney,2,1);
+			
 		adminmsg('操作成功！',2,$link);
 		}
 		else
@@ -917,6 +1059,17 @@ elseif($act == 'edit_setmeal_save')
 	$setsqlarr['interview_ordinary']=$_POST['interview_ordinary'];
 	$setsqlarr['interview_senior']=$_POST['interview_senior'];
 	$setsqlarr['talent_pool']=$_POST['talent_pool'];
+	$setsqlarr['recommend_num']=intval($_POST['recommend_num']);
+	$setsqlarr['recommend_days']=intval($_POST['recommend_days']);
+	$setsqlarr['stick_num']=intval($_POST['stick_num']);
+	$setsqlarr['stick_days']=intval($_POST['stick_days']);
+	$setsqlarr['emergency_num']=intval($_POST['emergency_num']);
+	$setsqlarr['emergency_days']=intval($_POST['emergency_days']);
+	$setsqlarr['highlight_num']=intval($_POST['highlight_num']);
+	$setsqlarr['highlight_days']=intval($_POST['highlight_days']);
+	$setsqlarr['change_templates']=intval($_POST['change_templates']);
+	$setsqlarr['map_open']=intval($_POST['map_open']);
+
 	$setsqlarr['added']=$_POST['added'];
 	if ($_POST['setendtime']<>"")
 	{
@@ -946,13 +1099,26 @@ elseif($act == 'edit_setmeal_save')
 				$setsqlarr['endtime']=0;
 			}
 	}
+	$setmealtime=$setsqlarr['endtime'];
 	$company_uid=intval($_POST['company_uid']);
 	if ($company_uid)
 	{
+			$setmeal=get_user_setmeal($company_uid);
 			if (!updatetable(table('members_setmeal'),$setsqlarr," uid=".$company_uid."")) adminmsg('修改出错！',0);
+		//会员套餐变更记录。管理员后台修改会员套餐：修改会员。3表示：管理员后台修改
+			$setmeal['endtime']=date('Y-m-d',$setmeal['endtime']);
+			$setsqlarr['endtime']=date('Y-m-d',$setsqlarr['endtime']);
+			$setsqlarr['log_amount']=round($_POST['log_amount']);
+			$notes=edit_setmeal_notes($setsqlarr,$setmeal);
+			if($notes){
+				$user=get_user($_POST['company_uid']);
+				$ismoney=round($_POST['log_amount'])?2:1;
+				write_setmeallog($company_uid,$user['username'],$notes,3,$setsqlarr['log_amount'],$ismoney,2,1);
+			}
+
 			if ($setsqlarr['endtime']<>"")
 			{
-				$setmeal_deadline['setmeal_deadline']=$setsqlarr['endtime'];
+				$setmeal_deadline['setmeal_deadline']=$setmealtime;
 				if (!updatetable(table('jobs'),$setmeal_deadline," uid='{$company_uid}' AND add_mode='2' "))adminmsg('修改出错！',0);
 				if (!updatetable(table('jobs_tmp'),$setmeal_deadline," uid='{$company_uid}' AND add_mode='2' "))adminmsg('修改出错！',0);
 				distribution_jobs_uid($company_uid);
@@ -973,7 +1139,7 @@ elseif($act == 'userpass_edit')
 	$md5password=md5(md5(trim($_POST['password'])).$pwd_hash.$QS_pwdhash);	
 	if ($db->query( "UPDATE ".table('members')." SET password = '$md5password'  WHERE uid='".$user_info['uid']."'"))
 	{
-	$link[0]['text'] = "返回列表";
+ 	$link[0]['text'] = "返回列表";
 	$link[0]['href'] = $_POST['url'];
 	adminmsg('操作成功！',2,$link);
 	}
@@ -997,7 +1163,22 @@ elseif($act == 'userstatus_edit')
 	adminmsg('操作失败！',1);
 	}
 }
-elseif($act == 'management')
+ elseif($act == 'del_auditreason')
+{	
+	//check_token();
+	check_permissions($_SESSION['admin_purview'],"jobs_audit");//用的是职位审核的权限
+	$id =!empty($_REQUEST['a_id'])?$_REQUEST['a_id']:adminmsg("你没有选择日志！",1);
+	$n=reasonaudit_del($id);
+	if ($n>0)
+	{
+	adminmsg("删除成功！共删除 {$n} 行",2);
+	}
+	else
+	{
+	adminmsg("删除失败！",0);
+	}
+}
+  elseif($act == 'management')
 {	
 	$id=intval($_GET['id']);
 	$u=get_user($id);

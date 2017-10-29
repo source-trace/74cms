@@ -103,8 +103,7 @@ elseif ($act=='save_password')
 			{
 			dfopen($_CFG['site_domain'].$_CFG['site_dir']."plus/asyn_sms.php?uid=".$_SESSION['uid']."&key=".asyn_userkey($_SESSION['uid'])."&act=set_editpwd&newpassword=".$arr['password']);
 			}
-			//sms
-	 write_memberslog($_SESSION['uid'],2,1004 ,$_SESSION['username'],"修改密码");
+ 	 write_memberslog($_SESSION['uid'],2,1004 ,$_SESSION['username'],"修改密码");
 	 showmsg('密码修改成功！',2);
 	 }
 }
@@ -302,5 +301,31 @@ elseif ($act=='del_taobao_binding')
 	$db->query("UPDATE ".table('members')." SET taobao_access_token = ''  WHERE uid='{$_SESSION[uid]}' LIMIT 1");
 	showmsg('操作成功！',2);
 }
+
+//会员登录日志
+elseif ($act=='login_log')
+{
+	require_once(QISHI_ROOT_PATH.'include/fun_user.php');
+	require_once(QISHI_ROOT_PATH.'include/page.class.php');
+	$wheresql=" WHERE log_uid='{$_SESSION['uid']}' AND log_type='1001' ";
+	$settr=intval($_GET['settr']);
+	if($settr>0)
+	{
+	$settr_val=strtotime("-".$settr." day");
+	$wheresql.=" AND log_addtime >".$settr_val;
+	}
+	$perpage=15;
+	$total_sql="SELECT COUNT(*) AS num FROM ".table('members_log').$wheresql;
+	$total_val=$db->get_total($total_sql);
+	$page = new page(array('total'=>$total_val, 'perpage'=>$perpage));
+	$currenpage=$page->nowindex;
+	$offset=($currenpage-1)*$perpage;
+	$smarty->assign('loginlog',get_user_loginlog($offset, $perpage,$wheresql));
+	$smarty->assign('page',$page->show(3));
+	$smarty->assign('title','会员登录日志 - 企业会员中心 - '.$_CFG['site_name']);
+	$smarty->display('member_personal/personal_user_loginlog.htm');
+}
+
+
 unset($smarty);
 ?>

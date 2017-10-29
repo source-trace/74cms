@@ -20,7 +20,7 @@ if($act == 'grouplist')
 {
 	get_token();
 	$smarty->assign('navlabel',"group");
-	$smarty->assign('group',get_category_group());	
+	$smarty->assign('group',get_category_group());
 	$smarty->display('category/admin_category_group.htm');
 }
 elseif($act == 'add_group')
@@ -47,7 +47,6 @@ elseif($act == 'add_group_save')
 			$link[0]['href'] = '?act=grouplist';
 			$link[1]['text'] = "继续添加分类组";
 			$link[1]['href'] = "?act=add_group";
-			makejs_classify();
 			inserttable(table('category_group'),$setsqlarr)?adminmsg("添加成功！",2,$link):adminmsg("添加失败！",0);			
 		}
 	}
@@ -99,7 +98,6 @@ elseif($act == 'del_group')
 	$alias=$_REQUEST['alias'];
 	if ($num=del_group($alias))
 	{
-	makejs_classify();
 	adminmsg("删除成功！共删除".$num."行",2);
 	}
 	else
@@ -135,7 +133,7 @@ elseif($act == 'category_save')
 	}
 	refresh_category_cache();
 	makejs_classify();
-	adminmsg("修改完成！",2);
+ 	adminmsg("修改完成！",2);
 }
 elseif($act == 'add_category')
 {
@@ -177,7 +175,7 @@ elseif($act == 'add_category_save')
 	$link[1]['href'] = "?act=add_category&alias=".$setsqlarr['c_alias'];
 	refresh_category_cache();
 	makejs_classify();
-	adminmsg("添加成功！共添加".$num."个分类",2,$link);
+ 	adminmsg("添加成功！共添加".$num."个分类",2,$link);
 	}
 }
 elseif($act == 'edit_category')
@@ -202,7 +200,7 @@ elseif($act == 'edit_category_save')
 	$link[1]['href'] = "?act=edit_category&id=".intval($_POST['c_id']);
 	refresh_category_cache();
 	makejs_classify();
-	adminmsg("保存成功！",2,$link);
+ 	adminmsg("保存成功！",2,$link);
 }
 elseif($act == 'del_category')
 {
@@ -212,7 +210,7 @@ elseif($act == 'del_category')
 	{
 	refresh_category_cache();
 	makejs_classify();
-	adminmsg("删除成功！共删除".$num."行",2);
+ 	adminmsg("删除成功！共删除".$num."行",2);
 	}
 	else
 	{
@@ -258,7 +256,7 @@ elseif($act == 'district_all_save')
 		}
 	}
 	makejs_classify();
-	adminmsg("保存成功！",2);
+ 	adminmsg("保存成功！",2);
 }
 elseif($act == 'del_district')
 {
@@ -291,7 +289,7 @@ elseif($act == 'edit_district_save')
 	$link[0]['text'] = "返回列表";
 	$link[0]['href'] = '?act=district';
 	makejs_classify();
-	adminmsg("保存成功！",2,$link);
+ 	adminmsg("保存成功！",2,$link);
 }
 elseif($act == 'add_district')
 {
@@ -320,7 +318,7 @@ elseif($act == 'add_district_save')
 	$link[0]['text'] = "返回列表";
 	$link[0]['href'] = '?act=district';
 	makejs_classify();
-	adminmsg("添加成功！本次添加了{$num}个分类",2,$link);	
+ 	adminmsg("添加成功！本次添加了{$num}个分类",2,$link);	
 }
 ///////---------------职位分类
 elseif($act == 'jobs')
@@ -361,7 +359,7 @@ elseif($act == 'jobs_all_save')
 		}
 	}
 	makejs_classify();
-	adminmsg("保存成功！",2);
+ 	adminmsg("保存成功！",2);
 }
 elseif($act == 'del_jobs_category')
 {
@@ -393,7 +391,7 @@ elseif($act == 'edit_jobs_category_save')
 	$link[0]['text'] = "返回列表";
 	$link[0]['href'] = '?act=jobs';
 	makejs_classify();
-	adminmsg("保存成功！",2,$link);
+ 	adminmsg("保存成功！",2,$link);
 }
 elseif($act == 'add_category_jobs')
 {
@@ -422,6 +420,8 @@ elseif($act == 'add_category_jobs_save')
 	$link[0]['text'] = "返回列表";
 	$link[0]['href'] = '?act=jobs';
 	makejs_classify();
-	adminmsg("添加成功！本次添加了".$num."个分类",2,$link);	
+ 	adminmsg("添加成功！本次添加了".$num."个分类",2,$link);	
 }
+
+
 ?>

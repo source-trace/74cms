@@ -1,5 +1,5 @@
 $(document).ready(function()
-{
+{		
 	//通用按钮
 	$(".admin_submit").hover(function(){$(this).addClass("admin_submit_hover")},function(){$(this).removeClass("admin_submit_hover")});
 	//备注
@@ -30,7 +30,6 @@ $(document).ready(function()
 	$("#open_frame").click(function(){closeFrameset();});
 	$("#close_frame").hover(function(){$(this).addClass("close_frame_hover")},function(){$(this).removeClass("close_frame_hover")});
 	$("#close_frame").click(function(){openFrameset();});
-	
 });
 //设置label背景
 function setbg()

@@ -45,6 +45,16 @@
            <span style="color:#666666">(0为不提醒，如设置为10则积分少于10时会员中心提醒充值)</span></td>
       </tr>
       <tr>
+        <td align="right">刷新普通职位时间间隔：</td>
+        <td><input name="com_pointsmode_refresh_space" type="text"  class="input_text_150" id="com_pointsmode_refresh_space" value="{#$config.com_pointsmode_refresh_space#}" maxlength="8"    onkeyup="if(event.keyCode !=37 &amp;&amp; event.keyCode != 39) value=value.replace(/\D/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/\D/g,''))"/> 分钟
+           <span style="color:#666666">(0为不限制)</span></td>
+      </tr>
+      <tr>
+        <td align="right">每天刷新普通职位次数限制：</td>
+        <td><input name="com_pointsmode_refresh_time" type="text"  class="input_text_150" id="com_pointsmode_refresh_time" value="{#$config.com_pointsmode_refresh_time#}" maxlength="8"    onkeyup="if(event.keyCode !=37 &amp;&amp; event.keyCode != 39) value=value.replace(/\D/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/\D/g,''))"/> 次
+           <span style="color:#666666">(0为不限制)</span></td>
+      </tr>
+      <tr>
         <td align="right" valign="top">&nbsp;</td>
         <td height="55"><span style="font-size:14px;">
           <input name="submit2" type="submit" class="admin_submit"    value="保存修改"/>

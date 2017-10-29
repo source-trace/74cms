@@ -11,18 +11,7 @@ $(document).ready(function()
 $(document).ready(function()
 {
 //
-/*
-	$(".left_menu_btop li").hover(
-		function()
-		{
-			$(this).css("background-color","#E9FBFE");
-			},
-			function()
-			{
-			$(this).css("background-color","");
-			}
-		);
-		*/
+	$('#chk').click(function(){$("#form1 :checkbox").attr('checked',$("#chk").attr('checked'))});
 	$(".left_menu_btop").css("display","block");
 	//$("#{#$leftmenu#} .left_menu_btop").css("display","block");
 	//$("#{#$leftmenu#} .left_menu_img img").attr("src","{#$QISHI.site_template#}images/07.gif");
@@ -39,6 +28,14 @@ $(document).ready(function()
 		tb.css("display","block");
 		$(this).find("img").attr("src","{#$QISHI.site_template#}images/07.gif");
 		}
+	});
+	
+	
+	$("input[type='text'],input[type='password']").focus(function(){
+	$(this).css("border-color","#0066CC #9DCEFF #9DCEFF #0066CC");
+	});
+	$("input[type='text'],input[type='password']").blur(function(){
+	$(this).css("border-color","");
 	});
 });
 </script>
@@ -85,8 +82,8 @@ $(document).ready(function()
 </div>
 
 
- 
 
+ 
 
 <div class="left_menu_box" id="promotion">
 	<div class="left_menu_bg">
@@ -115,19 +112,21 @@ $(document).ready(function()
 </div>
 <div class="left_menu_btop">
 		<ul>
+		
+		{#if $QISHI.operation_mode=="1"#}
 		<li><a href="company_service.php?act=order_add">{#$QISHI.points_byname#}充值</a></li>
-		{#if $QISHI.operation_mode=="2"#}
-		<li><a href="company_service.php?act=setmeal_list">申请服务</a></li>		
-		{#/if#}	
 		<li><a href="company_service.php?act=order_list">订单管理</a></li>
 		<li><a href="company_service.php?act=points_report">{#$QISHI.points_byname#}明细</a></li>
 		<li><a href="company_service.php?act=points_rule">{#$QISHI.points_byname#}规则</a></li>		
-		{#if $QISHI.operation_mode=="2"#}
+		{#elseif $QISHI.operation_mode=="2"#}
+		<li><a href="company_service.php?act=setmeal_list">申请服务</a></li>	
 		<li><a href="company_service.php?act=setmeal_report">消费明细</a></li>
-		{#/if#}
+		<li><a href="company_service.php?act=order_list">订单管理</a></li>
+		{#/if#}	
 		<li><a href="company_service.php?act=feedback">意见建议</a></li>
 		<div class="clear"></div>
 		</ul>
+
 </div>
 </div>
 <div class="left_menu_box" id="info">
@@ -142,7 +141,7 @@ $(document).ready(function()
 		<li><a href="company_info.php?act=company_auth">营业执照</a></li>
 		<li><a href="company_info.php?act=company_logo">企业Logo</a></li>
 		<li><a href="company_info.php?act=company_map">电子地图</a></li>
-		<div class="clear"></div>
+ 		<div class="clear"></div>
 		</ul>
 </div>
 </div>	
@@ -163,6 +162,9 @@ $(document).ready(function()
 		{#/if#}
 		<li><a href="company_user.php?act=user_status">账户状态</a></li>
 		<li><a href="company_user.php?act=password_edit">密码修改</a></li>
+		
+		<li><a href="company_user.php?act=login_log">登录日志</a></li>
+	
 		<li><a href="{#"QS_login"|qishi_url#}?act=logout">安全退出</a></li>
 		<div class="clear"></div>
 		</ul>

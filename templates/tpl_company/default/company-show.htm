@@ -61,7 +61,7 @@ $(document).ready(function()
   <div class="snav">
 		<a href="{#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" class="selected">公司介绍</a>
 		<a href="{#"QS_companyjobs,id:"|cat:$company.id|qishi_url#}" >招聘职位</a>
-		<div class="clear"></div>
+ 		<div class="clear"></div>
   </div>
 </div>
 <div class="company-show">
@@ -150,7 +150,7 @@ $(document).ready(function()
   <div class="right">
 		  <div class="txtbox">
 				  <div class="tit">企业档案</div>
-				  <div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#$QISHI.site_domain#}{#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" alt="{#$company.companyname#} - 二维码" /></div>	  
+				  <div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" alt="{#$company.companyname#} - 二维码" /></div>	  
 		    <div class="txt">
 					  <ul class="link_bku">
 						<li>企业性质：{#$company.nature_cn#}</li>

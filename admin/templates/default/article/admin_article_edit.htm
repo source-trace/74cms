@@ -1,5 +1,7 @@
 {#include file="sys/admin_header.htm"#}
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function()
@@ -64,20 +66,14 @@ $(document).ready(function()
       <tr>
         <td width="100" ><textarea id="content" name="content" style="width:700px;height:300px;visibility:hidden;">{#$edit_article.content#}</textarea>
 		<script>
-			KE.show({
-				id : 'content',
-				shadowMode : false,
-				autoSetDataMode: false,
-				allowPreviewEmoticons : false,
-				//skinType : 'tinymce',
-				urlType : 'absolute',
-				filterMode : true,
-				//allowFileManager : true,
-				afterCreate : function(id) {
-					KE.event.add(KE.$('FormData'), 'submit', function() {
-						KE.util.setData(id);
-					});
-				}
+			var editor;
+			KindEditor.ready(function(K) {
+				editor = K.create('textarea[name="content"]', {
+					allowFileManager : true
+				});
+				K('input[name=Submit2]').click(function(e) {
+					editor.html('');
+				});
 			});
 		</script>
 </td>
@@ -118,7 +114,21 @@ $(document).ready(function()
         <td ><input name="is_url" type="text" class="input_text_150" id="is_url" value="{#$edit_article.is_url#}" maxlength="100"/></td>
 	    <td >&nbsp;</td>
 	  </tr>
-	 
+	  
+	  {#if $QISHI.subsite=="1"#}
+	  <tr>
+        <td align="right" >显示在：</td>
+        <td colspan="4" >
+	 <label ><input name="subsite_id" type="radio" value="0" {#if $edit_article.subsite_id=="0"#}checked="checked"{#/if#}/>全站</label>
+		&nbsp;&nbsp;&nbsp;
+		{#foreach from=$subsite item=li#}
+		<label ><input name="subsite_id" type="radio" value="{#$li.s_id#}" {#if $edit_article.subsite_id==$li.s_id#}checked="checked"{#/if#}/>{#$li.s_districtname#}</label>
+		&nbsp;&nbsp;&nbsp;
+		{#/foreach#}
+		
+	 </td>
+      </tr>
+	   {#/if#}
 	  
 	  <tr>
         <td align="right" >文章属性：</td>

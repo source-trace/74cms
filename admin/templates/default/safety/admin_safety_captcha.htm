@@ -58,18 +58,6 @@
 	 </td>
         </tr>
 		
-		{#if $captcha.verify_gifts<>""#}
-		<tr>
-          <td align="right">礼品卡充值：</td>
-          <td>
-		  
-		   <label> <input name="verify_gifts" type="radio" value="1" {#if $captcha.verify_gifts=="1"#}checked="checked"{#/if#}/>
-	 开启</label>&nbsp;&nbsp;&nbsp;&nbsp;
-	 <label> <input name="verify_gifts" type="radio" value="0" {#if $captcha.verify_gifts=="0"#}checked="checked"{#/if#}/>关闭</label>
-		  
-	 </td>
-        </tr>
-		{#/if#}
 		
 			<tr>
           <td align="right">发布简历：</td>
@@ -111,8 +99,7 @@
 		  
 	 </td>
         </tr>
-	
-		<tr>
+ 		<tr>
           <td align="right">后台登录：</td>
           <td>
 		  
@@ -123,8 +110,26 @@
 		 
 		   </td>
         </tr>
-	
-        <tr>
+		
+		<tr>
+          <td align="right">职位推荐好友：</td>
+          <td>
+		  
+		    <label> <input name="verify_recommendjobs" type="radio" value="1" {#if $captcha.verify_recommendjobs=="1"#}checked="checked"{#/if#}/>
+	 开启</label>&nbsp;&nbsp;&nbsp;&nbsp;
+	 <label> <input name="verify_recommendjobs" type="radio" value="0" {#if $captcha.verify_recommendjobs=="0"#}checked="checked"{#/if#}/>关闭</label>
+	 		   </td>
+        </tr>
+		<tr>
+          <td align="right">简历推荐好友：</td>
+          <td>
+		  
+		    <label> <input name="verify_recommendresume" type="radio" value="1" {#if $captcha.verify_recommendresume=="1"#}checked="checked"{#/if#}/>
+	 开启</label>&nbsp;&nbsp;&nbsp;&nbsp;
+	 <label> <input name="verify_recommendresume" type="radio" value="0" {#if $captcha.verify_recommendresume=="0"#}checked="checked"{#/if#}/>关闭</label>
+	 		   </td>
+        </tr>
+         <tr>
           <td align="right">&nbsp;</td>
           <td height="50" colspan="2"> 
             <input name="submit" type="submit" class="admin_submit"    value="保存"/>         </td>

@@ -62,10 +62,13 @@ $(document).ready(function()
 		</td>
  		<td class="admin_list">
 		{#$list.email#}
+		
 		{#if $list.email_audit=="1"#}<span style="color:#009900">[验]</span>{#/if#}
+		<a href="admin_mail.php?act=send&email={#$list.email#}&uid={#$list.uid#}"> <img src="images/email.gif" border="0" title="发送邮件" /></a>		
 		</td>
 		 <td  class="admin_list">
-		 {#if $list.mobile#}{#$list.mobile#}{#else#}未填写{#/if#}
+		 {#if $list.mobile#}{#$list.mobile#}<a href="admin_sms.php?act=send&mobile={#$list.mobile#}&uid={#$list.uid#}"><img src="images/sms.gif" border="0" title="发送短信" /></a>
+{#else#}未填写{#/if#}
 		{#if $list.mobile_audit=="1"#}<span style="color:#009900">[验]</span>{#/if#}
 		</td>
         <td class="admin_list">
@@ -86,6 +89,8 @@ $(document).ready(function()
 		</td>       
         <td align="center" class="admin_list">
 		<a href="?act=user_edit&tuid={#$list.uid#}">修改</a>
+		&nbsp;
+		<a href="?act=meal_log&key={#$list.uid#}&key_type=2&key_type_cn=UID">充值记录</a>
 		&nbsp;
 		<a href="?act=management&id={#$list.uid#}"  target="_blank"  class="userinfo"  id="{#$list.uid#}">管理</a>
 		</td>

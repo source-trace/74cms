@@ -18,12 +18,13 @@ require_once(QISHI_ROOT_PATH.'include/fun_company.php');
 	if ($_SESSION['uid']=='' || $_SESSION['username']=='' || intval($_SESSION['uid'])===0)
 	{
 		header("Location: ".url_rewrite('QS_login')."?act=logout");
+		exit();
 	}
 	elseif ($_SESSION['utype']!='1') 
 	{
 	$link[0]['text'] = "会员中心";
 	$link[0]['href'] = url_rewrite('QS_login');
-	showmsg('您访问的页面需要 企业会员 登录！系统将跳转到 个人会员 中心',1,$link);
+	showmsg('您访问的页面需要 企业会员 登录！',1,$link);
 	}
 	$act = !empty($_GET['act']) ? trim($_GET['act']) : 'index';
 	$smarty->cache = false;
@@ -40,6 +41,7 @@ require_once(QISHI_ROOT_PATH.'include/fun_company.php');
 	{
 	unset($_SESSION['utype'],$_SESSION['uid'],$_SESSION['username']);
 	header("Location:".url_rewrite('QS_login')."?url=".$_SERVER["REQUEST_URI"]);
+	exit();
 	}
 	if ($_CFG['login_com_audit_email'] && $user['email_audit']=="0" && $act!='user_email' && $act!='user_mobile')
 	{

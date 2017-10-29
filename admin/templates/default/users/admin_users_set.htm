@@ -95,12 +95,7 @@ $(document).ready(function()
 <input name="purview[]" type="checkbox"  value="jobs_audit" {#if "jobs_audit"|in_array:$admin_set#}checked="checked"{#/if#} />审核职位
 </label>
 </li>
-<li  class="user_box_li">
-<label>
-<input name="purview[]" type="checkbox"  value="com_comment" {#if "com_comment"|in_array:$admin_set#}checked="checked"{#/if#} />职位评论
-</label>
-</li>
-
+ 
 <!-- -->
 <li class="clear" style="list-style:none; display:none"></li>
 </ul>	
@@ -148,37 +143,8 @@ $(document).ready(function()
 </ul>	
 		  </td>
         </tr>
-      </table>
- 
- 
- 
- <table width="100%" border="0" cellpadding="4" cellspacing="0" bgcolor="#FFFFFF"  >
-        <tr>
-          <td height="25" bgcolor="#FFFFFF" style=" border-bottom:1px #CCCCCC dashed; padding-left:20px;"><strong>招聘会：</strong></td>
-        </tr>
-        <tr>
-          <td  bgcolor="#FFFFFF" style="  padding-left:14px;">
-		  <ul style="margin:0px; padding:3px; list-style:none">		  
-<!-- -->
-<li  class="user_box_li">
-<label>
-<input name="purview[]" type="checkbox"  value="jobfair" {#if "jobfair"|in_array:$admin_set#}checked="checked"{#/if#} />招聘会
-</label>
-</li>
-<li  class="user_box_li">
-<label>
-<input name="purview[]" type="checkbox"  value="jobfair_exhibitors" {#if "jobfair_exhibitors"|in_array:$admin_set#}checked="checked"{#/if#} />参会企业
-</label>
-</li>
-<!-- -->
-<li class="clear" style="list-style:none; display:none"></li>
-</ul>	
-		  </td>
-        </tr>
-      </table>
- 
-	 
- <table width="100%" border="0" cellpadding="4" cellspacing="0" bgcolor="#FFFFFF"  >
+      </table>	  
+   <table width="100%" border="0" cellpadding="4" cellspacing="0" bgcolor="#FFFFFF"  >
         <tr>
           <td height="25" bgcolor="#FFFFFF" style=" border-bottom:1px #CCCCCC dashed; padding-left:20px;"><strong>微招聘：</strong></td>
         </tr>
@@ -262,7 +228,7 @@ $(document).ready(function()
 </ul>	
 		  </td>
         </tr>
-		        <tr>
+ 		        <tr>
           <td  bgcolor="#FFFFFF" style="  padding-left:14px;">
 		  <ul style="margin:0px; padding:3px; list-style:none">		  
 <li  class="user_box_li">
@@ -318,6 +284,15 @@ $(document).ready(function()
 </label>
 </li>
 <!-- -->
+<!-- -->
+		
+<li  class="user_box_li">
+<label>
+<input name="purview[]" type="checkbox"  value="meallog_del" {#if "meallog_del"|in_array:$admin_set#}checked="checked"{#/if#} />删除套餐记录
+</label>
+</li>
+<!-- -->
+
 <li class="clear" style="list-style:none; display:none"></li>
 </ul>	
 		  </td>
@@ -713,17 +688,23 @@ $(document).ready(function()
 <input name="purview[]" type="checkbox"  value="set_taobaoconnect" {#if "set_taobaoconnect"|in_array:$admin_set#}checked="checked"{#/if#} />淘宝帐号登录 
 </label>
 </li>
+		
 <li  class="user_box_li">
 <label>
-<input name="purview[]" type="checkbox"  value="mailqueue" {#if "mailqueue"|in_array:$admin_set#}checked="checked"{#/if#} />邮件群发  
+<input name="purview[]" type="checkbox"  value="set_weixinconnect" {#if "set_weixinconnect"|in_array:$admin_set#}checked="checked"{#/if#} />微信公众平台 
 </label>
 </li>
 <li  class="user_box_li">
 <label>
-<input name="purview[]" type="checkbox"  value="gifts" {#if "gifts"|in_array:$admin_set#}checked="checked"{#/if#} />礼品卡  
+<input name="purview[]" type="checkbox"  value="smsqueue" {#if "smsqueue"|in_array:$admin_set#}checked="checked"{#/if#} />短信营销
 </label>
 </li>
-
+<li  class="user_box_li">
+<label>
+<input name="purview[]" type="checkbox"  value="mailqueue" {#if "mailqueue"|in_array:$admin_set#}checked="checked"{#/if#} />邮件营销  
+</label>
+</li>
+ 
 <!-- -->
 <li class="clear" style="list-style:none; display:none"></li>
 </ul>	
@@ -754,7 +735,7 @@ $(document).ready(function()
 <input name="purview[]" type="checkbox"  value="set_per" {#if "set_per"|in_array:$admin_set#}checked="checked"{#/if#} />个人设置 
 </label>
 </li>
-<!-- -->
+ <!-- -->
 <li  class="user_box_li">
 <label>
 <input name="purview[]" type="checkbox"  value="set_simple" {#if "set_simple"|in_array:$admin_set#}checked="checked"{#/if#} />微招聘设置 
@@ -810,12 +791,7 @@ $(document).ready(function()
 <input name="purview[]" type="checkbox"  value="site_category" {#if "site_category"|in_array:$admin_set#}checked="checked"{#/if#} />系统分类设置  
 </label>
 </li>
-<li  class="user_box_li">
-<label>
-<input name="purview[]" type="checkbox"  value="subsite" {#if "subsite"|in_array:$admin_set#}checked="checked"{#/if#} />分站设置  
-</label>
-</li>
-<li  class="user_box_li">
+ <li  class="user_box_li">
 <label>
 <input name="purview[]" type="checkbox"  value="hotword" {#if "hotword"|in_array:$admin_set#}checked="checked"{#/if#} />热门关键词  
 </label>

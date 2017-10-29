@@ -33,6 +33,9 @@ $_REQUEST  = addslashes_deep($_REQUEST);
 PHP_VERSION > '5.1'?date_default_timezone_set("PRC"):'';
 $timestamp = time();
 $online_ip=getip();
+
+$ip_address=convertip($online_ip);
+
 $_CFG=get_cache('config');
 $_PAGE=get_cache('page');
 $_NAV=get_cache('nav');

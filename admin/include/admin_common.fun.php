@@ -299,6 +299,8 @@ function html2text($str){
 	$alltext = preg_replace("/[ ]+/s"," ",$alltext);
 	return $alltext;
 }
+ 
+
 function get_subsite_one($id)
 {
 	global $db;
@@ -322,7 +324,7 @@ function refresh_subsite_cache()
 {
 	global $db;
 	$cache_file_path =QISHI_ROOT_PATH. "data/cache_subsite.php";
-		$sql = "SELECT * FROM ".table('subsite')." WHERE s_effective=1 ORDER BY s_id desc";
+		$sql = "SELECT * FROM ".table('subsite')." WHERE s_effective=1 ORDER BY s_order desc,s_id desc";
 		$arr = $db->getall($sql);
 			foreach($arr as $key=> $val)
 			{
@@ -348,7 +350,7 @@ function makejs_classify()
 {
 	global $db;
 	$content = "//JavaScript Document 生成时间：".date("Y-m-d  H:i:s")."\n\n";
-	$sql = "select * from ".table('category_district')." where parentid=0  ORDER BY category_order desc,id asc";
+	$sql = "select * from ".table('category_district')." where parentid=0 order BY category_order desc,id asc";
 	$list=$db->getall($sql);
 	foreach($list as $parent)
 	{
@@ -371,7 +373,7 @@ function makejs_classify()
 		unset($sarr);
 		}
 	}
-	$sql = "select * from ".table('category_jobs')." where parentid=0  ORDER BY category_order desc,id asc";
+	$sql = "select * from ".table('category_jobs')." where parentid=0 ";
 	$list=$db->getall($sql);
 	foreach($list as $parent)
 	{
@@ -381,7 +383,7 @@ function makejs_classify()
 	$content .= "var QS_jobs=new Array(); \n";
 	foreach($list as $val)
 	{
-		$sql1 = "select * from ".table('category_jobs')." where parentid=".$val['id']."  ORDER BY category_order desc,id asc";
+		$sql1 = "select * from ".table('category_jobs')." where parentid=".$val['id']."  order BY category_order desc,id asc";
 		$list1=$db->getall($sql1);
 		if (is_array($list1))
 		{	
@@ -393,7 +395,7 @@ function makejs_classify()
 		unset($sarr);
 		}
 	}
-	//
+ 	//
 	$sql = "select * from ".table('category')." ORDER BY c_order DESC,c_id ASC";
 	$list=$db->getall($sql);
 	foreach($list as $li)
@@ -434,7 +436,7 @@ function makejs_classify()
 		{
 		$resumetag[]="\"".$li['c_id'].",".$li['c_name']."\"";
 		}
-	
+ 	
 	}
 	$content .= "var QS_trade=new Array(".implode(',',$trade).");\n";
 	$content .= "var QS_companytype=new Array(".implode(',',$companytype).");\n";
@@ -445,6 +447,7 @@ function makejs_classify()
 	$content .= "var QS_scale=new Array(".implode(',',$scale).");\n";
 	$content .= "var QS_jobtag=new Array(".implode(',',$jobtag).");\n";
 	$content .= "var QS_resumetag=new Array(".implode(',',$resumetag).");\n";
+ 	
 	$fp = @fopen(QISHI_ROOT_PATH . 'data/cache_classify.js', 'wb+');
 	if (!$fp){
 			exit('生成JS文件失败');
@@ -458,4 +461,4 @@ function makejs_classify()
 		}
 	@fclose($fp);
 }
-?>
+ ?>

@@ -29,8 +29,8 @@ if($act =='do_login')
 	$url=isset($_POST['url'])?$_POST['url']:"";
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$username=iconv("utf-8",QISHI_DBCHARSET,$username);
-	$password=iconv("utf-8",QISHI_DBCHARSET,$password);
+	$username=utf8_to_gbk($username);
+	$password=utf8_to_gbk($password);
 	}
 	$captcha=get_cache('captcha');
 	if ($captcha['verify_userlogin']=="1")
@@ -38,7 +38,7 @@ if($act =='do_login')
 		$postcaptcha=$_POST['postcaptcha'];
 		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 		{
-		$postcaptcha=iconv("utf-8",QISHI_DBCHARSET,$postcaptcha);
+		$postcaptcha=utf8_to_gbk($postcaptcha);
 		}
 		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
 		{
@@ -70,7 +70,7 @@ elseif ($act=='do_reg')
 		$postcaptcha=$_POST['postcaptcha'];
 		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 		{
-		$postcaptcha=iconv("utf-8",QISHI_DBCHARSET,$postcaptcha);
+		$postcaptcha=utf8_to_gbk($postcaptcha);
 		}
 		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
 		{
@@ -84,10 +84,10 @@ elseif ($act=='do_reg')
 	$email = isset($_POST['email'])?trim($_POST['email']):exit("err");
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$username=iconv("utf-8",QISHI_DBCHARSET,$username);
-	$password=iconv("utf-8",QISHI_DBCHARSET,$password);
+	$username=utf8_to_gbk($username);
+	$password=utf8_to_gbk($password);
 	}
-	$register=user_register($username,$password,$member_type,$email);
+ 	$register=user_register($username,$password,$member_type,$email);
 	if ($register>0)
 	{	
 		$login_js=user_login($username,$password);
@@ -119,10 +119,10 @@ elseif($act =='check_usname')
 	$usname=trim($_POST['usname']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$usname=iconv("utf-8",QISHI_DBCHARSET,$usname);
+	$usname=utf8_to_gbk($usname);
 	}
 	$user=get_user_inusername($usname);
-	empty($user)?exit("true"):exit("false");
+ 	empty($user)?exit("true"):exit("false");
 }
 elseif($act == 'check_email')
 {
@@ -130,10 +130,10 @@ elseif($act == 'check_email')
 	$email=trim($_POST['email']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$email=iconv("utf-8",QISHI_DBCHARSET,$email);
+	$email=utf8_to_gbk($email);
 	}
 	$user=get_user_inemail($email);
-	empty($user)?exit("true"):exit("false");
+ 	empty($user)?exit("true"):exit("false");
 }
 elseif ($act=="top_loginform")
 {
@@ -141,6 +141,10 @@ elseif ($act=="top_loginform")
 	if ($_COOKIE['QS']['username'] && $_COOKIE['QS']['password'])
 	{
 		$tpl='../templates/'.$_CFG['template_dir']."plus/top_login_success.htm";
+	}
+	elseif ($_SESSION['activate_username'])
+	{
+		$tpl='../templates/'.$_CFG['template_dir']."plus/top_login_activate.htm";
 	}
 	else
 	{	
@@ -152,7 +156,6 @@ elseif ($act=="top_loginform")
 		$contents=str_replace('{#$username#}',$_COOKIE['QS']['username'],$contents);
 		$contents=str_replace('{#$pmscount#}',$_COOKIE['QS']['pmscount'],$contents);
 		$contents=str_replace('{#$site_template#}',$_CFG['site_template'],$contents);
-		$contents=str_replace('{#$site_dir#}',$_CFG['site_dir'],$contents);
 		if ($_COOKIE['QS']['utype']=='1')
 		{
 		$user_url=$_CFG['site_dir']."user/company/company_index.php";
@@ -169,7 +172,7 @@ elseif ($act=="top_loginform")
 			 $pmscount_a='<a href="'.$_CFG['site_dir'].'user/personal/personal_user.php?act=pm&new=1" style="padding:1px 4px; background-color:#FF6600; color:#FFFFFF;text-decoration:none" title="短消息">消息 '.$_COOKIE['QS']['pmscount'].'</a>';
 			 }
 		}
-		$contents=str_replace('{#$pmscount_a#}',$pmscount_a,$contents);
+ 		$contents=str_replace('{#$pmscount_a#}',$pmscount_a,$contents);
 		$contents=str_replace('{#$user_url#}',$user_url,$contents);
 		$contents=str_replace('{#$login_url#}',url_rewrite('QS_login'),$contents);
 		$contents=str_replace('{#$logout_url#}',url_rewrite('QS_login')."?act=logout",$contents);
@@ -184,6 +187,10 @@ elseif ($act=="loginform")
 	{
 		$tpl='../templates/'.$_CFG['template_dir']."plus/login_success.htm";
 	}
+	elseif ($_SESSION['activate_username'])
+	{
+		$tpl='../templates/'.$_CFG['template_dir']."plus/login_activate.htm";
+	}
 	else
 	{
 		$tpl='../templates/'.$_CFG['template_dir']."plus/login_form.htm";
@@ -194,6 +201,7 @@ elseif ($act=="loginform")
 		$contents=str_replace('{#$username#}',$_COOKIE['QS']['username'],$contents);
 		$contents=str_replace('{#$pmscount#}',$_COOKIE['QS']['pmscount'],$contents);
 		$contents=str_replace('{#$site_template#}',$_CFG['site_template'],$contents);
+		$contents=str_replace('{#$site_dir#}',$_CFG['site_dir'],$contents);
 		if ($_COOKIE['QS']['utype']=='1')
 		{
 			$user_url=$_CFG['site_dir']."user/company/company_index.php";
@@ -210,7 +218,7 @@ elseif ($act=="loginform")
 			 $pmscount_a='<a href="'.$_CFG['site_dir'].'user/personal/personal_user.php?act=pm&new=1" style="padding:1px 4px; background-color:#FF6600; color:#FFFFFF;text-decoration:none" title="短消息">消息 '.$_COOKIE['QS']['pmscount'].'</a>';
 			 }
 		}
-		$contents=str_replace('{#$pmscount_a#}',$pmscount_a,$contents);
+ 		$contents=str_replace('{#$pmscount_a#}',$pmscount_a,$contents);
 		$contents=str_replace('{#$user_url#}',$user_url,$contents);
 		$contents=str_replace('{#$login_url#}',url_rewrite('QS_login'),$contents);
 		$contents=str_replace('{#$logout_url#}',url_rewrite('QS_login')."?act=logout",$contents);

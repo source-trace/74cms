@@ -9,53 +9,74 @@
 <meta name="copyright" content="74cms.com" />
 <link href="{#$QISHI.site_template#}css/user.css" rel="stylesheet" type="text/css" />
 <script src="{#$QISHI.site_template#}js/jquery.js" type='text/javascript' language="javascript"></script>
+<script type="text/javascript">
+$(document).ready(function()
+{
+	$(".item").hover(
+		function()
+		{
+			$(this).find(".top").addClass("top-hover");
+			$(this).find(".txtbox").addClass("txtbox-hover");
+			},
+			function()
+			{
+			$(this).find(".top").removeClass("top-hover");
+			$(this).find(".txtbox").removeClass("txtbox-hover");
+			}
+		);
+	$(".but").hover(
+		function()
+		{
+			$(this).addClass("but-hover");
+			},
+			function()
+			{
+			$(this).removeClass("but-hover");
+			}
+		);
+});
+</script>
 </head>
 <body>
 {#include file="user/header.htm"#}
- <div class="reg_box">
-   <div class="reg_box_tit"><strong>您要注册成为哪种会员？</strong></div>
-   
-   <div class="item"><table width="100%" border="0" cellspacing="10" cellpadding="0">
-      <tr>
-         <td width="100" align="right"><img src="{#$QISHI.site_template#}images/39.png"  border="0"/></td>
-         <td class="itemtit">注册企业会员</td>
-     </tr>
-       <tr>
-         <td>&nbsp;</td>
-         <td class="itemtxt">发布招聘信息<br />
-           搜索人才 <br />
-           下载简历 <br />
-           邀请面试<br />......
-         </td>
-       </tr>
-       <tr>
-         <td>&nbsp;</td>
-         <td height="50">
-		 <input type="button" name="Submit"  id="login" class="but100" value="免费注册" onclick="window.location='?act=form&type=1'"/></td>
-      </tr>
-     </table>
-   </div>
-   <div class="item" style="border-right:0px;">
-     <table width="100%" border="0" cellspacing="10" cellpadding="0">
-       <tr>
-         <td width="100" align="right"><img src="{#$QISHI.site_template#}images/40.png"  border="0"/></td>
-         <td class="itemtit">注册个人会员</td>
-       </tr>
-       <tr>
-         <td>&nbsp;</td>
-         <td  class="itemtxt">创建简历<br />
-           搜索职位<br />
-在线申请职位 <br />
-职位收藏夹<br />......</td>
-       </tr>
-       <tr>
-         <td>&nbsp;</td>
-         <td height="50"><input type="button" name="Submit"  id="login" class="but100" value="免费注册" onclick="window.location='?act=form&type=2'"/></td>
-       </tr>
-     </table>
-   </div>
-   <div class="clear"></div>
- </div>
+<div class="reg-box-tip">根据您的实际情况选择会员类型，我们会根据您的角色不同，为您提供专有的会员服务。</div>
+<div class="reg-box">
+  <div class="item">
+  	<div class="top">个人会员</div>	
+    <div class="txtbox">
+		<div class="txt">
+			<ul>	
+			<li>创建简历</li>
+			<li>搜索职位</li>
+			<li>在线申请职位 </li>
+			<li>职位收藏夹</li>
+			<li>......</li>
+			</ul>
+		</div>
+		<div class="butbox">
+		<input type="button" name="Submit"  id="login" class="but" value="免费注册" onclick="window.location='?act=form&type=2'"/>
+		</div>
+    </div>
+  </div>
+  <div class="item last">
+  		<div class="top">企业会员</div>	
+    <div class="txtbox">
+		<div class="txt">
+			<ul>	
+			<li>发布招聘信息</li>
+			<li>搜索人才</li>
+			<li>下载简历 </li>
+			<li>邀请面试</li>
+			<li>......</li>
+			</ul>
+		</div>
+		<div class="butbox">
+		<input type="button" name="Submit"  id="login" class="but" value="免费注册" onclick="window.location='?act=form&type=1'"/>
+		</div>
+    </div>
+  </div>
+  <div class="clear"></div>
+  </div>
 {#include file="user/footer.htm"#}
 </body>
 </html>

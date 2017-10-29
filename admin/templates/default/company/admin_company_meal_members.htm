@@ -15,6 +15,7 @@ $(document).ready(function()
 <div class="admin_main_nr_dbox">
 <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
+	{#include file="company/admin_company_nav.htm"#}
   <div class="clear"></div>
 </div>
   <div class="seltpye_x">
@@ -42,10 +43,12 @@ $(document).ready(function()
   </div>
   <form id="form1" name="form1" method="post" action="?act=meal_delay">
   {#$inputtoken#}
+		
   <table width="100%" border="0" cellpadding="0" cellspacing="0"   class="link_lan">
     <tr>
       <td  class="admin_list_tit admin_list_first" >
-      <label id="chkAll"><input type="checkbox" name=" " title="全选/反选" id="chk"/>用户名</label></td>
+      <label id="chkAll"><input type="checkbox" name=" " title="全选/反选" id="chk"/>公司名称</label></td>
+	   <td  class="admin_list_tit">用户名</td>
 	   <td  class="admin_list_tit">套餐名称</td>
       <td  class="admin_list_tit">email</td>     
       <td     class="admin_list_tit">服务开始时间</td>
@@ -55,9 +58,19 @@ $(document).ready(function()
 	{#foreach from=$member item=list#}
       <tr>
       <td class="admin_list admin_list_first">
-        <input name="tuid[]" type="checkbox"   value="{#$list.uid#}"/>{#$list.username#}
-		
+		<input name="tuid[]" type="checkbox"   value="{#$list.uid#}"/>
+		{#if $list.companyname#}
+ 	        {#$list.companyname#}
+		{#else#}
+		<span style="color:#FF0000">未完善企业资料</span>
+		{#/if#}
+		</td>
+
+      <td class="admin_list">
+       {#$list.username#}
 		<span style="color:#CCCCCC">(uid:{#$list.uid#})</span>
+		<a href="admin_mail.php?act=send&email={#$list.email#}&uid={#$list.uid#}"> <img src="images/email.gif" border="0" title="发送邮件" /></a>
+		 {#if $list.mobile#}<a href="admin_sms.php?act=send&mobile={#$list.mobile#}&uid={#$list.uid#}"><img src="images/sms.gif" border="0" title="发送短信" /></a>{#/if#}
 		</td>
 		 <td class="admin_list">
 		{#$list.setmeal_name#}
@@ -86,6 +99,8 @@ $(document).ready(function()
         <td align="center" class="admin_list">
 		<a href="?act=user_edit&tuid={#$list.uid#}">修改</a>
 		&nbsp;
+		<a href="?act=meal_log&key={#$list.uid#}&key_type=2&key_type_cn=UID">充值记录</a>
+		&nbsp;
 		<a href="?act=management&id={#$list.uid#}"  target="_blank"  class="userinfo"  id="{#$list.uid#}">管理</a>
 		</td>
       </tr>
@@ -107,18 +122,20 @@ $(document).ready(function()
 			    <div class="keybox"><input name="key" type="text"   value="{#$smarty.get.key#}" /></div>
 			    <div class="selbox">
 					<input name="key_type_cn"  id="key_type_cn" type="text" value="{#$smarty.get.key_type_cn|default:"用户名"#}" readonly="true"/>
+		
 						<div>
 								<input name="key_type" id="key_type" type="hidden" value="{#$smarty.get.key_type|default:"1"#}" />
 												<div id="sehmenu" class="seh_menu">
 														<ul>
 														<li id="1" title="用户名">用户名</li>
+														<li id="5" title="公司名">公司名</li>
 														<li id="2" title="UID">UID</li>
 														<li id="3" title="email">email</li>
 														<li id="4" title="手机号">手机号</li>
-									
 														</ul>
 												</div>
-						</div>				
+						</div>	
+
 				</div>
 				<div class="sbtbox">
 				<input name="act" type="hidden" value="meal_members" />

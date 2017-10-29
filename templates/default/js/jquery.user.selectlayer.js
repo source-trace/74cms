@@ -303,7 +303,7 @@ function OpentradeLayer(click_obj,input,input_cn,input_txt,showid,strlen)
 			$(input).val(a_id.join(","));
 			 DialogClose(showid);
 			 //验证表单中的一个需要验证的表单元素
-			 $("#Form1").validate().element("#trade_cn"); 
+			 $("#Form1").validate().element(input_cn); 
 	});
 	//设置阴影
 	function SetBoxBg(showid)
@@ -474,8 +474,7 @@ function getcathtml(val)
 	htmlstr+="</ul>";
 	return htmlstr; 
 }
-
-//年月(单选)
+ //年月(单选)
 function showyearbox(inputname)
 {
 	$(inputname).click(function(){
@@ -557,3 +556,38 @@ function showyearbox(inputname)
 		});
 	});
 }
+
+//横排多选框选中赋值
+function getcheckboxval(menuID,showID,inputname,inputname1,get)
+{
+	if (get)
+	{
+		arr=get.split("|");
+		tcn=new Array();
+		for(var i=0;i<arr.length;i++)
+		{
+			 var tid=arr[i].split(",");
+			$(showID+" :checkbox[id="+tid[0]+"]").attr("checked",true);
+			tcn[i]=tid[1];
+		}
+		$(inputname).val(tcn.join(","));
+		$(inputname1).val(get);
+	}
+	//选中单选框
+	$(showID+" label").click(function()
+	{
+			var a_cn=new Array();
+			var a_id=new Array();
+			$(showID+" :checkbox[checked]").each(function(i){
+			a_cn[i]=$(this).attr("title");
+			a_id[i]=$(this).attr("value");
+			});
+			$(inputname).val(a_cn.join(","));
+			$(inputname1).val(a_id.join("|"));
+			if(inputname1=="#wage_structure"){
+				 $("#Form1").validate().element(inputname1); 
+		    }
+	});			
+}
+
+ 

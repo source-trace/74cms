@@ -62,23 +62,25 @@ if($act == 'jobs_contact')
 			if ($_CFG['contact_img_job']=='2')
 			{
 			$token=md5($val['contact'].$id.$val['telephone']);
-			$html="<ul>";
-			$html.="<li>联 系 人：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=1&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>联系电话：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=2&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>联系邮箱：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=3&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>联系地址：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=4&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>联系Q Q： <img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=5&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="</ul>";
+			$ul="<ul>";
+			$contact=$val['contact_show']=='1'?"<li>联 系 人：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=1&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联 系 人：企业设置不对外公开</li>";
+			$telephone=$val['telephone_show']=='1'?"<li>联 系 电 话：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=2&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联 系 电 话：企业设置不对外公开</li>";
+			$email=$val['email_show']=='1'?"<li>联系邮箱：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=3&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联系邮箱：企业设置不对外公开</li>";
+			$address=$val['address_show']=='1'?"<li>联系地址：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=4&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联系地址：企业设置不对外公开</li>";
+			$qq=$val['qq_show']=='1'?"<li>联系Q Q： <img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=jobs_contact&type=5&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联系Q Q：企业设置不对外公开 </li>";
+			$ull="</ul>";
+			$html=$ul.$contact.$telephone.$email.$address.$qq.$ull;
 			}
 			else
 			{
-			$html="<ul>";
-			$html.="<li>联 系 人：{$val['contact']}</li>";
-			$html.="<li>联系电话：{$val['telephone']}</li>";
-			$html.="<li>联系邮箱：{$val['email']}</li>";
-			$html.="<li>联系地址：{$val['address']}</li>";
-			$html.="<li>联系Q Q：{$val['qq']}</li>";
-			$html.="</ul>";
+			$ul="<ul>";
+			$contact=$val['contact_show']=='1'?"<li>联 系 人：{$val['contact']}</li>":"<li>联 系 人：企业设置不对外公开</li>";
+			$telephone=$val['telephone_show']=='1'?"<li>联系电话：{$val['telephone']}</li>":"<li>联系电话：企业设置不对外公开</li>";
+			$email=$val['email_show']=='1'?"<li>联系邮箱：{$val['email']}</li>":"<li>联系邮箱：企业设置不对外公开</li>";
+			$address=$val['address_show']=='1'?"<li>联系地址：{$val['address']}</li>":"<li>联系地址：企业设置不对外公开</li>";
+			$qq=$val['qq_show']=='1'?"<li>联系Q Q：{$val['qq']}</li>":"<li>联系Q Q：企业设置不对外公开</li>";
+			$ull.="</ul>";
+			$html=$ul.$contact.$telephone.$email.$address.$qq.$ull;
 			}
 		exit($html);
 		}
@@ -87,6 +89,7 @@ if($act == 'jobs_contact')
 		exit($html);
 		}
 	}
+		
 }
 elseif($act == 'company_contact')
 {
@@ -133,28 +136,30 @@ elseif($act == 'company_contact')
 		}
 		if ($show)
 		{
-		$sql = "select contact,telephone,email,address,website FROM ".table('company_profile')." where id='{$id}' LIMIT 1";
+		$sql = "select contact,contact_show,telephone,telephone_show,email,email_show,address,address_show,website FROM ".table('company_profile')." where id='{$id}' LIMIT 1";
 		$val=$db->getone($sql);
 			if ($_CFG['contact_img_com']=='2')
 			{
 			$token=md5($val['contact'].$id.$val['telephone']);
-			$html="<ul>";
-			$html.="<li>联 系 人：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=1&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>联系电话：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=2&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>联系邮箱：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=3&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>联系地址：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=4&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";
-			$html.="<li>公司网址：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=5&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";		
-			$html.="</ul>";
+			$ul="<ul>";
+			$contact=$val['contact_show']=='1'?"<li>联 系 人：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=1&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联 系 人：企业设置不对外公开</li>";
+			$telephone=$val['telephone_show']=='1'?"<li>联 系 电 话：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=2&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联 系 电 话：企业设置不对外公开</li>";
+			$email=$val['email_show']=='1'?"<li>联系邮箱：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=3&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联系邮箱：企业设置不对外公开</li>";
+			$address=$val['address_show']=='1'?"<li>联系地址：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=4&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>":"<li>联系地址：企业设置不对外公开</li>";
+			$website.="<li>公司网址：<img src=\"{$_CFG['site_dir']}plus/contact_img.php?act=company_contact&type=5&id={$id}&token={$token}\"  border=\"0\" align=\"absmiddle\"/></li>";		
+			$ull="</ul>";
+			$html=$ul.$contact.$telephone.$email.$address.$website.$ull;
 			}
 			else
 			{
-			$html="<ul>";
-			$html.="<li>联 系 人：{$val['contact']}</li>";
-			$html.="<li>联系电话：{$val['telephone']}</li>";
-			$html.="<li>联系邮箱：{$val['email']}</li>";
-			$html.="<li>联系地址：{$val['address']}</li>";
-			$html.="<li>公司网址：{$val['website']}</li>";		
-			$html.="</ul>";
+			$ul="<ul>";
+			$contact=$val['contact_show']=='1'?"<li>联 系 人：{$val['contact']}</li>":"<li>联 系 人：企业设置不对外公开</li>";
+			$telephone=$val['telephone_show']=='1'?"<li>联系电话：{$val['telephone']}</li>":"<li>联系电话：企业设置不对外公开</li>";
+			$email=$val['email_show']=='1'?"<li>联系邮箱：{$val['email']}</li>":"<li>联系邮箱：企业设置不对外公开</li>";
+			$address=$val['address_show']=='1'?"<li>联系地址：{$val['address']}</li>":"<li>联系地址：企业设置不对外公开</li>";
+			$website="<li>公司网址：{$val['website']}</li>";
+			$ull.="</ul>";
+			$html=$ul.$contact.$telephone.$email.$address.$website.$ull;
 			}
 			exit($html);
 		}
@@ -246,4 +251,4 @@ elseif($act == 'resume_contact')
 		exit($html);
 		}
 }
-?>
+ ?>

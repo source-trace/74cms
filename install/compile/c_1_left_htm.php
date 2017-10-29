@@ -1,4 +1,4 @@
-<?php /* V2.10 Template Lite 4 January 2007  (c) 2005-2007 Mark Dickenson. All rights reserved. Released LGPL. 2013-05-14 14:57 中国标准时间 */ ?>
+<?php /* V2.10 Template Lite 4 January 2007  (c) 2005-2007 Mark Dickenson. All rights reserved. Released LGPL. 2014-02-12 15:10 中国标准时间 */ ?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 <?php if ($this->_vars['act'] == "1"): ?>
 <tr>

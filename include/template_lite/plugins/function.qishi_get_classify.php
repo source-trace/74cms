@@ -48,6 +48,7 @@ if ($act=="QS_jobs")
 	$list[] = $row;
 	}
 }
+ 
 elseif ($act=="QS_jobs_parent")
 {
 	if (strpos($aset['id'],"-"))

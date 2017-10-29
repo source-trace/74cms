@@ -19,12 +19,13 @@ $db = new mysql($dbhost,$dbuser,$dbpass,$dbname);
 if ($_SESSION['uid']=='' || $_SESSION['username']=='' || intval($_SESSION['uid'])===0)
 {
 	header("Location: ".url_rewrite('QS_login')."?act=logout");
+	exit();
 }
 elseif ($_SESSION['utype']!='2')
 {
 	$link[0]['text'] = "会员中心";
 	$link[0]['href'] = url_rewrite('QS_login');
-	showmsg('您访问的页面需要 个人会员 登录！系统将跳转到 企业会员 中心',1,$link);
+	showmsg('您访问的页面需要 个人会员 登录！',1,$link);
 }
 	$act = !empty($_REQUEST['act']) ? trim($_REQUEST['act']) : 'index';
 	$user=get_user_info($_SESSION['uid']);	
@@ -32,6 +33,7 @@ elseif ($_SESSION['utype']!='2')
 	{
 	unset($_SESSION['utype'],$_SESSION['uid'],$_SESSION['username']);
 	header("Location: ".url_rewrite('QS_login')."?url=".$_SERVER["REQUEST_URI"]);
+	exit();
 	}
 	elseif ($user['status']=="2" && $act!='index' && $act!='user_status'  && $act!='user_status_save') 
 	{

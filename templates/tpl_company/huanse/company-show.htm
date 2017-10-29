@@ -33,7 +33,7 @@ $(document).ready(function()
 		$(".app_jobs").click(function(){
 	dialog("投简历","url:get?{#$QISHI.site_dir#}user/user_apply_jobs.php?id="+$(this).attr("id")+"&act=app","500px","auto","");
 	});
-		$("#newbuddy").click(function(){
+	$("#newbuddy").click(function(){
 	dialog("加为好友","url:get?{#$QISHI.site_dir#}user/user_buddy.php?tuid={#$company.uid#}","350px","auto","");
 	});
 	$("#addpms").click(function(){
@@ -61,7 +61,7 @@ $(document).ready(function()
   <div class="snav">
 		<a href="{#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" class="selected">公司介绍</a>
 		<a href="{#"QS_companyjobs,id:"|cat:$company.id|qishi_url#}" >招聘职位</a>
-		<div class="clear"></div>
+ 		<div class="clear"></div>
   </div>
 </div>
 <div class="company-show">
@@ -150,20 +150,21 @@ $(document).ready(function()
   <div class="right">
 		  <div class="txtbox">
 				  <div class="tit">企业档案</div>
-				   <div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#$QISHI.site_domain#}{#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" alt="{#$company.companyname#} - 二维码" /></div>  
-				  <div class="txt">
+				  <div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" alt="{#$company.companyname#} - 二维码" /></div>	  
+		    <div class="txt">
 					  <ul class="link_bku">
 						<li>企业性质：{#$company.nature_cn#}</li>
 						<li>所属行业：<a href="{#"QS_jobslist,trade:"|cat:$company.trade|qishi_url#}" target="_blank">{#$company.trade_cn#}</a></li>
+						
 						<li>公司规模：<a href="{#"QS_jobslist,scale:"|cat:$company.scale|qishi_url#}" target="_blank">{#$company.scale_cn#}</a></li>
 						<li>所在地区：<a href="{#"QS_jobslist,district:"|cat:$company.district|cat:"-sdistrict:"|cat:$company.sdistrict|qishi_url#}" target="_blank">{#$company.district_cn#}</a></li>
 					  </ul>
 				  </div>
-				   <div class="pm link_bk">
+				<div class="pm link_bk">
 					    <div class="pleft"><a href="javascript:void(0)" id="addpms">发短消息</a></div>
 						<div class="pright"><a href="javascript:void(0)" id="newbuddy">加为好友</a></div>
 						<div class="clear"></div>
-					  </div>
+				</div>
 	</div>
 			 <div class="txtbox">
 				  <div class="tit">您可能感兴趣的职位</div>	  

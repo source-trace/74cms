@@ -52,6 +52,15 @@ elseif ($act=='company_profile_save')
 	$setsqlarr['website']=trim($_POST['website']);
 	$setsqlarr['contents']=trim($_POST['contents'])?trim($_POST['contents']):showmsg('请填写公司简介！',1);
 	$setsqlarr['yellowpages']=intval($_POST['yellowpages']);
+	
+	
+	$setsqlarr['contact_show']=intval($_POST['contact_show']);
+	$setsqlarr['email_show']=intval($_POST['email_show']);
+	$setsqlarr['telephone_show']=intval($_POST['telephone_show']);
+	$setsqlarr['address_show']=intval($_POST['address_show']);
+		
+
+	
 	$link[0]['text'] = "查看修改结果";
 	$link[0]['href'] = '?act=company_profile';
 	$link[1]['text'] = "发布招聘信息";
@@ -82,7 +91,6 @@ elseif ($act=='company_profile_save')
 				$jobarr['officebuilding_cn']=$setsqlarr['officebuilding_cn'];				
 				if (!updatetable(table('jobs'),$jobarr," uid=".$setsqlarr['uid']."")) showmsg('修改公司名称出错！',0);
 				if (!updatetable(table('jobs_tmp'),$jobarr," uid=".$setsqlarr['uid']."")) showmsg('修改公司名称出错！',0);
-				if (!updatetable(table('jobfair_exhibitors'),array('companyname'=>$setsqlarr['companyname'])," uid=".$setsqlarr['uid']."")) showmsg('修改公司名称出错！',0);
 				$soarray['trade']=$jobarr['trade'];
 				$soarray['scale']=$jobarr['scale'];
 				$soarray['street']=$setsqlarr['street'];
@@ -93,6 +101,7 @@ elseif ($act=='company_profile_save')
 				updatetable(table('jobs_search_stickrtime'),$soarray," uid=".$setsqlarr['uid']."");
 				updatetable(table('jobs_search_hot'),$soarray," uid=".$setsqlarr['uid']."");
 				updatetable(table('jobs_search_key'),$soarray," uid=".$setsqlarr['uid']."");
+				unset($setsqlarr);
 				write_memberslog($_SESSION['uid'],$_SESSION['utype'],8001,$_SESSION['username'],"修改企业资料");
 				showmsg("保存成功！",2,$link);
 			}
@@ -160,7 +169,7 @@ elseif ($act=='company_logo')
 	$link[0]['href'] = '?act=company_profile';
 	$link[1]['text'] = "会员中心首页";
 	$link[1]['href'] = 'company_index.php';
-	if (empty($company_profile['companyname'])) showmsg("请完善您的企业资料再上传营业执照！",1,$link);
+	if (empty($company_profile['companyname'])) showmsg("请完善您的企业资料再上传企业LOGO！",1,$link);
 	$smarty->assign('title','企业LOGO - 企业会员中心 - '.$_CFG['site_name']);
 	$smarty->assign('company_profile',$company_profile);
 	$smarty->assign('rand',rand(1,100));
@@ -214,7 +223,7 @@ elseif ($act=='company_logo_del')
 		showmsg('删除失败！',1);
 		}
 }
-elseif ($act=='company_map')
+ elseif ($act=='company_map')
 {
 	$link[0]['text'] = "填写企业资料";
 	$link[0]['href'] = '?act=company_profile';
@@ -225,10 +234,15 @@ elseif ($act=='company_map')
 	}
 	else
 	{
-	$points=get_cache('points_rule');//获取积分消费规则
-	$smarty->assign('title','开通电子地图 - 企业会员中心 - '.$_CFG['site_name']);
-	$smarty->assign('points',$points['company_map']['value']);
-	$smarty->display('member_company/company_map_open.htm');
+		if($_CFG['operation_mode']=='1'){
+			$points=get_cache('points_rule');//获取积分消费规则
+			$smarty->assign('points',$points['company_map']['value']);
+		}elseif($_CFG['operation_mode']=='2'){
+			$setmeal=get_user_setmeal($_SESSION['uid']);
+			$smarty->assign('map_open',$setmeal['map_open']);
+		}
+		$smarty->assign('title','开通电子地图 - 企业会员中心 - '.$_CFG['site_name']);
+		$smarty->display('member_company/company_map_open.htm');
 	}
 }
 elseif ($act=='company_map_open')
@@ -236,11 +250,20 @@ elseif ($act=='company_map_open')
 	$link[0]['text'] = "填写企业资料";
 	$link[0]['href'] = '?act=company_profile';
 	if (empty($company_profile['companyname'])) showmsg("请完善您的企业资料再设置电子地图！",1);
-	$points=get_cache('points_rule');
-	$user_points=get_user_points($_SESSION['uid']);
-	if ($points['company_map']['type']=="2" && $points['company_map']['value']>$user_points)
-	{
-	showmsg("你的".$_CFG['points_byname']."不足，请充值后再进行相关操作！",0);
+ 	if($_CFG['operation_mode']=='1'){
+		$points=get_cache('points_rule');
+		$user_points=get_user_points($_SESSION['uid']);
+		if ($points['company_map']['type']=="2" && $points['company_map']['value']>$user_points)
+		{
+		showmsg("你的".$_CFG['points_byname']."不足，请充值后再进行相关操作！",0);
+		}
+	}elseif($_CFG['operation_mode']=='2'){
+		$setmeal=get_user_setmeal($_SESSION['uid']);
+		if ($setmeal['endtime']<time() &&  $setmeal['endtime']<>'0'){
+			showmsg("你的服务套餐已到期，请重新开通服务！",0);
+		}elseif($setmeal['map_open']=='0'){
+			showmsg("你服务套餐：{$setmeal['setmeal_name']} 没有开通电子地图的权限，请升级服务套餐！",0);
+		}
 	}
 	$wheresql="uid='".$_SESSION['uid']."'";
 	$setsqlarr['map_open']=1;
@@ -264,12 +287,16 @@ elseif ($act=='company_map_open')
 			$link[1]['text'] = "返回会员中心首页";
 			$link[1]['href'] = 'company_index.php?act=';			
 			write_memberslog($_SESSION['uid'],1,8005,$_SESSION['username'],"开通了电子地图");
-			if ($points['company_map']['value']>0)
-			{
-			report_deal($_SESSION['uid'],$points['company_map']['type'],$points['company_map']['value']);
-			$user_points=get_user_points($_SESSION['uid']);
-			$operator=$points['company_map']['type']=="1"?"+":"-";
-			write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"开通了电子地图({$operator}{$points['company_map']['value']})，(剩余:{$user_points})");
+			if($_CFG['operation_mode']=='1'){
+				if ($points['company_map']['value']>0)
+				{
+				report_deal($_SESSION['uid'],$points['company_map']['type'],$points['company_map']['value']);
+				$user_points=get_user_points($_SESSION['uid']);
+				$operator=$points['company_map']['type']=="1"?"+":"-";
+				write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"开通了电子地图({$operator}{$points['company_map']['value']})，(剩余:{$user_points})");
+				}
+			}elseif($_CFG['operation_mode']=='2'){
+				write_memberslog($_SESSION['uid'],1,9002,$_SESSION['username'],"使用服务套餐开通了电子地图");
 			}
 			showmsg('成功开通！',2,$link);
 		}
@@ -278,6 +305,7 @@ elseif ($act=='company_map_open')
 		showmsg('开通失败！',1);
 		}
 }
+ 
 elseif ($act=='company_map_set')
 {
 	$smarty->assign('title','设置电子地图 - 企业会员中心 - '.$_CFG['site_name']);
@@ -308,5 +336,5 @@ elseif ($act=='company_map_set_save')
 	showmsg('保存失败',1);
 	}
 }
-unset($smarty);
+ unset($smarty);
 ?>

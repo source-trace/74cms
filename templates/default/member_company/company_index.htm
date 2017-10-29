@@ -10,6 +10,9 @@
 <link href="{#$QISHI.site_template#}css/user.css" rel="stylesheet" type="text/css" />
 <script src="{#$QISHI.site_template#}js/jquery.js" type='text/javascript' language="javascript"></script>
 <script src="{#$QISHI.site_template#}js/jquery.vtip-min.js" type='text/javascript' language="javascript"></script>
+		
+<script src="{#$QISHI.site_template#}js/jquery.reasontip-min.js" type='text/javascript' language="javascript"></script>
+
 <script type="text/javascript">
 $(document).ready(function()
 {
@@ -21,6 +24,9 @@ $(document).ready(function()
 		$(".avatars_edit").hide();
 		});	
 	});
+		
+	vtip_reason("{#$QISHI.site_dir#}","company_reason");
+
 });
 </script>
 </head>
@@ -34,19 +40,20 @@ $(document).ready(function()
     <td width="173" valign="top" class="link_bk">
 {#include file="member_company/left.htm"#}
 	</td>
-    <td valign="top" class="link_lan">
-	{#if $points<=$QISHI.points_min_remind#}
+		
+   <td valign="top" class="link_lan">
+	{#if $QISHI.operation_mode=='1' && $points<=$QISHI.points_min_remind#}
 		 <div class="remind link_lan" >
 		温馨提醒：您的账户{#$QISHI.points_byname#}仅剩余<span>{#$points#}</span>{#$QISHI.points_quantifier#}，建议您尽快<a href="company_service.php?act=order_add">[充值]</a> 。
 		</div>
 		{##/if#}
 		
-		{#if $QISHI.operation_mode=='2'#}
-			{#if $meal_min_remind=="已经到期"#}
+		{#if $QISHI.operation_mode=='2' #}
+			{#if $meal_min_remind=="已经到期" || $setmeal_endtime_days=="已到期,请您重新申请"#}
 			<div class="remind link_lan" >
 			温馨提醒：您的的服务已经到期，建议您尽快<a href="company_service.php?act=setmeal_list">[购买新套餐]</a> 。
 			</div>
-			{#else#}
+			{#elseif $meal_min_remind>="1"#}
 			<div class="remind link_lan" >
 			温馨提醒：您的的服务还有<span>{#$meal_min_remind#}</span>天到期，建议您尽快<a href="company_service.php?act=setmeal_list">[购买新套餐]</a> 。
 			</div>
@@ -55,9 +62,11 @@ $(document).ready(function()
 <div class="com_user_box">
   <div class="titbox">
   	<div class="lefttit"><u>欢迎：{#$user.username#}</u>(uid:{#$user.uid#})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="company_user.php?act=userprofile">会员资料</a></div>
-	<div class="rightip">上次登录时间：{#$user.last_login_time|date_format:"%Y-%m-%d %H:%M"#}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上次登录IP：{#$user.last_login_ip#}</div>
+	
+	<div class="rightip">{#if $loginlog#}上次登录时间：{#$loginlog.log_addtime|date_format:"%Y-%m-%d %H:%M"#}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上次登录IP：{#$loginlog.log_ip#}{#else#}上次登录时间：从未登录&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上次登录IP：从未登录{#/if#}</div>
 	<div class="clear"></div>
   </div>
+ 
 <table width="98%" border="0" align="center" cellpadding="0" cellspacing="5" >
             <tr>
               <td width="120">
@@ -74,19 +83,32 @@ $(document).ready(function()
               <td valign="top">
 			  
 			  <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="color:#666666">
-                <tr>
-                  <td style=" padding-top:12px;">&nbsp;账户{#$QISHI.points_byname#}：&nbsp;<span style="color: #FF6600; font-size:30px; font-family:Arial, Helvetica, sans-serif">{#$points#}</span>&nbsp;&nbsp;{#$QISHI.points_quantifier#}
-				    <a href="company_service.php?act=order_add"><img src="{#$QISHI.site_template#}images/15.gif" alt="马上充值" width="55" height="26" border="0" align="absmiddle" style="margin-left:40px;" /></a>
-				  </td>
-                </tr>
+				{#if $QISHI.operation_mode=="1"#}
+					<tr>
+					  <td style=" padding-top:12px;">&nbsp;账户{#$QISHI.points_byname#}：&nbsp;<span style="color: #FF6600; font-size:30px; font-family:Arial, Helvetica, sans-serif">{#$points#}</span>&nbsp;&nbsp;{#$QISHI.points_quantifier#}
+						<a href="company_service.php?act=order_add"><img src="{#$QISHI.site_template#}images/15.gif" alt="马上充值" width="55" height="26" border="0" align="absmiddle" style="margin-left:40px;" /></a>
+					  </td>
+					</tr>
+				{#elseif $QISHI.operation_mode=="2"#}
+					<tr>
+					  <td style=" padding-top:12px;">&nbsp;我的套餐：&nbsp;<span style="color: #FF6600; font-size:12px; font-family:Arial, Helvetica, sans-serif">{#$setmeal.setmeal_name#}</span>
+						{#if $setmeal.setmeal_id>1#}<a href="company_service.php?act=setmeal_list" ><img src="{#$QISHI.site_dir#}data/setmealimg/{#$setmeal.setmeal_id#}.gif" border="0" align="absmiddle"  title="{#$setmeal.setmeal_name#}" class="vtip"/></a>{#/if#}
+						&nbsp;&nbsp;&nbsp;&nbsp;<a href="company_service.php?act=setmeal_list" >[申请服务]</a>
+					  </td>
+					</tr>
+				{#/if#}				
                 <tr>
                   <td  style=" padding-top:12px;" class="butimglink">
 				  &nbsp;认证状态：&nbsp;
+		
 				  {#if $company.audit=="1"#}
 				  <a href="company_info.php?act=company_auth" class="vtip" title="营业执照已认证，执照编号：{#$company.license#}">营业执照已认证</a>
+				  {#elseif $company.audit=="2"#}
+				  <a href="company_info.php?act=company_auth" class="vtip" style=" background-position: 0px -16px; color: #999999" title="营业执照认证中.....，执照编号：{#$company.license#}">营业执照认证中</a>
 					{#else#}
-					 <a href="company_info.php?act=company_auth" class="vtip" title="营业执照未认证<br/>认证后可增加信息的可信度，还可能额外赠送积分哦！" style=" background-position: 0px -16px; color: #999999">营业执照未认证</a>
+					 <a href="company_info.php?act=company_auth" class="reason" id="{#$company.uid#}" title="营业执照认证未通过<br/>认证通过后可增加信息的可信度，还可能额外赠送积分哦！" style=" background-position: 0px -16px; color: #999999">营业执照认证未通过</a>
 					{#/if#}
+
 					{#if $sms.open=="1"#}			
 						{#if $user.mobile_audit=="1"#}
 						<a href="company_user.php?act=user_mobile" class="vtip" title="手机已认证，手机号：{#$user.mobile#}" style=" background-position: 0px -33px;">手机已认证</a>
@@ -158,6 +180,24 @@ $(document).ready(function()
         <td>人才库容量剩余：<span>{#$setmeal.talent_pool#}</span></td>
         <td></td>
       </tr>
+       <tr>
+        <td>推荐职位剩余：<span>{#$setmeal.recommend_num#}</span></td>
+        <td>置顶职位剩余：<span>{#$setmeal.stick_num#}</span></td>
+        <td>紧急职位剩余：<span>{#$setmeal.emergency_num#}</span></td>
+        <td>套色职位剩余：<span>{#$setmeal.highlight_num#}</span></td>
+      </tr>
+      <tr>
+        <td>推荐职位天数：<span>{#$setmeal.recommend_days#}</span></td>
+        <td>置顶职位天数：<span>{#$setmeal.stick_days#}</span></td>
+        <td>紧急职位天数：<span>{#$setmeal.emergency_days#}</span></td>
+        <td>套色职位天数：<span>{#$setmeal.highlight_days#}</span></td>
+      </tr>
+      <tr>
+        <td>允许自由切换模板：{#if $setmeal.change_templates=="1"#}允许{#else#}不允许{#/if#}</td>
+        <td>允许开通电子地图：{#if $setmeal.map_open=="1"#}允许{#else#}不允许{#/if#}</td>
+        <td></td>
+        <td></td>
+      </tr>
     </table>
 </div>
 {#/if#}
@@ -184,7 +224,7 @@ $(document).ready(function()
         <td colspan="2">通讯地址：{#$company.address#}</td>
         </tr>
 		<tr>
-        <td>电子地图：<a href="company_info.php?act=company_map_set">{#if $company.map_x && $company.map_y#}已经标注{#else#}未标注{#/if#}</a></td>
+        <td>电子地图：<a href="company_info.php?act=company_map">{#if $company.map_x && $company.map_y#}已经标注{#else#}未标注{#/if#}</a></td>
         <td>企业LOGO：<a href="company_info.php?act=company_logo">{#if $company.logo==""#}未上传{#else#}已经上传{#/if#}</a></td>
         <td>&nbsp;</td>
 		</tr>

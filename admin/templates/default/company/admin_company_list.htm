@@ -24,11 +24,22 @@ $(document).ready(function()
 	DialogAddObj:"#Oprefresh",	
 	DialogAddType:"html"	
 	});
+		
+	$("#fail").click(function(){
+		$("#reason").show();
+	});
+	$("#wait").click(function(){
+		$("#reason").hide();
+	});
+	$("#success").click(function(){
+		$("#reason").hide();
+	});
 });
 </script>
 <div class="admin_main_nr_dbox">
 <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
+	{#include file="company/admin_company_nav.htm"#}
   <div class="clear"></div>
 </div>
 <div class="seltpye_x">
@@ -82,8 +93,12 @@ $(document).ready(function()
 	     
       <td width="10%" align="center" class="admin_list_tit">创建时间</td>
 	   <td width="10%" align="center" class="admin_list_tit">刷新时间</td>
-	  <td width="10%" align="center" class="admin_list_tit">添加方式</td>
-      <td width="8%" align="center" class="admin_list_tit">操作</td>
+		{#if $QISHI.operation_mode=='1'#}  
+			  <td width="10%" align="center" class="admin_list_tit">目前积分</td>
+		{#elseif $QISHI.operation_mode=='2'#}  
+			  <td width="10%" align="center" class="admin_list_tit">套餐名称</td>
+		{#/if#}
+      <td width="15%" align="center" class="admin_list_tit">操作</td>
     </tr>
 	{#foreach from=$clist item=list#}
       <tr >
@@ -95,6 +110,8 @@ $(document).ready(function()
 		
 		<td  class="admin_list">
 		{#$list.username#}
+		<a href="admin_mail.php?act=send&email={#$list.memail#}&uid={#$list.uid#}"> <img src="images/email.gif" border="0" title="发送邮件" /></a>
+		 {#if $list.mobile#}<a href="admin_sms.php?act=send&mobile={#$list.mobile#}&uid={#$list.uid#}"><img src="images/sms.gif" border="0" title="发送短信" /></a>{#/if#}
 		</td>
         <td class="admin_list">
 		{#if $list.license#}
@@ -123,10 +140,17 @@ $(document).ready(function()
 		{#$list.refreshtime|date_format:"%Y-%m-%d"#}
 		</td>
 		<td align="center" class="admin_list">
-		{#if $list.robot == "0"#}人工{#/if#}
-		{#if $list.robot == "1"#}采集{#/if#}		</td>
-        <td width="8%" align="center" class="admin_list">
+		{#if $QISHI.operation_mode=='1'#} 
+			<strong>{#$list.points#}</strong> 积分
+		{#elseif $QISHI.operation_mode=='2'#}  
+				{#if $list.setmeal_name#}<span style="color: #009900">{#$list.setmeal_name#}</span>{#else#}<span style="color:#FF3300">无套餐</span>{#/if#}
+		{#/if#}
+		</td>
+		
+        <td width="15%" align="center" class="admin_list">
 		<a href="?act=edit_company_profile&id={#$list.id#}">修改</a>
+		&nbsp;
+		<a href="?act=meal_log&key={#$list.uid#}&key_type=2&key_type_cn=UID">充值记录</a>
 		&nbsp;
 		<a href="?act=management&id={#$list.uid#}"  target="_blank"  class="userinfo"  id="{#$list.uid#}">管理</a>
 		</td>
@@ -230,26 +254,41 @@ $(document).ready(function()
       <td width="20" height="30">&nbsp;</td>
       <td height="30"><strong  style="color:#0066CC; font-size:14px;">将所选企业设置为：</strong></td>
     </tr>
+		
 	      <tr>
       <td height="25">&nbsp;</td>
       <td>
 	  <label >
-                      <input name="audit" type="radio" value="1" checked="checked"  />
+                      <input name="audit" type="radio" value="1" checked="checked"  id="success" />
                       认证通过 </label>	  </td>
     </tr>
     <tr>
       <td height="25">&nbsp;</td>
       <td><label >
-                      <input type="radio" name="audit" value="3"  />
+                      <input type="radio" name="audit" value="3"  id="fail"/>
         认证未通过</label></td>
     </tr>
 	 <tr>
       <td height="25">&nbsp;</td>
       <td>
 	  <label >
-	  <input type="radio" name="audit" value="2"  />      
+	  <input type="radio" name="audit" value="2"  id="wait"/>      
 	  等待认证
 	  </label>	</td>
+    </tr>
+    <tr>
+      <td width="40" height="25">&nbsp;</td>
+      <td>
+		  <label><input type="checkbox" name="pms_notice" value="1"  checked="checked"/>
+		  站内信通知
+		   </label>
+	  </td>
+    </tr>
+	<tr style="display:none" id="reason">
+      <td width="40" height="25" >理由：</td>
+      <td>
+         <textarea name="reason" id="reason" cols="50" style="font-size:12px"></textarea>            
+      </td>
     </tr>
     <tr>
       <td height="25">&nbsp;</td>

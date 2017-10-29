@@ -17,14 +17,16 @@ if($act == 'total')
 {
 	$total_jobs=$db->get_total("SELECT COUNT(*) AS num FROM ".table('jobs_tmp')." WHERE audit=2");
 	$total_company=$db->get_total("SELECT COUNT(*) AS num FROM ".table('company_profile')." WHERE audit=2");
-	$total_payment_log=$db->get_total("SELECT COUNT(*) AS num FROM ".table('order')." WHERE is_paid=1");
-	$total_resume_audit=$db->get_total("SELECT COUNT(*) AS num FROM ".table('resume_tmp')." WHERE audit=2");
+	$total_payment_log=$db->get_total("SELECT COUNT(*) AS num FROM ".table('order')." WHERE is_paid=1 and utype=1");
+ 	$total_resume_audit=$db->get_total("SELECT COUNT(*) AS num FROM ".table('resume_tmp')." WHERE audit=2");
 	$total_resume_talent=$db->get_total("SELECT COUNT(*) AS num FROM ".table('resume')." WHERE talent=3");
 	$total_resume_talent=$total_resume_talent+$db->get_total("SELECT COUNT(*) AS num FROM ".table('resume_tmp')." WHERE talent=3");
 	$total_resume_photo_audit=$db->get_total("SELECT COUNT(*) AS num FROM ".table('resume')." WHERE photo_audit=2 ");
 	$total_resume_photo_audit=$total_resume_photo_audit+$db->get_total("SELECT COUNT(*) AS num FROM ".table('resume_tmp')." WHERE photo_audit=2 ");
 	$total_feedback_replyinfo=$db->get_total("SELECT COUNT(*) AS num FROM ".table('feedback')." WHERE replyinfo=1");//未回复意见与建议
 	$total_report=$db->get_total("SELECT COUNT(*) AS num FROM ".table('report')." ");//所有投诉信息
+	
+ 	
 	$str="[{$total_jobs}]";
 	$str.=",[{$total_resume_audit}]";
 	$str.=",[{$total_company}]";
@@ -33,7 +35,7 @@ if($act == 'total')
 	$str.=",[{$total_resume_photo_audit}]";
 	$str.=",[{$total_report}]";
 	$str.=",[{$total_feedback_replyinfo}]";
-	exit($str);
+ 	exit($str);
 }
 elseif($act == 'get_cat_city')
 {
@@ -63,6 +65,7 @@ elseif($act == 'get_cat_jobs')
 	exit(implode('|',$cat));
 	}
 }
+ 
 elseif($act == 'get_jobs')
 {
 	$type=trim($_GET['type']);

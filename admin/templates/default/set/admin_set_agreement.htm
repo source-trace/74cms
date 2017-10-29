@@ -1,6 +1,8 @@
 {#include file="sys/admin_header.htm"#}
 
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
 <div class="admin_main_nr_dbox">
   <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
@@ -15,18 +17,14 @@
 
             <tr>
               <td width="441"><textarea name="agreement" style=" width:700px;height:400px; font-size:12px; line-height:180%"  id="agreement">{#$text.agreement#}</textarea>
-                  <script>
- KE.show({
-				id : 'agreement',
-				resizeMode : 1,
-				allowPreviewEmoticons : false,
-				allowUpload : false,
-				items : [
-				'source','fontname', 'fontsize', '|', 'textcolor', 'bgcolor', 'bold', 'italic', 'underline',
-				'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
-				'insertunorderedlist', '|',  'link']
-			});
-		    </script>              </td>
+                   <script>
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="agreement"]', {
+          allowFileManager : true
+        });
+      });
+    </script>             </td>
             </tr>
             <tr>
               <td height="50">

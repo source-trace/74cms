@@ -7,7 +7,7 @@ INSERT INTO `qs_ad_category` (`id`, `alias`, `type_id`, `categoryname`, `admin_s
 (7, 'QS_indexfloat', 5, '首页对联广告', 1),
 (8, 'QS_alltopimg', 2, '全站顶部图片广告位468X60', 1),
 (9, 'QS_indexfootbanner', 2, '首页底部Banner 985X80', 1);
-
+ 
 INSERT INTO `qs_ad` (`id`, `alias`, `is_display`, `category_id`, `type_id`, `title`,`note`, `show_order`, `addtime`, `starttime`, `deadline`, `text_content`, `text_url`, `text_color`, `img_path`, `img_url`, `img_explain`, `code_content`, `flash_path`, `flash_width`, `flash_height`, `floating_type`, `floating_width`, `floating_height`, `floating_url`, `floating_path`, `floating_left`, `floating_right`, `floating_top`,`video_path`,`video_width`,`video_height`) VALUES 
 (1, 'QS_indexfocus', 1, 1, 2, '软件商业授权','', 50, 0, 0, 0, '', '', '', 'http://www.74cms.com/74ad_280x135.jpg', 'http://www.74cms.com/', '骑士CMS商业授权', '', '', 0, 0, 1, 0, 0, '', '', 0, 0, 0,'',0,0);
 
@@ -85,8 +85,8 @@ INSERT INTO `qs_config` (`id`, `name`, `value`) VALUES
 (NULL, 'filter_tips', '请勿在信息中包敏感词语。'),
 (NULL, 'filter_ip', ''),
 (NULL, 'filter_ip_tips', '您的IP已经被锁定禁止访问，请联系网站管理员。'),
-(NULL, 'setmeal_to_points', '1'),
-(NULL, 'meal_min_remind', '0'),
+(NULL, 'subsite', '0'),
+ (NULL, 'meal_min_remind', '0'),
 (NULL, 'reg_service', '1'),
 (NULL, 'operation_mode', '1'),
 (NULL, 'tpl_company', 'default'),
@@ -110,7 +110,7 @@ INSERT INTO `qs_config` (`id`, `name`, `value`) VALUES
 (NULL, 'contact_img_com', '1'),
 (NULL, 'contact_img_job', '1'),
 (NULL, 'contact_img_resume', '1'),
-(NULL, 'qq_apiopen', '0'),
+ (NULL, 'qq_apiopen', '0'),
 (NULL, 'qq_logintype', '1'),
 (NULL, 'qq_appid', ''),
 (NULL, 'qq_appkey', ''),
@@ -119,7 +119,14 @@ INSERT INTO `qs_config` (`id`, `name`, `value`) VALUES
 (NULL, 'sina_appsecret', ''),
 (NULL, 'taobao_apiopen', '0'),
 (NULL, 'taobao_appkey', ''),
-(NULL, 'taobao_appsecret', '');
+(NULL, 'taobao_appsecret', ''),
+(NULL, 'weixin_apiopen', '0'),
+(NULL, 'weixin_appsecret', ''),
+(NULL, 'weixin_img', 'weixin_img.jpg'),
+(NULL, 'com_pointsmode_refresh_space', '0'),
+(NULL, 'com_pointsmode_refresh_time', '0'),
+(NULL, 'per_refresh_resume_space', '0'),
+(NULL, 'per_refresh_resume_time', '0');
 
 INSERT INTO `qs_explain` (`id`, `type_id`, `title`, `content`, `tit_color`, `tit_b`, `is_display`, `is_url`, `seo_keywords`, `seo_description`, `click`, `addtime`, `show_order`) VALUES 
 (NULL, 1, '自定义栏目', '', '', 0, 1, 'http://', '', '', 1, 1264332774, 0),
@@ -1255,21 +1262,21 @@ INSERT INTO `qs_mail_templates` (`id`, `name`, `value`) VALUES
 (NULL, 'set_resumeallow', '亲爱的会员：<br />\r\n恭喜，您的简历已通过审核！<br />\r\n请登录<a href="{sitedomain}" target="_blank">会员中心</a>详细查看。<br />\r\n此信息由系统自动发送，请勿回复！'),
 (NULL, 'set_resumenotallow', '亲爱的会员：<br />\r\n很抱歉，您的简历未通过审核，请修改后再次提交审核！<br />\r\n请登录<a href="{sitedomain}" target="_blank">会员中心</a>详细查看。<br />\r\n此信息由系统自动发送，请勿回复！');
 
-INSERT INTO `qs_members_points_rule` (`id`, `title`, `name`, `operation`, `value`) VALUES 
-(null, '刷新职位', 'jobs_refresh', '2', 0),
-(null, '发布职位', 'jobs_add', '2', 15),
-(null, '职位有效期内每天', 'jobs_daily', '2', 1),
-(null, '下载普通简历', 'resume_download', '2', 1),
-(null, '下载高级人才简历', 'resume_download_advanced', '2', 2),
-(null, '发起普通人才面试邀请', 'interview_invite', '2', 1),
-(null, '发起高级人才面试邀请', 'interview_invite_advanced', '2', 2),
-(null, '修改招聘信息', 'jobs_edit', '2', 3),
-(null, '永久开通电子地图', 'company_map', '2', 10),
-(null, '上传营业执照并认证通过', 'company_auth', '1', 15),
-(null, '新注册会员赠送', 'reg_points', '1', 60),
-(NULL, '会员每天第一次登录', 'userlogin', '1', '1'),
-(NULL, '会员邮箱认证通过', 'verifyemail','1', '3'), 
-(NULL, '会员手机认证通过', 'verifymobile', '1', '3');
+INSERT INTO `qs_members_points_rule` (`id`,`utype`, `title`, `name`, `operation`, `value`) VALUES 
+(null, '1','刷新职位', 'jobs_refresh', '2', 0),
+(null,'1', '发布职位', 'jobs_add', '2', 15),
+(null, '1','职位有效期内每天', 'jobs_daily', '2', 1),
+(null,'1', '下载普通简历', 'resume_download', '2', 1),
+(null,'1', '下载高级人才简历', 'resume_download_advanced', '2', 2),
+(null,'1', '发起普通人才面试邀请', 'interview_invite', '2', 1),
+(null,'1', '发起高级人才面试邀请', 'interview_invite_advanced', '2', 2),
+(null,'1', '修改招聘信息', 'jobs_edit', '2', 3),
+(null, '1','永久开通电子地图', 'company_map', '2', 10),
+(null,'1', '上传营业执照并认证通过', 'company_auth', '1', 15),
+(null, '1','新注册会员赠送', 'reg_points', '1', 60),
+(NULL,'1', '会员每天第一次登录', 'userlogin', '1', '1'),
+(NULL,'1', '会员邮箱认证通过', 'verifyemail','1', '3'), 
+(NULL,'1', '会员手机认证通过', 'verifymobile', '1', '3');
 
 INSERT INTO `qs_payment` (`id`, `listorder`, `typename`, `byname`, `p_introduction`, `notes`, `partnerid`, `ytauthkey`, `fee`, `parameter1`, `parameter2`, `parameter3`, `p_install`) VALUES 
 (NULL, 50, 'remittance', '转账/汇款', '没有开通网银的请选择此项，到款后需客服为您手动开通', '<br /><br />\r\n<div align="center"><strong style=" color:#FF6600; font-size:18px;">付款后请通知我们客服！为你开通相关服务！</strong></div>\r\n <br />\r\n<strong style="color:#FF0000" >联系客服</strong>\r\n  <br />\r\n客服QQ:000000000; 客服电话：000-0000000\r\n<br />\r\n<br />\r\n<strong style="color:#FF0000" >付款方式</strong>\r\n<br />\r\n工商银行<br />\r\n  账号：000000000000000000000<br />\r\n户名：xxxxxxxxxxxxxxx<br />\r\n开户行：XXXXXXXXXXXXXX<br />\r\n---------------------------<br />\r\n  建设银行<br />\r\n  账号：000000000000000000000<br />\r\n  户名：xxxxxxxxxxxxxxx<br />\r\n开户行：XXXXXXXXXXXXXX\r\n<br />', 'remittance', '', '0', '', '', '', 2),
@@ -1311,6 +1318,7 @@ INSERT INTO `qs_page` (`id`, `systemclass`, `pagetpye`, `alias`, `pname`, `file`
 (NULL, 1, 3, 'QS_helpshow', '帮助详细页', 'help/help-show.php', 'help/help-show.htm', 'help/help-show-($id).htm', 0, 0, 'help', '', '', ''),
 (NULL, 1, 2, 'QS_helpsearch', '帮助搜索页', 'help/help-search.php', 'help/help-search.htm', 'help/help-search-($key)-($page).htm', 0, 0,'help', '', '', '');
 
+
 INSERT INTO `qs_navigation` (`id`, `alias`, `urltype`, `display`, `title`, `color`, `pagealias`, `list_id`, `tag`, `url`, `target`, `navigationorder`) VALUES 
 (NULL, 'QS_top', 0, 1, '首  页', '', 'QS_index', '', 'homepage', '', '_self', 0),
 (NULL, 'QS_top', 0, 1, '招聘信息', '', 'QS_jobs', '', 'jobs', '', '_blank', 0),
@@ -1320,6 +1328,7 @@ INSERT INTO `qs_navigation` (`id`, `alias`, `urltype`, `display`, `title`, `colo
 (NULL, 'QS_top', 0, 1, '黄页', '', 'QS_companylist', '', 'company', '', '_self', 0),
 (NULL, 'QS_top', 0, 1, '新闻资讯', '', 'QS_news', '', 'news', '', '_self', 0),
 (NULL, 'QS_top', 0, 1, '会员中心', '', 'QS_login', '', 'user', '', '_self', 0);
+
 
 
 INSERT INTO `qs_navigation_category` (`id`, `alias`, `categoryname`, `admin_set`) VALUES 
@@ -1362,15 +1371,16 @@ INSERT INTO `qs_text` (`id`, `name`, `value`) VALUES
 (NULL, 'agreement', '请完善注册协议'),
 (NULL, 'link_application_txt', '有意与本站交换链接的同盟请注意：<br />1、贵网站为人才相关网站；<br />2、首页友情连接，要求pr&gt;=6、alexa &lt; 10000；其他页面连接根据具体页面而定（请具体咨询）。<br />3、贵网站要在百度google都有记录收录，且网站访问速度不能太慢。');
 
-INSERT INTO `qs_setmeal` (`id`, `display`, `apply`, `setmeal_name`, `days`, `expense`, `jobs_ordinary`, `download_resume_ordinary`, `download_resume_senior`, `interview_ordinary`, `interview_senior`, `talent_pool`, `added`, `show_order`) VALUES 
-(1, 1, 0, '免费会员', 15, 0, 2, 5, 1, 5, 1, 15, '', 0),
-(2, 1, 1, '铜牌会员', 30, 300, 10, 300, 30, 300, 30, 3000, '', 0),
-(3, 1, 1, '银牌会员', 90, 600, 30, 900, 90, 900, 90, 9000, '赠送首页广告位', 0),
-(4, 1, 1, '金牌会员', 180, 1000, 60, 1800, 180, 1800, 180, 18000, '赠送首页广告位', 0),
-(5, 1, 1, '钻石会员', 360, 1600, 120, 3600, 360, 3600, 360, 36000, '赠送首页广告位', 0);
+INSERT INTO `qs_setmeal` (`id`, `display`, `apply`, `setmeal_name`, `days`, `expense`, `jobs_ordinary`, `download_resume_ordinary`, `download_resume_senior`, `interview_ordinary`, `interview_senior`,`jobs_hunter`, `download_resume_huntered`,`interview_huntered`, `talent_pool`,`recommend_num`,`recommend_days`,`stick_num`,`stick_days`,`emergency_num`,`emergency_days`,`highlight_num`,`highlight_days`,  `jobsfair_num`,
+`change_templates`,`map_open`, `added`, `show_order`) VALUES 
+(1, 1, 0, '免费会员', 15, 0, 2, 5, 1, 5, 1,1,2,2,15,10,20,10,20,10,20,10,20,1,0,0, '', 0),
+(2, 1, 1, '铜牌会员', 30, 300, 10, 300, 30, 300, 30,5,3,3 ,3000,20,30,20,30,20,30,20,30,2,1,1, '', 0),
+(3, 1, 1, '银牌会员', 90, 600, 30, 900, 90, 900, 90,10,5,5, 9000,30,40,30,40,30,40,30,40,3,1,1,'赠送首页广告位', 0),
+(4, 1, 1, '金牌会员', 180, 1000, 60, 1800, 180, 1800, 180,15,10,10, 18000,40,50,40,50,40,50,40,50,4,1,1,'赠送首页广告位', 0),
+(5, 1, 1, '钻石会员', 360, 1600, 120, 3600, 360, 3600, 360, 20,15,15,36000,50,60,50,60,50,60,50,60,5,1,1,'赠送首页广告位', 0);
 
-
-INSERT INTO `qs_notice_category` (`id`, `categoryname`, `sort`, `admin_set`) VALUES (1, '首页公告', 0, 1);
+INSERT INTO `qs_notice_category` (`id`, `categoryname`, `sort`, `admin_set`) VALUES 
+(1, '首页公告', 0, 1);
 
 INSERT INTO `qs_category_group` (`g_id`, `g_alias`, `g_name`, `g_sys`) VALUES 
 (NULL, 'QS_trade', '行业分类', 1),
@@ -1471,7 +1481,7 @@ INSERT INTO `qs_category` (`c_id`, `c_parentid`, `c_alias`, `c_name`, `c_order`,
 (83, 0, 'QS_scale', '500-999人', 0, '', '', '', ''),
 (84, 0, 'QS_scale', '1000-9999人', 0, '', '', '', ''),
 (85, 0, 'QS_scale', '10000人以上', 0, '', '', '', '');
-
+ 
 INSERT INTO `qs_category` (`c_id`, `c_parentid`, `c_alias`, `c_name`, `c_order`, `c_index`, `c_note`, `stat_jobs`, `stat_resume`) VALUES 
 (NULL, 0, 'QS_officebuilding', '富力盈信大厦', 0, 'f', '建设路与松江路交叉口', '', ''),
 (NULL, 0, 'QS_officebuilding', '财富中心', 0, 'c', '建设路与松江路交叉口', '', ''),
@@ -1563,7 +1573,7 @@ INSERT INTO `qs_category` (`c_id`, `c_parentid`, `c_alias`, `c_name`, `c_order`,
 (NULL, 0, 'QS_resumetag', '人脉广', 0, 'r', '0', '', ''),
 (NULL, 0, 'QS_resumetag', '知识丰富', 0, 'z', '0', '', ''),
 (NULL, 0, 'QS_resumetag', '才艺多', 0, 'c', '0', '', '');
-
+ 
 INSERT INTO `qs_crons` (`cronid`, `available`, `admin_set`, `name`, `filename`, `lastrun`, `nextrun`, `weekday`, `day`, `hour`, `minute`) VALUES 
 (NULL, 1, 1, '每周清除缓存文件', 'clear_all_cache.php', 0, 0, 5, -1, 1, '0'),
 (NULL, 1, 1, '限时推广清理', 'clear_promotion.php', 0, 0, -1, -1, 0, '0'),
@@ -1618,7 +1628,7 @@ INSERT INTO `qs_sms_config` (`id`, `name`, `value`) VALUES
 (15, 'set_addmap', '0'),
 (16, 'set_resumeallow', '0'),
 (17, 'set_resumenotallow', '0');
-
+ 
 INSERT INTO `qs_mail_templates` ( `id` , `name` , `value` ) VALUES 
 (NULL, 'set_reg_title', '恭喜你成为{sitename}的会员'), 
 (NULL, 'set_applyjobs_title', '{personalfullname}申请了您发布的职位:{jobsname}'),
@@ -1633,7 +1643,7 @@ INSERT INTO `qs_mail_templates` ( `id` , `name` , `value` ) VALUES
 (NULL, 'set_addmap_title', '恭喜，您已成功开通企业电子地图！'), 
 (NULL, 'set_resumeallow_title', '恭喜，您的简历已通过审核！'), 
 (NULL, 'set_resumenotallow_title', '很抱歉，你的简历未通过审核！');
-
+ 
 INSERT INTO `qs_sms_templates` (`id`, `name`, `value`) VALUES 
 (NULL, 'set_applyjobs', '{sitename}提醒您:{personalfullname}申请了您发布的职位{jobsname}，请登录{sitedomain}查看'),
 (NULL, 'set_invite', '{sitename}提醒您：{companyname}对您发起了面试邀请，请登录{sitedomain}查看'),
@@ -1648,7 +1658,7 @@ INSERT INTO `qs_sms_templates` (`id`, `name`, `value`) VALUES
 (NULL, 'set_addmap', '{sitename}提醒您：您已成功开通企业电子地图！请登录{sitedomain}查看'),
 (NULL, 'set_resumeallow', '{sitename}提醒您：您的简历已通过审核！请登录{sitedomain}查看'),
 (NULL, 'set_resumenotallow', '{sitename}提醒您：您的简历未通过审核，请修改后再次提交审核！请登录{sitedomain}查看');
-
+ 
 INSERT INTO `qs_captcha` (`id`, `name`, `value`) VALUES 
 (null, 'verify_userreg', '0'),
 (null, 'verify_userlogin', '0'),
@@ -1660,6 +1670,8 @@ INSERT INTO `qs_captcha` (`id`, `name`, `value`) VALUES
 (null, 'verify_simple', '0'),
 (null, 'verify_comment', '0'),
 (null, 'verify_adminlogin', '0'),
+(null, 'verify_recommendjobs', '0'),
+(null, 'verify_recommendresume', '0'),
 (null, 'captcha_width', '150'),
 (null, 'captcha_height', '40'),
 (null, 'captcha_textcolor', ''),
@@ -1670,6 +1682,8 @@ INSERT INTO `qs_captcha` (`id`, `name`, `value`) VALUES
 (null, 'captcha_noisepoint', '0'),
 (null, 'captcha_noiseline', '5'),
 (null, 'captcha_distortion', '0');
+
+
 
 INSERT INTO `qs_help_category` (`id`, `parentid`, `categoryname`, `category_order`) VALUES 
 (1, 0, '账户管理', 3),
@@ -1701,3 +1715,4 @@ INSERT INTO `qs_baiduxml` (`id`, `name`, `value`) VALUES
 
 INSERT INTO `qs_pms_sys` (`spmid`, `spms_usertype`, `spms_type`, `message`, `dateline`) VALUES 
 (NULL, 0, 1, '感谢您使用骑士人才系统\r\n\r\n骑士人才系统官方网站：http://www.74cms.com', 1363941301);
+

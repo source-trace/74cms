@@ -70,4 +70,41 @@ elseif($act == 'del_memberslog')
 	adminmsg("删除失败！",0);
 	}
 }
+elseif($act == 'pidel_memberslog')
+{
+	get_token();
+	$smarty->assign('pageheader',"删除会员日志");
+	$smarty->display('memberslog/admin_memberslogdel.htm');
+}
+elseif($act == 'pidel_memberslog_del')
+{
+	check_token();
+	$log_type=$_POST['log_type'];
+	if(empty($log_type))	adminmsg('请选择错误类型！',1);
+	$starttime=intval(convert_datefm($_POST['starttime'],2));
+	if (empty($starttime))
+	{
+	adminmsg('请填写开始时间！',1);
+	}	
+	$endtime=intval(convert_datefm($_POST['endtime'],2));
+	if (empty($endtime))
+	{
+	adminmsg('请填写结束时间！',1);
+	}	
+	if($starttime>$endtime) adminmsg('开始时间不能大于结束时间！',1);
+	$link[0]['text'] = "返回日志列表";
+	$link[0]['href'] = '?act=list';
+	$link[1]['text'] = "继续删除";
+	$link[1]['href'] = '?act=pidel_memberslog';
+	$dnum=pidel_memberslog($log_type,$starttime,$endtime);
+	if ($dnum>0)
+	{
+	adminmsg("删除成功！共删除".$dnum."行",2,$link);
+	}
+	else
+	{
+	adminmsg("该日期段没有日志或删除失败,请检查！",0,$link);
+	}
+}
+
 ?>

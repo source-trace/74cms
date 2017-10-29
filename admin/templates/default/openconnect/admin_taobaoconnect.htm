@@ -1,5 +1,4 @@
 {#include file="sys/admin_header.htm"#}
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
 <div class="admin_main_nr_dbox">
  <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
@@ -15,13 +14,13 @@
 现在就去<a href="http://open.taobao.com/" target="_blank">申请</a></p>
 </div>
 
-<div class="toptit">新浪微博帐号登录设置</div>
+<div class="toptit">淘宝帐号登录设置</div>
  
     <form action="?act=set_taobao_save" method="post" name="form1" id="form1">
  {#$inputtoken#}
     <table width="700" border="0" cellspacing="6" cellpadding="1" style=" margin-bottom:3px;">
 	<tr>
-      <td width="150" align="right">开启微博帐号登录：</td>
+      <td width="150" align="right">开启淘宝帐号登录：</td>
       <td  >
 	  <label>
         <input name="taobao_apiopen" type="radio"  value="1"  {#if $config.taobao_apiopen=="1"#}checked=checked {#/if#}/>开启</label>

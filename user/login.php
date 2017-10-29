@@ -25,7 +25,7 @@ if($act == 'logout')
 	setcookie("QS[password]","",time() - 3600,$QS_cookiepath, $QS_cookiedomain);
 	setcookie("QS[utype]","",time() - 3600,$QS_cookiepath, $QS_cookiedomain);
 	unset($_SESSION['uid'],$_SESSION['username'],$_SESSION['utype'],$_SESSION['uqqid'],$_SESSION['activate_username'],$_SESSION['activate_email'],$_SESSION["openid"]);
-    $logoutjs.="<script language=\"javascript\" type=\"text/javascript\">window.location.href=\"".url_rewrite('QS_login')."\";</script>";
+     $logoutjs.="<script language=\"javascript\" type=\"text/javascript\">window.location.href=\"".url_rewrite('QS_login')."\";</script>";
 	exit($logoutjs);
 }
 elseif((empty($_SESSION['uid']) || empty($_SESSION['username']) || empty($_SESSION['utype'])) &&  $_COOKIE['QS']['username'] && $_COOKIE['QS']['password'] && $_COOKIE['QS']['uid'])

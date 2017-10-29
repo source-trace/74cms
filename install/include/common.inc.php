@@ -70,7 +70,7 @@ exit("请先将“install”目录以及此目录下的子目录设置为可读写状态（777）<br />建议
 					'temp/caches',
 					'temp/templates_c',		
 					'temp/backup_templates',			
-					'templates',
+					'templates',	
 					'admin/statement',			
 					'install'
                     );

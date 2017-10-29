@@ -1,5 +1,7 @@
 {#include file="sys/admin_header.htm"#}
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
 <div class="admin_main_nr_dbox">
  <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
@@ -40,20 +42,15 @@
 				</td>
           </tr>
           <tr>
-            <td><textarea name="templates_value" id="templates_value" style="width:650px; height:260px; font-size:12px; line-height:180%" >{#$info.value#}</textarea>
+            <td><textarea name="templates_value" id="templates_value" style="width:700px; height:260px; font-size:12px; line-height:180%" >{#$info.value#}</textarea>
 			<script>
- KE.show({
-				id : 'templates_value',
-				resizeMode : 1,
-				allowPreviewEmoticons : false,
-				allowUpload : true,
-				imageUploadJson : '../../upload_json.php',
-				items : [
-				'source','fontname', 'fontsize', '|', 'textcolor', 'bgcolor', 'bold', 'italic', 'underline',
-				'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
-				'insertunorderedlist', '|','image', 'link']
-			});
-		</script>			</td>
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="templates_value"]', {
+          allowFileManager : true
+        });
+      });
+    </script>   			</td>
             </tr>
 			
           <tr>
@@ -84,7 +81,7 @@
 
 		 $('.sellabel[align="left"]').unbind("click").click(function(){ 
 		 $('#title').unbind();
-			 KE.insertHtml('templates_value', $(this).attr("id"));
+			 editor.insertHtml($(this).attr("id"));
 			 //$('#templates_value').insertAtCaret($(this).attr("id"));
 	});
 })($);   

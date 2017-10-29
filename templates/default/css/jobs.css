@@ -90,7 +90,7 @@
 .jobs_list .list .li_left{ width:860px; float:left;}
 .jobs_list .list .li_left .jobname{ height:20px; width:320px; font-size:14px; float:left; padding-top:6px;font-family:"microsoft yahei","ËÎÌו";}
 .jobs_list .list .li_left .com{ height:20px; width:320px;float:left;padding-top:6px; font-family:"microsoft yahei","ËÎÌו";}
-.jobs_list .list .li_left .wage{ height:20px; width:90px;float:left;padding-top:6px;}
+.jobs_list .list .li_left .wage{ height:20px; width:100px;float:left;padding-top:6px;}
 .jobs_list .list .li_left .date{ height:20px; width:100px;float:left;padding-top:6px; text-align:right;}
 .jobs_list .list .li_left .txt { line-height:180%;word-break:break-all;word-wrap:break-word;}
 .jobs_list .list .li_left .tag { padding-top:5px; color:#333333}

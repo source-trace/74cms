@@ -119,8 +119,8 @@ elseif($act=="add_save")
 	$setsqlarr['message']=trim($_GET['msg']);
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$toname=iconv("utf-8",QISHI_DBCHARSET,$toname);
-	$setsqlarr['message']=iconv("utf-8",QISHI_DBCHARSET,$setsqlarr['message']);
+	$toname=utf8_to_gbk($toname);
+	$setsqlarr['message']=utf8_to_gbk($setsqlarr['message']);
 	}
 	$msgtouser= $db->getone("select * from ".table('members')." where username = '{$toname}' LIMIT 1");
 	if (empty($msgtouser))

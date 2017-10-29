@@ -241,7 +241,8 @@ function makejs_classify()
 		unset($sarr);
 		}
 	}
-	//
+	
+ 	//
 	$sql = "select * from ".table('category')." ORDER BY c_order DESC,c_id ASC";
 	$list=$db->getall($sql);
 	foreach($list as $li)
@@ -282,8 +283,7 @@ function makejs_classify()
 		{
 		$resumetag[]="\"".$li['c_id'].",".$li['c_name']."\"";
 		}
-	
-	}
+ 	}
 	$content .= "var QS_trade=new Array(".implode(',',$trade).");\n";
 	$content .= "var QS_companytype=new Array(".implode(',',$companytype).");\n";
 	$content .= "var QS_wage=new Array(".implode(',',$wage).");\n";
@@ -293,6 +293,7 @@ function makejs_classify()
 	$content .= "var QS_scale=new Array(".implode(',',$scale).");\n";
 	$content .= "var QS_jobtag=new Array(".implode(',',$jobtag).");\n";
 	$content .= "var QS_resumetag=new Array(".implode(',',$resumetag).");\n";
+ 	
 	$fp = @fopen(QISHI_ROOT_PATH . 'data/cache_classify.js', 'wb+');
 	if (!$fp){
 			exit('生成JS文件失败');
@@ -310,7 +311,7 @@ function url_rewrite($alias=NULL,$get=NULL,$rewrite=true)
 {
 	global $_CFG,$_PAGE;
 	$url ='';
-	if ($_PAGE[$alias]['url']=='0' || $rewrite==false)//原始链接
+	if ($_PAGE[$alias]['url']=='0' || $rewrite==false)
 	{
 			if (!empty($get))
 			{
@@ -320,11 +321,11 @@ function url_rewrite($alias=NULL,$get=NULL,$rewrite=true)
 				}
 			}
 			$url=!empty($url)?"?".rtrim($url,'&amp;'):'';
-			return $_CFG['site_dir'].$_PAGE[$alias]['file'].$url;
+			return $_CFG['site_domain'].$_CFG['site_dir'].$_PAGE[$alias]['file'].$url;
 	}
 	else 
 	{
-			$url =$_CFG['site_dir'].$_PAGE[$alias]['rewrite'];
+			$url = $_CFG['site_domain'].$_CFG['site_dir'].$_PAGE[$alias]['rewrite'];
 			if ($_PAGE[$alias]['pagetpye']=='2' && empty($get['page']))
 			{
 			$get['page']=1;
@@ -333,7 +334,13 @@ function url_rewrite($alias=NULL,$get=NULL,$rewrite=true)
 			{
 			$url=str_replace('($'.$k.')',$v,$url);
 			}
-			return preg_replace('/\(\$(.+?)\)/','',$url);
+			$url=preg_replace('/\(\$(.+?)\)/','',$url);
+			if(substr($url,-5)=='?key=')
+			{
+			$url=rtrim($url,'?key=');
+			}
+			return $url;
 	}
 }
-?>
+
+ ?>

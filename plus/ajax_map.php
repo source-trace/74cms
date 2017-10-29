@@ -19,7 +19,7 @@ function iconv_js($string)
 {
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	return iconv(QISHI_DBCHARSET,"utf-8//IGNORE",$string);
+	return gbk_to_utf8($string);
 	}
 }
 if (!empty($jobshow))

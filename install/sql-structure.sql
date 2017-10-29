@@ -37,6 +37,7 @@ CREATE TABLE `qs_admin_log` (
 DROP TABLE IF EXISTS `qs_article`;
 CREATE TABLE `qs_article` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `subsite_id` tinyint(3) unsigned NOT NULL default '0',
   `type_id` tinyint(3) unsigned NOT NULL,
   `parentid` smallint(5) unsigned NOT NULL,
   `title` varchar(100) NOT NULL,
@@ -126,7 +127,7 @@ DROP TABLE IF EXISTS `qs_company_profile`;
 CREATE TABLE `qs_company_profile` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `uid` int(10) unsigned NOT NULL,
-  `tpl` VARCHAR( 60 ) NOT NULL,
+  `tpl` varchar(60) NOT NULL,
   `companyname` varchar(60) NOT NULL,
   `nature` smallint(5) unsigned NOT NULL,
   `nature_cn` varchar(30) NOT NULL,
@@ -135,10 +136,10 @@ CREATE TABLE `qs_company_profile` (
   `district` smallint(5) unsigned NOT NULL,
   `sdistrict` smallint(5) unsigned NOT NULL,
   `district_cn` varchar(30) NOT NULL,
-  `street` smallint( 5 ) UNSIGNED NOT NULL,
-  `street_cn` VARCHAR( 50 ) NOT NULL,
-  `officebuilding` smallint( 5 ) UNSIGNED NOT NULL,
-  `officebuilding_cn` VARCHAR( 50 ) NOT NULL,
+  `street` smallint(5) unsigned NOT NULL,
+  `street_cn` varchar(50) NOT NULL,
+  `officebuilding` smallint(5) unsigned NOT NULL,
+  `officebuilding_cn` varchar(50) NOT NULL,
   `scale` smallint(5) unsigned NOT NULL,
   `scale_cn` varchar(30) NOT NULL,
   `registered` varchar(150) NOT NULL,
@@ -151,7 +152,7 @@ CREATE TABLE `qs_company_profile` (
   `license` varchar(120) NOT NULL,
   `certificate_img` varchar(80) NOT NULL,
   `logo` varchar(30) NOT NULL,
-  `contents` TEXT NOT NULL,
+  `contents` text NOT NULL,
   `audit` tinyint(4) unsigned NOT NULL default '0',
   `map_open` tinyint(3) unsigned NOT NULL default '0',
   `map_x` varchar(50) NOT NULL,
@@ -161,15 +162,19 @@ CREATE TABLE `qs_company_profile` (
   `refreshtime` int(10) unsigned NOT NULL,
   `click` int(10) unsigned NOT NULL default '1',
   `user_status` tinyint(3) unsigned NOT NULL default '1',
-  `yellowpages` TINYINT( 1 ) NOT NULL DEFAULT '0',
+  `yellowpages` tinyint(1) NOT NULL default '0',
+  `contact_show` tinyint(1) unsigned NOT NULL default '0',
+  `telephone_show` tinyint(1) unsigned NOT NULL default '0',
+  `address_show` tinyint(1) unsigned NOT NULL default '0',
+  `email_show` tinyint(1) unsigned NOT NULL default '0',
   `robot` tinyint(3) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `uid` (`uid`),
   KEY `audit` (`audit`),
   KEY `companyname` (`companyname`),
-  KEY `yellowpages` ( `yellowpages` , `trade` ),
+  KEY `yellowpages` (`yellowpages`,`trade`),
   KEY `addtime` (`addtime`)
-) TYPE=MyISAM;
+)TYPE=MyISAM;
 
 DROP TABLE IF EXISTS `qs_company_favorites`;
 CREATE TABLE `qs_company_favorites` (
@@ -192,6 +197,7 @@ CREATE TABLE `qs_config` (
 DROP TABLE IF EXISTS `qs_explain`;
 CREATE TABLE `qs_explain` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `subsite_id` tinyint(3) unsigned NOT NULL default '0',
   `type_id` smallint(5) unsigned NOT NULL,
   `title` varchar(100) NOT NULL,
   `content` mediumtext NOT NULL,
@@ -617,24 +623,28 @@ CREATE TABLE `qs_category_jobs` (
   PRIMARY KEY  (`id`),
   KEY `parentid` (`parentid`)
 ) TYPE=MyISAM ;
-
 DROP TABLE IF EXISTS `qs_jobs_contact`;
 CREATE TABLE `qs_jobs_contact` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `pid` int(10) unsigned NOT NULL,
   `contact` varchar(80) NOT NULL,
-  `qq` varchar(20) default NULL,
+  `qq` varchar(20)  NOT NULL,
   `telephone` varchar(80) NOT NULL,
   `address` varchar(80) NOT NULL,
   `email` varchar(80) NOT NULL,
   `notify` tinyint(3) unsigned NOT NULL,
+  `contact_show` tinyint(1) unsigned NOT NULL default '0',
+  `telephone_show` tinyint(1) unsigned NOT NULL default '0',
+  `address_show` tinyint(1) unsigned NOT NULL default '0',
+  `email_show` tinyint(1) unsigned NOT NULL default '0',
+  `qq_show` tinyint(1) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) TYPE=MyISAM;
-
+)TYPE=MyISAM;
 DROP TABLE IF EXISTS `qs_link`;
 CREATE TABLE `qs_link` (
   `link_id` int(10) unsigned NOT NULL auto_increment,
+  `subsite_id` tinyint(3) unsigned NOT NULL default '0',
   `type_id` tinyint(3) unsigned NOT NULL,
   `display` tinyint(1) unsigned NOT NULL  DEFAULT '1',
   `alias` varchar(30) NOT NULL,
@@ -684,9 +694,9 @@ CREATE TABLE `qs_members` (
   `mobile_audit` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' ,
   `password` varchar(100) NOT NULL,
   `pwd_hash` varchar(30) NOT NULL,
-  `reg_time` int(10) NOT NULL,
+  `reg_time` int(10) UNSIGNED NOT NULL,
   `reg_ip` varchar(15) NOT NULL,
-  `last_login_time` int(10) NOT NULL,
+  `last_login_time` int(10) UNSIGNED NOT NULL,
   `last_login_ip` varchar(15) NOT NULL,
   `qq_openid` varchar(50) NOT NULL,
   `sina_access_token` VARCHAR( 50 ) NOT NULL,
@@ -715,6 +725,7 @@ CREATE TABLE `qs_members_points` (
 DROP TABLE IF EXISTS `qs_members_points_rule`;
 CREATE TABLE `qs_members_points_rule` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `utype` TINYINT( 1 ) NOT NULL DEFAULT '1',
   `title` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
   `operation` TINYINT( 1 ) NOT NULL DEFAULT '2',
@@ -744,6 +755,8 @@ DROP TABLE IF EXISTS `qs_order`;
 CREATE TABLE `qs_order` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `uid` int(10) unsigned NOT NULL,
+  `utype` tinyint(2) unsigned NOT NULL default '1',
+ 
   `is_paid` tinyint(3) unsigned NOT NULL default '1',
   `oid` varchar(200) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
@@ -1100,6 +1113,7 @@ CREATE TABLE `qs_navigation_category` (
 DROP TABLE IF EXISTS `qs_ad`;
 CREATE TABLE `qs_ad` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `subsite_id` tinyint(3) unsigned NOT NULL default '0',
   `alias` varchar(80) NOT NULL,
   `is_display` tinyint(1) NOT NULL default '1',
   `category_id` smallint(5) NOT NULL,
@@ -1166,8 +1180,24 @@ CREATE TABLE `qs_setmeal` (
   `interview_ordinary` int(10) unsigned NOT NULL default '0',
   `interview_senior` int(10) unsigned NOT NULL default '0',
   `talent_pool` int(10) unsigned NOT NULL default '0',
+  `jobs_hunter` int(10) unsigned NOT NULL,
+  `download_resume_huntered` int(10) unsigned NOT NULL,
+  `interview_huntered` int(10) unsigned NOT NULL,
+  `recommend_num` int(10) unsigned NOT NULL,
+  `recommend_days` int(10) unsigned NOT NULL,
+  `stick_num` int(10) unsigned NOT NULL,
+  `stick_days` int(10) unsigned NOT NULL,
+  `emergency_num` int(10) unsigned NOT NULL,
+  `emergency_days` int(10) unsigned NOT NULL,
+  `highlight_num` int(10) unsigned NOT NULL,
+  `highlight_days` int(10) unsigned NOT NULL,
+  `jobsfair_num` int(10) unsigned NOT NULL,
+  `change_templates` tinyint(1) unsigned NOT NULL default '0',
+  `map_open` tinyint(1) unsigned NOT NULL default '0',
   `added` varchar(255) NOT NULL,
   `show_order` int(10) unsigned NOT NULL default '0',
+  `refresh_jobs_space` int(10) unsigned NOT NULL default '0',
+  `refresh_jobs_time` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) TYPE=MyISAM ;
 
@@ -1186,9 +1216,25 @@ CREATE TABLE `qs_members_setmeal` (
   `interview_ordinary` int(10) unsigned NOT NULL,
   `interview_senior` int(10) unsigned NOT NULL,
   `talent_pool` int(10) unsigned NOT NULL,
+  `jobs_hunter` int(10) unsigned NOT NULL,
+  `download_resume_huntered` int(10) unsigned NOT NULL,
+  `interview_huntered` int(10) unsigned NOT NULL,
+  `recommend_num` int(10) unsigned NOT NULL,
+  `recommend_days` int(10) unsigned NOT NULL,
+  `stick_num` int(10) unsigned NOT NULL,
+  `stick_days` int(10) unsigned NOT NULL,
+  `emergency_num` int(10) unsigned NOT NULL,
+  `emergency_days` int(10) unsigned NOT NULL,
+  `highlight_num` int(10) unsigned NOT NULL,
+  `highlight_days` int(10) unsigned NOT NULL,
+  `jobsfair_num` int(10) unsigned NOT NULL,
+  `change_templates` tinyint(1) unsigned NOT NULL default '0',
+  `map_open` tinyint(1) unsigned NOT NULL default '0',
   `added` varchar(250) NOT NULL,
   `starttime` int(10) unsigned NOT NULL,
   `endtime` int(10) unsigned NOT NULL,
+  `refresh_jobs_space` int(10) unsigned NOT NULL default '0',
+  `refresh_jobs_time` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `effective_setmealid` (`effective` , `setmeal_id`),
   KEY `effective_endtime` (`effective` , `endtime`),
@@ -1214,6 +1260,7 @@ CREATE TABLE `qs_members_info` (
 DROP TABLE IF EXISTS `qs_notice`;
 CREATE TABLE `qs_notice` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `subsite_id` tinyint(3) unsigned NOT NULL default '0',
   `type_id` smallint(5) unsigned NOT NULL,
   `title` varchar(100) NOT NULL,
   `content` mediumtext NOT NULL,
@@ -1263,6 +1310,7 @@ CREATE TABLE `qs_category` (
   KEY `c_alias` (`c_alias`)
 ) TYPE=MyISAM ;
 
+
 DROP TABLE IF EXISTS `qs_syslog`;
 CREATE TABLE `qs_syslog` (
   `l_id` int(10) unsigned NOT NULL auto_increment,
@@ -1270,6 +1318,8 @@ CREATE TABLE `qs_syslog` (
   `l_type_name` varchar(30) NOT NULL,
   `l_time` int(10) unsigned NOT NULL,
   `l_ip` varchar(20) NOT NULL,
+  `l_address` varchar(50) NOT NULL,
+ 
   `l_page` text NOT NULL,
   `l_str` text NOT NULL,
   PRIMARY KEY  (`l_id`)
@@ -1309,6 +1359,8 @@ CREATE TABLE `qs_members_log` (
   `log_addtime` int(10) NOT NULL,
   `log_value` varchar(255) NOT NULL,
   `log_ip` varchar(20) NOT NULL,
+  `log_address` varchar(50) NOT NULL,
+ 
   `log_utype` tinyint(1) unsigned NOT NULL default '1',
   `log_type` SMALLINT(5) unsigned NOT NULL default '1',
   PRIMARY KEY  (`log_id`),
@@ -1359,19 +1411,19 @@ CREATE TABLE `qs_promotion` (
   KEY `cp_uid` (`cp_uid`),
   KEY `cp_endtime` (`cp_endtime`)
 ) TYPE=MyISAM ;
-
 DROP TABLE IF EXISTS `qs_mailqueue`;
 CREATE TABLE `qs_mailqueue` (
   `m_id` int(10) unsigned NOT NULL auto_increment,
   `m_type` tinyint(3) unsigned NOT NULL default '0',
   `m_addtime` int(10) unsigned NOT NULL,
   `m_sendtime` int(10) unsigned NOT NULL default '0',
+  `m_uid` int(10) unsigned NOT NULL default '0',
   `m_mail` varchar(80) NOT NULL,
   `m_subject` varchar(200) NOT NULL,
   `m_body` text NOT NULL,
-  PRIMARY KEY  (`m_id`)
+  PRIMARY KEY  (`m_id`),
+  KEY `m_uid` (`m_uid`)
 ) TYPE=MyISAM ;
-
 DROP TABLE IF EXISTS `qs_hrtools`;
 CREATE TABLE `qs_hrtools` (
   `h_id` int(10) unsigned NOT NULL auto_increment,
@@ -1417,6 +1469,8 @@ CREATE TABLE `qs_captcha` (
 PRIMARY KEY ( `id` ) 
 ) TYPE=MyISAM ;
 
+ 
+
 DROP TABLE IF EXISTS `qs_members_handsel`; 
 CREATE TABLE `qs_members_handsel` (
   `id` int(10) NOT NULL auto_increment,
@@ -1427,9 +1481,12 @@ CREATE TABLE `qs_members_handsel` (
   KEY `uid` (`uid`,`htype`,`addtime`)
 ) TYPE=MyISAM ;
 
+ 
+
 DROP TABLE IF EXISTS `qs_simple`;
 CREATE TABLE `qs_simple` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `subsite_id` tinyint(3) unsigned NOT NULL default '0',
   `audit` tinyint(1) unsigned NOT NULL default '0',
   `pwd` varchar(60) NOT NULL,
   `pwd_hash` varchar(30) NOT NULL,
@@ -1537,6 +1594,8 @@ CREATE TABLE `qs_pms_sys_log` (
   PRIMARY KEY  (`lid`),
   KEY `loguid` (`loguid`)
 ) TYPE=MyISAM ;
+ 
+ 
 
 DROP TABLE IF EXISTS `qs_members_buddy`;
 CREATE TABLE `qs_members_buddy` (
@@ -1547,3 +1606,54 @@ CREATE TABLE `qs_members_buddy` (
   PRIMARY KEY  (`id`),
   KEY `uid` (`uid`)
 ) TYPE=MyISAM ;
+CREATE TABLE `qs_audit_reason` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `jobs_id` int(10) unsigned NOT NULL default 0,
+  `company_id` int(10) unsigned NOT NULL default 0,
+  `resume_id` int(10) unsigned NOT NULL default 0,
+  `reason` varchar(255) NOT NULL,
+  `addtime` int(10) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `jobs_id` (`jobs_id`),
+  KEY `company_id` (`company_id`),
+  KEY `resume_id` (`resume_id`)
+)TYPE=MyISAM ;
+DROP TABLE IF EXISTS `qs_smsqueue`;
+CREATE TABLE `qs_smsqueue` (
+  `s_id` int(10) unsigned NOT NULL auto_increment,
+  `s_type` tinyint(3) unsigned NOT NULL default '0',
+  `s_addtime` int(10) unsigned NOT NULL,
+  `s_sendtime` int(10) unsigned NOT NULL default '0',
+  `s_uid` int(10) unsigned NOT NULL default '0',
+  `s_mobile` varchar(25) NOT NULL,
+  `s_body`	 varchar(100) NOT NULL,
+  PRIMARY KEY  (`s_id`),
+  KEY `s_uid` (`s_uid`)
+) TYPE=MyISAM ;
+DROP TABLE IF EXISTS `qs_members_charge_log`;
+CREATE TABLE `qs_members_charge_log` (
+  `log_id` int(10) unsigned NOT NULL auto_increment,
+  `log_uid` int(10) NOT NULL,
+  `log_username` varchar(60) NOT NULL,
+  `log_addtime` int(10) NOT NULL,
+  `log_value` varchar(255) NOT NULL,
+  `log_amount` decimal(10,2) NOT NULL,
+  `log_ismoney` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `log_type` tinyINT(1) unsigned NOT NULL ,
+  `log_mode` tinyINT(1) unsigned NOT NULL DEFAULT '1',
+  `log_utype` tinyINT(1) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY  (`log_id`),
+  KEY `log_username` (`log_username`),
+  KEY `log_addtime` (`log_addtime`),
+  KEY `type_addtime` (`log_type` , `log_addtime`),
+  KEY `uid_addtime` (`log_uid` , `log_addtime`)
+) TYPE=MyISAM ;
+
+DROP TABLE IF EXISTS `qs_refresh_log`;
+CREATE TABLE `qs_refresh_log` (
+   `id` int(10) unsigned NOT NULL auto_increment,
+   `uid` int(10) unsigned NOT NULL,
+   `addtime` int(10) unsigned NOT NULL,
+   `type` int(10) unsigned NOT NULL,
+   PRIMARY KEY  (`id`)
+ ) TYPE=MyISAM;

@@ -25,6 +25,8 @@ $(document).ready(function()
 		<a href="{#"spms_usertype:0"|qishi_parse_url#}" {#if $smarty.get.spms_usertype=="0"#}class="select"{#/if#}>所有会员</a>
 		<a href="{#"spms_usertype:1"|qishi_parse_url#}" {#if $smarty.get.spms_usertype=="1"#}class="select"{#/if#}>企业会员</a>
 		<a href="{#"spms_usertype:2"|qishi_parse_url#}" {#if $smarty.get.spms_usertype=="2"#}class="select"{#/if#}>个人会员</a>
+		<a href="{#"spms_usertype:3"|qishi_parse_url#}" {#if $smarty.get.spms_usertype=="3"#}class="select"{#/if#}>猎头顾问</a>
+		<a href="{#"spms_usertype:4"|qishi_parse_url#}" {#if $smarty.get.spms_usertype=="4"#}class="select"{#/if#}>培训机构</a>
 		<div class="clear"></div>
 		</div>
 		<div class="clear"></div>
@@ -61,7 +63,11 @@ $(document).ready(function()
 	    <td align="center"  class="admin_list">
 		{#if $list.spms_usertype=='0'#}所有会员{#/if#}
 		{#if $list.spms_usertype=='1'#}企业会员{#/if#}
-		{#if $list.spms_usertype=='2'#}个人会员{#/if#}		</td>
+		{#if $list.spms_usertype=='2'#}个人会员{#/if#}		
+		{#if $list.spms_usertype=='3'#}猎头顾问{#/if#}
+		{#if $list.spms_usertype=='4'#}培训机构{#/if#}		
+		
+		</td>
         <td align="center"  class="admin_list">
 		{#if $list.spms_type=='1'#}普通消息{#/if#}
 		{#if $list.spms_type=='2'#}注册提醒{#/if#}		</td>

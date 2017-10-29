@@ -147,17 +147,27 @@ $(document).ready(function()
         <input type="radio" name="currency" value="美元" {#if $company_profile.currency eq "美元"#} checked="checked"{#/if#}/>
         美元</label>    </td>
   </tr>
+		
   <tr>
     <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF3300; font-weight:bold">*</span>联 系 人：</td>
-    <td  style=" border-bottom:1px #CCCCCC dashed"><input name="contact" type="text" class="input_text_200" id="contact" maxlength="25" value="{#$company_profile.contact#}"/></td>
+    <td  style=" border-bottom:1px #CCCCCC dashed">
+	<input name="contact" type="text" class="input_text_200" id="contact" maxlength="25" value="{#$company_profile.contact#}"/>
+    <label><input name="contact_show"  type="checkbox" value="1" {#if $company_profile.contact_show=="1"#}checked="checked"{#/if#} />联系人在职位详细页中显示
+	</td>
   </tr>
   <tr>
     <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF3300; font-weight:bold">*</span>联系电话：</td>
-    <td  style=" border-bottom:1px #CCCCCC dashed"><input name="telephone" type="text" class="input_text_200" id="telephone" maxlength="25" value="{#$company_profile.telephone#}"/></td>
+    <td  style=" border-bottom:1px #CCCCCC dashed">
+	<input name="telephone" type="text" class="input_text_200" id="telephone" maxlength="25" value="{#$company_profile.telephone#}"/>
+    <label><input name="telephone_show"  type="checkbox" value="1" {#if $company_profile.telephone_show=="1"#}checked="checked"{#/if#} />联系电话在职位详细页中显示
+	</td>
   </tr>
   <tr>
     <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF3300; font-weight:bold">*</span>联系邮箱：</td>
-    <td  style=" border-bottom:1px #CCCCCC dashed"><input name="email" type="text" class="input_text_200" id="email" maxlength="25" value="{#$company_profile.email#}"/></td>
+    <td  style=" border-bottom:1px #CCCCCC dashed">
+	<input name="email" type="text" class="input_text_200" id="email" maxlength="25" value="{#$company_profile.email#}"/>
+    <label><input name="email_show"  type="checkbox" value="1" {#if $company_profile.email_show=="1"#}checked="checked"{#/if#} />联系邮箱在职位详细页中显示
+	</td>
   </tr>
   <tr>
     <td height="30" align="right" style=" border-bottom:1px #CCCCCC dashed">公司网址：</td>
@@ -165,8 +175,12 @@ $(document).ready(function()
   </tr>
   <tr>
     <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF3300; font-weight:bold">*</span>通讯地址：</td>
-    <td  style=" border-bottom:1px #CCCCCC dashed"><input name="address" type="text" class="input_text_200" id="address" maxlength="80"  style="width:447px;" value="{#$company_profile.address#}"/></td>
+    <td  style=" border-bottom:1px #CCCCCC dashed">
+	<input name="address" type="text" class="input_text_200" id="address" maxlength="80"  style="width:447px;" value="{#$company_profile.address#}"/>
+    <label><input name="address_show"  type="checkbox" value="1" {#if $company_profile.address_show=="1"#}checked="checked"{#/if#} />联系地址在职位详细页中显示
+	</td>
   </tr>
+
   <tr>
     <td align="right" valign="top"  style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF3300; font-weight:bold">*</span> 公司介绍：</td>
     <td  style=" border-bottom:1px #CCCCCC dashed"><textarea name="contents" class="company_mb_textarea" id="introduction" style="width:450px; height:150px;"onpropertychange="if(this.value.length&gt;2000){this.value=this.value.slice(0,2000)}">{#$company_profile.contents#}</textarea>
@@ -193,6 +207,35 @@ $(document).ready(function()
           </tr>
   </table>
   </form>
+  	
+{#if $comaudit#}	
+<form id="Form2" name="Form2" method="post" action="?act=del_auditreason">
+<div class="toptit">企业审核日志</div>
+		<table width="100%" border="0" cellpadding="4" cellspacing="0" bgcolor="#FFFFFF"  >
+		{#foreach from=$comaudit item=list#}
+		<tr>
+          <td height="30" width="180" align="right" bgcolor="#FFFFFF" style=" border-bottom:1px #CCCCCC dashed">
+		  <label>
+			  <input type="checkbox" name="a_id[]" value="{#$list.id#}">
+			  <span style="font-weight:bold">{#$list.addtime|date_format:"%Y-%m-%d %H:%M:%S"#}</span> 
+		  <label>
+		  </td>
+          <td bgcolor="#FFFFFF" style=" border-bottom:1px #CCCCCC dashed">
+		  	{#$list.reason#}
+		  </td>
+        </tr>
+		{#/foreach#}
+		<tr>
+            <td height="30" align="right" bgcolor="#FFFFFF" style=" border-bottom:1px #CCCCCC dashed">&nbsp;</td>
+            <td height="120" bgcolor="#FFFFFF" style=" border-bottom:1px #CCCCCC dashed"><span style="font-size:14px;">
+              <input name="submit3" type="submit" class="admin_submit"    value="删除所选"/> 
+              <input name="submit22" type="button" class="admin_submit"    value="返 回" onclick="window.location.href='{#$url#}'"/>
+            </span></td>
+          </tr>
+  </table>
+ </form>
+ {#/if#}
+		
 </div>
 {#include file="sys/admin_footer.htm"#}
 </body>

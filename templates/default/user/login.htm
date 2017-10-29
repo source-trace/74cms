@@ -22,8 +22,13 @@ $("#username").focus(function(){
 	$("#username").css("color","");
 	}  
 });
+$("#passwordtxt").focus(function(){
+	$("#passwordtxt").hide();
+	$("#password").show();
+	$('#password').trigger("focus");
+});
 //
-$(".but80").hover(function(){$(this).addClass("but80_hover")},function(){$(this).removeClass("but80_hover")});
+$(".but-login").hover(function(){$(this).addClass("but-login-hover")},function(){$(this).removeClass("but-login-hover")});
 //验证
 $("form[id=Formlogin]").submit(function(e) {
 e.preventDefault();
@@ -46,8 +51,8 @@ e.preventDefault();
 	{#/if#}
 	else
 	{
-		$("#login").val("正在登录");
-		$("#login").attr("disabled","disabled");
+		$("#reg").hide();
+		$("#waiting").show();
 		 if($("#expire").attr("checked")==true)
 		 {
 		 var expire=$("#expire").val();
@@ -61,8 +66,8 @@ e.preventDefault();
 	 	 {
 			if (data=="err" || data=="errcaptcha")
 			{			
-				$("#login").val("登录");
-				$("#login").attr("disabled","");
+				$("#reg").show();
+				$("#waiting").hide();
 				$("#password").attr("value","");
 				$(".login_err").show();	
 				if (data=="err")
@@ -97,7 +102,7 @@ function imgcaptcha(inputID,imgdiv)
 		}
 		$(inputID).parent("div").css("position","relative");
 		//设置验证码DIV
-		$(imgdiv).css({ position: "absolute", left:  $(inputID).width(), "bottom": "0px" , "z-index": "10", "background-color": "#FFFFFF", "border": "1px #A3C8DC solid","display": "none","margin-left": "15px"});
+		$(imgdiv).css({ position: "absolute", right: "8px", "top": "35px" , "z-index": "10", "background-color": "#FFFFFF", "border": "1px #A3C8DC solid","display": "none","margin-left": "15px"});
 		$(imgdiv).show();
 		if ($(imgdiv).html()=='')
 		{
@@ -128,75 +133,50 @@ imgcaptcha("#postcaptcha","#imgdiv");
 </head>
 <body>
 {#include file="user/header.htm"#}
-
-<div class="login_bg">
-	<div class="login_box">
-			  <div class="login_boxin">
-			<form id="Formlogin" name="Formlogin" method="post">
-			<div class="tit">会员登录</div>
-		  <div class="login_err"></div>
-			<table width="100%" border="0" align="center" cellpadding="5" cellspacing="0" >
-			 
-			<tr><td width="55" align="right" id="account">帐号：</td>
-			<td>
-			  <input name="username" type="text"  class="login_input" id="username"   maxlength="30" value="用户名/邮箱/手机号" style="color:#999999"/>    </td>
-		  </tr>
-		  <tr>
-			<td align="right">密码：</td>
-			<td>
-			  <input name="password" type="password"  class="login_input" id="password"  maxlength="20"/>    </td>
-		  </tr>
-		  {#if $verify_userlogin=="1"#}
-		  <tr>
-			<td align="right">验证码：</td>
-			<td>
-			  
-			  <div>
-	<div id="imgdiv"></div>
-	<input  class="login_input"    name="postcaptcha" id="postcaptcha" type="text" value="点击获取验证码" style="color:#999999"/>
- 
-	
-			</div>
-		    </td>
-		  </tr>
-		  {#/if#}
-		  <tr>
-			<td align="right">&nbsp;</td>
-			<td><div style="position:relative;"><label><input type="checkbox" name="expire" id="expire" value="7" />
-			  一周内自动登录</label></div></td>
-		  </tr>
-		  </table>
-		  {#if $smarty.get.url#}
-		  <div class="login_tip">您所访问的页面需要登录后才能访问！</div>
-		  {#/if#}
-		  <table width="100%" border="0" align="center" cellpadding="5" cellspacing="0" >  
-		  <tr>
-			<td align="right" width="50">&nbsp;</td>
-			<td height="40" valign="top">
-			<div style="position:relative;">
-			<table width="100%" border="0" cellspacing="0" cellpadding="0">
-			  <tr>
-				<td width="100">
-				<input type="submit" name="submitlogin"  id="login" class="but80" value="登录" />
-				</td>
-				<td class="link_bk"><a href="{#$QISHI.site_dir#}user/user_getpass.php">忘记密码？</a></td>
-			  </tr>
-			</table>
-			</div>
-			</td>
-			</tr>
-		  <tr>
-			<td align="right" style="border-top:1px  #E8E8E8 solid">&nbsp;</td>
-			<td height="20" class="link_lan" style="border-top:1px  #E8E8E8 solid">还没有账号？<a href="{#$QISHI.site_dir#}user/user_reg.php">免费注册</a></td>
-		  </tr>
-		  {#if $QISHI.qq_apiopen=="1" || $QISHI.sina_apiopen=="1"  || $QISHI.taobao_apiopen=="1"#}
-		  <tr>
-		    <td align="right"  >&nbsp;</td>
-		    <td  class="link_lan"  >或者你也可以用以下网站帐号登录</td>
-		    </tr>
-		  <tr>
-		    <td align="right"  >&nbsp;</td>
-		    <td height="20" valign="middle"  class="link_lan"  >
+<div class="login-box">
+  <div class="leftimg"></div>  
+  <div class="rightbox">
+  <form id="Formlogin" name="Formlogin" method="post">
+    <div class="tit">欢迎登录</div>	
+	<div class="tit-right link_lan"><a href="{#$QISHI.site_dir#}user/user_reg.php">免费注册</a></div>
+	<div class="clear"></div>
+	<div class="login_err"></div>
+	{#if $smarty.get.url#}
+	<div class="login-tip">您所访问的页面需要登录后才能访问！</div>
+	{#/if#}
+    <div class="input-box">
+		<input name="username" type="text"  class="txtinput input-img-user" id="username"   maxlength="30" value="用户名/邮箱/手机号" style="color:#999999"/>
+	</div>
+	<div class="input-box">
+		<input name="passwordtxt" type="text"  class="txtinput input-img-pwd" id="passwordtxt"   maxlength="30" value="密码" style="color:#999999"/>
+		<input name="password" type="password"  class="txtinput input-img-pwd" id="password"   maxlength="30" value=""  style="display:none" />
+	</div>
+	{#if $verify_userlogin=="1"#}
+	<div class="input-box">
+		<div>
+		<div id="imgdiv"></div>
+		<input  class="txtinput"    name="postcaptcha" id="postcaptcha" type="text" value="点击获取验证码" style="color:#999999"/>
+		</div>
+	</div>
+	{#/if#}
+	<div class="expire">
+		<label><input type="checkbox" name="expire" id="expire" value="7" />一周内自动登录</label>
+	</div>
+	<div class="expire-right link_lan">
+	<a href="{#$QISHI.site_dir#}user/user_getpass.php">忘记密码？</a>
+	</div>
+	<div class="clear"></div>
+	<div class="input-box" id="reg">
+		<input type="submit" name="submitlogin"  id="login" class="but-login" value="" />
+	</div>
+	<div class="input-box-waiting" id="waiting">
+		正在登录中...
+	</div>
+	{#if $QISHI.qq_apiopen=="1" || $QISHI.sina_apiopen=="1"  || $QISHI.taobao_apiopen=="1"#}
+    <div class="input-box" style="height:30px;">
+	或者你也可以用以下网站帐号登录
+	</div>
+	<div class="input-box">
 			{#if $QISHI.qq_apiopen=="1"#}
 			<div class="login_connectbox">
 			<a href="{#$QISHI.site_dir#}user/{#if $QISHI.qq_logintype=='1'#}connect_qq_client.php{#else#}connect_qq_server.php{#/if#}" ><img src="{#$QISHI.site_template#}images/75.gif" align="absmiddle" title="用qq帐号登录"  border="0"/></a>
@@ -213,12 +193,9 @@ imgcaptcha("#postcaptcha","#imgdiv");
 			</div>
 			{#/if#}
 			<div class="clear"></div>
-			</td>
-		    </tr>
-			{#/if#}
-		</table>
-		</form>
-		</div>
+	</div>
+	{#/if#}
+	</form>
   </div>
   <div class="clear"></div>
 </div>

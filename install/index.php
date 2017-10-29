@@ -234,7 +234,7 @@ if($act =="4")
 	refresh_points_rule_cache();			
 	//生成分类JS
 	makejs_classify();
-	if(is_writable(QISHI_ROOT_PATH.'data/'))
+ 	if(is_writable(QISHI_ROOT_PATH.'data/'))
 	{
 		$fp = @fopen(QISHI_ROOT_PATH.'data/install.lock', 'wb+');
 		fwrite($fp, 'OK');

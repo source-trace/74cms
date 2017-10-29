@@ -105,6 +105,7 @@ function distribution_jobs($id)
 					{
 						$searchtab['id']=$j['id'];
 						$searchtab['uid']=$j['uid'];
+						$searchtab['subsite_id']=$j['subsite_id'];
 						$searchtab['recommend']=$j['recommend'];
 						$searchtab['emergency']=$j['emergency'];
 						$searchtab['nature']=$j['nature'];
@@ -158,6 +159,7 @@ function distribution_jobs($id)
 						}
 						$tagsql['id']=$j['id'];
 						$tagsql['uid']=$j['uid'];
+						$tagsql['subsite_id']=$j['subsite_id'];
 						$tagsql['category']=$j['category'];
 						$tagsql['subclass']=$j['subclass'];
 						$tagsql['district']=$j['district'];
@@ -225,10 +227,11 @@ function del_jobs($id)
 	}
 }
 //修改职位审核状态
-function edit_jobs_audit($id,$audit)
+function edit_jobs_audit($id,$audit,$reason,$pms_notice='1')
 {
 	global $db,$_CFG;
 	$audit=intval($audit);
+	$reason=trim($reason);
 	if (!is_array($id))$id=array($id);
 	$sqlin=implode(",",$id);
 	$return=0;
@@ -239,6 +242,33 @@ function edit_jobs_audit($id,$audit)
 		if (!$db->query("update  ".table('jobs_tmp')." SET audit={$audit}  WHERE id IN ({$sqlin})")) return false;
 		$return=$return+$db->affected_rows();
 		distribution_jobs($id);
+			//发送站内信
+			if ($pms_notice=='1')
+			{
+					$result = $db->query("SELECT * FROM ".table('jobs')." WHERE id IN ({$sqlin})  UNION ALL  SELECT * FROM ".table('jobs_tmp')." WHERE id IN ({$sqlin})");
+					$reason=$reason==''?'原因：未知':'原因：'.$reason;
+					while($list = $db->fetch_array($result))
+					{
+						$user_info=get_user($list['uid']);
+						$setsqlarr['message']=$audit=='1'?"您发布的职位：{$list['jobs_name']},成功通过网站管理员审核！":"您发布的职位：{$list['jobs_name']},未通过网站管理员审核,{$reason}";
+						$setsqlarr['msgtype']=1;
+						$setsqlarr['msgtouid']=$user_info['uid'];
+						$setsqlarr['msgtoname']=$user_info['username'];
+						$setsqlarr['dateline']=time();
+						$setsqlarr['replytime']=time();
+						$setsqlarr['new']=1;
+						inserttable(table('pms'),$setsqlarr);
+					 }
+			}
+			//审核未通过增加原因
+			if($audit=='3'){
+				foreach($id as $list){
+					$auditsqlarr['jobs_id']=$list;
+					$auditsqlarr['reason']=$reason;
+					$auditsqlarr['addtime']=time();
+					inserttable(table('audit_reason'),$auditsqlarr);
+				}
+			}
 			//发送邮件
 			$mailconfig=get_cache('mailconfig');
 			$sms=get_cache('sms_config');
@@ -300,6 +330,7 @@ function edit_jobs_audit($id,$audit)
 	return $return;
 	}
 }
+
 function edit_jobs_display($id,$display)
 {
 	global $db;
@@ -438,12 +469,13 @@ function delay_meal($id,$days)
 }
 //******************************企业部分**********************************
  //获取企业列表
-function get_company($offset,$perpage,$get_sql= '')
+ function get_company($offset,$perpage,$get_sql= '',$mode=1)
 {
 	global $db;
+	$colum=$mode==1?'p.points':'p.setmeal_name';
 	$row_arr = array();
 	$limit=" LIMIT ".$offset.','.$perpage;
-	$result = $db->query("SELECT c.*,m.username FROM ".table('company_profile')." AS c ".$get_sql.$limit);
+	$result = $db->query("SELECT c.*,m.username,m.mobile,m.email as memail,{$colum} FROM ".table('company_profile')." AS c ".$get_sql.$limit);
 	while($row = $db->fetch_array($result))
 	{
 	$row['company_url']=url_rewrite('QS_companyshow',array('id'=>$row['id']));
@@ -451,6 +483,7 @@ function get_company($offset,$perpage,$get_sql= '')
 	}
 	return $row_arr;
 }
+
 //获取单条企业资料
 function get_company_one_id($id)
 {
@@ -469,11 +502,13 @@ function get_company_one_uid($uid)
 	$val=$db->getone($sql);
 	return $val;
 }
-//更改企业认证状态
-function edit_company_audit($uid,$audit)
+ //更改企业认证状态
+function edit_company_audit($uid,$audit,$reason,$pms_notice)
 {
 	global $db,$_CFG;	
 	$audit=intval($audit);
+	$pms_notice=intval($pms_notice);
+	$reason=trim($reason);
 	if (!is_array($uid)) $uid=array($uid);
 	$sqlin=implode(",",$uid);	
 	if (preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin))
@@ -481,12 +516,46 @@ function edit_company_audit($uid,$audit)
 		if (!$db->query("update  ".table('company_profile')." SET audit='{$audit}'  WHERE uid IN ({$sqlin})")) return false;
 		if (!$db->query("update  ".table('jobs')." SET company_audit='{$audit}'  WHERE uid IN ({$sqlin})")) return false;
 		if (!$db->query("update  ".table('jobs_tmp')." SET company_audit='{$audit}'  WHERE uid IN ({$sqlin})")) return false;
-		if ($audit=="1")
+		
+		//发送站内信
+		if ($pms_notice=='1')
 		{
-			$points_rule=get_cache('points_rule');
-			if ($points_rule['company_auth']['value']>0)//如果设置了认证赠送积分
+			$reasonpm=$reason==''?'无':$reason;
+			if($audit=='1') {$note='成功通过网站管理员审核!';}elseif($audit=='2'){$note='正在审核中!';}else{$note='未通过网站管理员审核！';}
+			$result = $db->query("SELECT companyname,uid FROM ".table('company_profile')." WHERE uid IN ({$sqlin})");
+			while($list = $db->fetch_array($result))
 			{
-				gift_points($sqlin,'companyauth',$points_rule['company_auth']['type'],$points_rule['company_auth']['value']);
+				$user_info=get_user($list['uid']);
+				$setsqlarr['message']="您的公司：{$list['companyname']},".$note.'其他说明：'.$reasonpm;
+				$setsqlarr['msgtype']=1;
+				$setsqlarr['msgtouid']=$user_info['uid'];
+				$setsqlarr['msgtoname']=$user_info['username'];
+				$setsqlarr['dateline']=time();
+				$setsqlarr['replytime']=time();
+				$setsqlarr['new']=1;
+				inserttable(table('pms'),$setsqlarr);
+			 }
+		}
+		//审核未通过增加原因
+		if($audit=='3'){
+			$reasona=$reason==''?'原因：无':'原因：'.$reason;
+			foreach($uid as $list){
+				$auditsqlarr['company_id']=$list;
+				$auditsqlarr['reason']=$reasona;
+				$auditsqlarr['addtime']=time();
+				inserttable(table('audit_reason'),$auditsqlarr);
+			}
+		}
+		
+		if ($audit=='1') 
+		{
+		//3.4升级修改注意,只有积分模式奖励积分
+			if($_CFG['operation_mode']=='1'){
+				$points_rule=get_cache('points_rule');
+				if ($points_rule['company_auth']['value']>0)//如果设置了认证赠送积分
+				{
+					gift_points($sqlin,'companyauth',$points_rule['company_auth']['type'],$points_rule['company_auth']['value']);
+				}
 			}
 				//删除执照
 				$result = $db->query("SELECT * FROM ".table('company_profile')." WHERE uid IN ({$sqlin})");
@@ -554,6 +623,7 @@ function edit_company_audit($uid,$audit)
 	}
 	return false;
 }
+ 
 //删除企业资料，uid=array
 function del_company($uid)
 {
@@ -655,13 +725,41 @@ function get_meal_members_list($offset,$perpage,$get_sql= '')
 	global $db;
 	$row_arr = array();
 	$limit=" LIMIT ".$offset.','.$perpage;
-	$result = $db->query("SELECT * FROM ".table('members_setmeal')." as a ".$get_sql.$limit);
+	$result = $db->query("SELECT a.*,b.*,c.companyname FROM ".table('members_setmeal')." as a ".$get_sql.$limit);
 	while($row = $db->fetch_array($result))
 	{
 	$row_arr[] = $row;
 	}
 	return $row_arr;
 }
+//获取会员的套餐变更记录
+function get_meal_members_log($offset,$perpage,$get_sql= '',$mode='1')
+{
+	global $db;
+	$colum=$mode==1?'b.points':'b.setmeal_name';
+	$row_arr = array();
+	$limit=" LIMIT ".$offset.','.$perpage;
+	$result = $db->query("SELECT a.*,{$colum},c.companyname FROM ".table('members_charge_log')." as a ".$get_sql.$limit);
+	while($row = $db->fetch_array($result))
+	{
+	$row['log_value_']=$row['log_value'];
+	$row['log_value']=cut_str($row['log_value'],20 ,0,"...");
+	$row_arr[] = $row;
+	}
+	return $row_arr;
+}
+//删除企业会员套餐变更记录
+function del_meal_log($id)
+{
+	global $db;
+	if (!is_array($id)) $id=array($id);
+	$sqlin=implode(",",$id);
+	if (!preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin)) return false;
+	if (!$db->query("Delete from ".table('members_charge_log')." WHERE log_id IN ({$sqlin})")) return false;
+	return $db->affected_rows();
+}
+
+
 function get_member_list($offset,$perpage,$get_sql= '')
 {
 	global $db;
@@ -682,7 +780,7 @@ function delete_company_user($uid)
 	$sqlin=implode(",",$uid);
 	if (preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin))
 	{
-		if (!$db->query("Delete from ".table('members')." WHERE uid IN (".$sqlin.")")) return false;
+ 		if (!$db->query("Delete from ".table('members')." WHERE uid IN (".$sqlin.")")) return false;
 		if (!$db->query("Delete from ".table('members_info')." WHERE uid IN (".$sqlin.")")) return false;
 		if (!$db->query("Delete from ".table('members_log')." WHERE log_uid IN (".$sqlin.")")) return false;
 		if (!$db->query("Delete from ".table('members_points')." WHERE uid IN (".$sqlin.")")) return false;
@@ -705,7 +803,7 @@ function get_user_points($uid)
 function get_points_rule()
 {
 	global $db;
-	$sql = "select * from ".table('members_points_rule')."  order BY id asc";
+	$sql = "select * from ".table('members_points_rule')." WHERE utype='1' order BY id asc";
 	$list=$db->getall($sql);
 	return $list;
 }
@@ -720,20 +818,29 @@ function order_paid($v_oid)
 		$user=get_user($order['uid']);
 		$sql = "UPDATE ".table('order')." SET is_paid= '2',payment_time='{$timestamp}' WHERE oid='{$v_oid}' LIMIT 1 ";
 			if (!$db->query($sql)) return false;
+			if($order['amount']=='0.00'){
+				$ismoney=1;
+			}else{
+				$ismoney=2;
+			}
 			if ($order['points']>0)
 			{
 					report_deal($order['uid'],1,$order['points']);				
 					$user_points=get_user_points($order['uid']);
-					$notes=date('Y-m-d H:i',time())."通过：".get_payment_info($order['payment_name'],true)." 成功充值 ".$order['amount']."元，(+{$order['points']})，(剩余:{$user_points}),订单:{$v_oid}";					
+					$notes="操作人：{$_SESSION['admin_name']},说明：确认收款。收款金额：{$order['amount']} 。".date('Y-m-d H:i',time())."通过：".get_payment_info($order['payment_name'],true)." 成功充值 ".$order['amount']."元，(+{$order['points']})，(剩余:{$user_points}),订单:{$v_oid}";					
 					write_memberslog($order['uid'],1,9001,$user['username'],$notes);
-				
+					//会员套餐变更记录。管理员后台设置会员订单购买成功。4表示：管理员后台开通
+					write_setmeallog($order['uid'],$user['username'],$notes,4,$order['amount'],$ismoney,1,1);
 			}
 			if ($order['setmeal']>0)
 			{
 					set_members_setmeal($order['uid'],$order['setmeal']);
 					$setmeal=get_setmeal_one($order['setmeal']);
-					$notes=date('Y-m-d H:i',time())."通过：".get_payment_info($order['payment_name'],true)." 成功充值 ".$order['amount']."元并开通{$setmeal['setmeal_name']}";
+					$notes="操作人：{$_SESSION['admin_name']},说明：确认收款，收款金额：{$order['amount']} 。".date('Y-m-d H:i',time())."通过：".get_payment_info($order['payment_name'],true)." 成功充值 ".$order['amount']."元并开通{$setmeal['setmeal_name']}";
 					write_memberslog($order['uid'],1,9002,$user['username'],$notes);
+					//会员套餐变更记录。管理员后台设置会员订单购买成功。4表示：管理员后台开通
+					write_setmeallog($order['uid'],$user['username'],$notes,4,$order['amount'],$ismoney,2,1);
+			
 			}
 		//发送邮件
 		$mailconfig=get_cache('mailconfig');
@@ -856,6 +963,19 @@ function set_members_setmeal($uid,$setmealid)
 	$setsqlarr['interview_ordinary']=$setmeal['interview_ordinary'];
 	$setsqlarr['interview_senior']=$setmeal['interview_senior'];
 	$setsqlarr['talent_pool']=$setmeal['talent_pool'];
+ 	$setsqlarr['recommend_num']=$setmeal['recommend_num'];
+	$setsqlarr['recommend_days']=$setmeal['recommend_days'];
+	$setsqlarr['stick_num']=$setmeal['stick_num'];
+	$setsqlarr['stick_days']=$setmeal['stick_days'];
+	$setsqlarr['emergency_num']=$setmeal['emergency_num'];
+	$setsqlarr['emergency_days']=$setmeal['emergency_days'];
+	$setsqlarr['highlight_num']=$setmeal['highlight_num'];
+	$setsqlarr['highlight_days']=$setmeal['highlight_days'];
+	$setsqlarr['change_templates']=$setmeal['change_templates'];
+	$setsqlarr['map_open']=$setmeal['map_open'];
+	$setsqlarr['refresh_jobs_space']=$setmeal['refresh_jobs_space'];
+	$setsqlarr['refresh_jobs_time']=$setmeal['refresh_jobs_time'];
+
 	$setsqlarr['added']=$setmeal['added'];
 	if (!updatetable(table('members_setmeal'),$setsqlarr," uid=".$uid."")) return false;
 	$setmeal_jobs['setmeal_deadline']=$setsqlarr['endtime'];
@@ -863,7 +983,7 @@ function set_members_setmeal($uid,$setmealid)
 	$setmeal_jobs['setmeal_name']=$setsqlarr['setmeal_name'];
 	if (!updatetable(table('jobs'),$setmeal_jobs," uid=".intval($uid)." AND add_mode='2' ")) return false;
 	if (!updatetable(table('jobs_tmp'),$setmeal_jobs," uid=".intval($uid)." AND add_mode='2' ")) return false;
-	distribution_jobs_uid($uid);
+ 	distribution_jobs_uid($uid);
 	return true;
 }
 //企业推广
@@ -1012,4 +1132,79 @@ function cancel_promotion($jobid,$promotionid)
 		return	true;
 	}
 }
-?>
+ //获取职位的审核日志
+function get_jobsaudit_one($jobs_id){
+	global $db;
+	$sql = "select * from ".table('audit_reason')."  WHERE jobs_id='".intval($jobs_id)."' ORDER BY id DESC";
+	return $db->getall($sql);
+}
+function get_comaudit_one($company_id){
+	global $db;
+	$uid=$db->getone("select uid from ".table('company_profile')." where id='".intval($company_id)."' limit 1");
+	$sql = "select * from ".table('audit_reason')."  WHERE company_id='".intval($uid['uid'])."' ORDER BY id DESC";
+	return $db->getall($sql);
+}
+function reasonaudit_del($id)
+{
+	global $db;
+	if (!is_array($id)) $id=array($id);
+	$sqlin=implode(",",$id);
+	if (!preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin)) return false;
+	if (!$db->query("Delete from ".table('audit_reason')." WHERE id IN ({$sqlin})")) return false;
+	return $db->affected_rows();
+}
+  function edit_setmeal_notes($setarr,$setmeal){
+	$diff_arr= array_diff_assoc($setarr,$setmeal);
+	if($diff_arr){
+		foreach($diff_arr as $key=>$value){
+			if($key=='jobs_ordinary'){
+				$str.="普通职位：{$setmeal['jobs_ordinary']}-{$setarr['jobs_ordinary']}";
+			}elseif($key=='download_resume_ordinary'){
+				$str.=",下载普通人才简历：{$setmeal['download_resume_ordinary']}-{$setarr['download_resume_ordinary']}";
+			}elseif($key=='download_resume_senior'){
+				$str.=",下载高级人才简历：{$setmeal['download_resume_senior']}-{$setarr['download_resume_senior']}";
+			}elseif($key=='interview_ordinary'){
+				$str.=",邀请普通人才面试数：{$setmeal['interview_ordinary']}-{$setarr['interview_ordinary']}";
+			}elseif($key=='interview_senior'){
+				$str.=",邀请高级人才面试数：{$setmeal['interview_senior']}-{$setarr['interview_senior']}";
+			} 
+			elseif($key=='talent_pool'){
+				$str.=",人才库容量：{$setmeal['talent_pool']}-{$setarr['talent_pool']}";
+			}elseif($key=='recommend_num'){
+				$str.=",允许推荐职位数：{$setmeal['recommend_num']}-{$setarr['recommend_num']}";
+			}elseif($key=='recommend_days'){
+				$str.=",推荐职位天数设定：{$setmeal['recommend_days']}-{$setarr['recommend_days']}";
+			}elseif($key=='stick_num'){
+				$str.=",允许置顶职位数：{$setmeal['stick_num']}-{$setarr['stick_num']}";
+			}elseif($key=='stick_days'){
+				$str.=",置顶天数设定：{$setmeal['stick_days']}-{$setarr['stick_days']}";
+			}elseif($key=='emergency_num'){
+				$str.=",允许紧急职位数：{$setmeal['emergency_num']}-{$setarr['emergency_num']}";
+			}elseif($key=='emergency_days'){
+				$str.=",紧急职位天数设定：{$setmeal['emergency_days']}-{$setarr['emergency_days']}";
+			}elseif($key=='highlight_num'){
+				$str.=",允许套色职位数：{$setmeal['highlight_num']}-{$setarr['highlight_num']}";
+			}elseif($key=='highlight_days'){
+				$str.=",套色职位天数设定：{$setmeal['highlight_days']}-{$setarr['highlight_days']}";
+			}elseif($key=='change_templates'){
+					$flag=$setmeal['change_templates']=='1'?'允许':'不允许';
+					$flag1=$setarr['change_templates']=='1'?'允许':'不允许';
+				$str.=",自由切换模板：{$flag}-{$flag1}";
+			}elseif($key=='map_open'){
+					$flag=$setmeal['map_open']=='1'?'允许':'不允许';
+					$flag1=$setarr['map_open']=='1'?'允许':'不允许';
+				$str.=",电子地图：{$flag}-{$flag1}";
+			}elseif($key=='endtime'){
+				if($setarr['endtime']=='1970-01-01') $setarr['endtime']='无限期';
+				$str.=",修改套餐到期时间：{$setmeal['endtime']}~{$setarr['endtime']}";
+			}elseif($key=='log_amount' && $value){
+				$str.=",收取套餐金额：{$value} 元";
+			}
+		}
+		$strend=$str?"操作人：{$_SESSION['admin_name']}。说明：".$str:'';
+		return $strend;
+	}else{
+		return '';
+	}
+}
+ ?>

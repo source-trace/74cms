@@ -8,6 +8,52 @@ $(document).ready(function()
 	$(function() { 
 	$(".date_input").date_input(); 
 	}); 
+			
+	//套餐模式下，推广职位控制天数的显示，隐藏
+	//初始化天数样式
+	$(".monitor").keyup(function(){
+			var num=$(this).val();
+			var id=$(this).attr("id")+"_days";
+			var he=$(this).attr("id")+"_he";
+			if(num>0){
+				$("#"+he).addClass("set_meal");
+				$("#"+id).show();
+			}else{
+				$("#"+he).removeClass("set_meal");
+				$("#"+id).hide();
+			}
+	});
+	$(".monitor").each(function(){
+			var num=$(this).val();
+			var id=$(this).attr("id")+"_days";
+			var he=$(this).attr("id")+"_he";
+			if(num>0){
+				$("#"+he).addClass("set_meal");
+				$("#"+id).show();
+			}else{
+				$("#"+he).removeClass("set_meal");
+				$("#"+id).hide();
+			}
+	});
+	$(".no_money").click(function(){
+		$(".log_amount").hide();
+	});
+	$(".yes_money").click(function(){
+		$(".log_amount").show();
+	});
+	$(".no_money1").click(function(){
+		$(".log_amount1").hide();
+	});
+	$(".yes_money1").click(function(){
+		$(".log_amount1").show();
+	});
+	$(".no_money3").click(function(){
+		$(".log_amount3").hide();
+	});
+	$(".yes_money3").click(function(){
+		$(".log_amount3").show();
+	});
+			
 }); 
 </script>
 <div class="admin_main_nr_dbox">
@@ -141,6 +187,7 @@ $(document).ready(function()
     </tr>	
   </table>
   </form>
+{#if $QISHI.operation_mode=='1'#}  
  <div class="toptit">会员积分设置</div>
  <form id="form1" name="form1" method="post" action="?act=userpoints_edit">
  {#$inputtoken#}
@@ -169,6 +216,21 @@ $(document).ready(function()
       <td  style=" border-bottom:1px #CCCCCC dashed;" >
         <input name="points_notes" type="text" class="input_text_200" id="points_notes" maxlength="60" value="" style="width:450px;"/>        </td>
     </tr>
+		<tr>
+			<td align="right" style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF0000">是否已收费：</span></td>
+			<td style=" border-bottom:1px #CCCCCC dashed">
+			<label>
+			 <input name="is_money" type="radio" value="1" checked="checked" class="yes_money3"/>
+			是</label> &nbsp;&nbsp;&nbsp;<label>
+			<input name="is_money" type="radio" value="0"  class="no_money3"/>
+			否</label>		
+			</td>
+      </tr>
+	   <tr class="log_amount3">
+        <td align="right"  style=" border-bottom:1px #CCCCCC dashed;"><span style="color:#FF0000">收费金额：</span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="log_amount" type="text" class="input_text_200"  value="{#$setmeal.log_amount#}" maxlength="5"/> 元
+         <span class="admin_note">(请填写收费金额)</span> </td>
+      </tr>
     <tr>
       <td height="30" align="right"  >&nbsp;</td>
       <td height="35"   ><span style="font-size:14px;">
@@ -180,6 +242,7 @@ $(document).ready(function()
     </tr> 
 	</table>
   </form>
+	{#/if#}
 {#if $QISHI.operation_mode=='2'#}  
   
   
@@ -225,31 +288,18 @@ $(document).ready(function()
           条</td>
       </tr>
 	 
-	 	  <!-- -->
-	  	  
-	   <!-- -->
- 
-	  	  
-	  <!-- -->
-	   	  <!-- -->
 	  <tr>
         <td   height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">下载普通简历剩余：</td>
         <td  style=" border-bottom:1px #CCCCCC dashed;" >
           <input name="download_resume_ordinary" type="text" class="input_text_200" id="download_resume_ordinary" maxlength="50" value="{#$setmeal.download_resume_ordinary#}"  >
           条</td>
       </tr>
-	  	 
-	  <!-- -->
-	  	   	  <!-- -->
 	  <tr>
         <td   height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">下载高级简历剩余：</td>
         <td  style=" border-bottom:1px #CCCCCC dashed;" >
           <input name="download_resume_senior" type="text" class="input_text_200" id="download_resume_senior" maxlength="50" value="{#$setmeal.download_resume_senior#}"  >
           条</td>
       </tr>
-	  	 
-	  <!-- -->
-	  	   	  <!-- -->
 	  <tr>
         <td   height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">邀请普通面试剩余：</td>
         <td  style=" border-bottom:1px #CCCCCC dashed;" >
@@ -265,9 +315,8 @@ $(document).ready(function()
           <input name="interview_senior" type="text" class="input_text_200" id="interview_senior" maxlength="50" value="{#$setmeal.interview_senior#}"  >
           条</td>
       </tr>
-	   
-	  <!-- -->
-	    	   	  <!-- -->
+
+ 
 	  <tr>
         <td   height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">人才库容量剩余：</td>
         <td  style=" border-bottom:1px #CCCCCC dashed;" >
@@ -276,16 +325,86 @@ $(document).ready(function()
       </tr>
 	  <!-- -->
 	    	   	  <!-- -->
-	  <!-- -->
-	  	    	   	  <!-- -->
-	  <!-- -->
-	  <!-- -->
+		
+	   <tr>
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed">允许推荐职位：<span style="position:relative;"><div class="set_meal" id="recommend_he"></div></span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="recommend_num" type="text" class="input_text_200 monitor" id="recommend" value="{#$setmeal.recommend_num#}" maxlength="5"/>
+        条 <span class="admin_note">(0为不允许使用推荐职位)</span> </td>
+      </tr>
+	   <tr style="display:none;" id="recommend_days" >
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed">推荐天数设定：</td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="recommend_days" type="text" class="input_text_200"  value="{#$setmeal.recommend_days#}"  maxlength="5"/>
+        天 <span class="admin_note">(请设定天数)</span> </td>
+      </tr>
+	   <tr>
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed">允许置顶职位：<span style="position:relative;"><div class="set_meal" id="stick_he"></div></span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="stick_num" type="text" class="input_text_200 monitor" id="stick" value="{#$setmeal.stick_num#}" maxlength="5"/>
+        条 <span class="admin_note">(0为不允许使用置顶职位)</span> </td>
+      </tr >
+	   <tr style="display:none" id="stick_days" >
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed">置顶天数设定：</td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="stick_days" type="text" class="input_text_200" value="{#$setmeal.stick_days#}" maxlength="5"/>
+        天 <span class="admin_note">(请设定天数)</span> </td>
+      </tr>
+	   <tr>
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed">允许紧急职位：<span style="position:relative;"><div class="set_meal" id="emergency_he"></div></span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="emergency_num" type="text" class="input_text_200 monitor" id="emergency" value="{#$setmeal.emergency_num#}" maxlength="5"/>
+        条 <span class="admin_note">(0为不允许使用紧急职位)</span> </td>
+      </tr>
+	   <tr style="display:none" id="emergency_days">
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed" >紧急天数设定：</td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="emergency_days" type="text" class="input_text_200"  value="{#$setmeal.emergency_days#}" maxlength="5"/>
+        天 <span class="admin_note">(请设定天数)</span> </td>
+      </tr>
+	   <tr>
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed">允许职位套色：<span style="position:relative;"><div class="set_meal" id="highlight_he"></div></span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="highlight_num" type="text" class="input_text_200 monitor" id="highlight" value="{#$setmeal.highlight_num#}" maxlength="5"/>
+        条 <span class="admin_note">(0为不允许使用职位套色)</span> </td>
+      </tr>
+	   <tr style="display:none" id="highlight_days">
+        <td align="right"  style=" border-bottom:1px #CCCCCC dashed">套色天数设定：</td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="highlight_days" type="text" class="input_text_200"  value="{#$setmeal.highlight_days#}" maxlength="5"/>
+        天 <span class="admin_note">(请设定天数)</span> </td>
+      </tr>
+ 	  <tr>
+        <td align="right" style=" border-bottom:1px #CCCCCC dashed">允许会员切换模板：</td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><label>
+          <input name="change_templates" type="radio" value="1"  {#if $setmeal.change_templates=="1"#}checked="checked"{#/if#}/>
+        允许</label> &nbsp;&nbsp;&nbsp;<label>
+        <input type="radio" name="change_templates" value="0"  {#if $setmeal.change_templates=="0"#}checked="checked"{#/if#}/>
+        不允许</label></td>
+      </tr>
+		<tr>
+			<td align="right" style=" border-bottom:1px #CCCCCC dashed">开通企业电子地图：</td>
+			<td style=" border-bottom:1px #CCCCCC dashed">
+			<label>
+			  <input name="map_open" type="radio" value="1" {#if $setmeal.map_open=="1"#}checked="checked"{#/if#}/>
+			是</label> &nbsp;&nbsp;&nbsp;<label>
+			<input name="map_open" type="radio" value="0"  {#if $setmeal.map_open=="0"#}checked="checked"{#/if#}/>
+			否</label>		
+			</td>
+      </tr>
 	  <tr>
         <td   height="30" align="right" valign="top"  style=" border-bottom:1px #CCCCCC dashed">其他说明：</td>
         <td  style=" border-bottom:1px #CCCCCC dashed;" >
           <textarea name="added"   id="added" style="width:300px; height:60px;">{#$setmeal.added#}</textarea>        </td>
       </tr>
-	  <!-- -->
+	  
+		<tr>
+			<td align="right" style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF0000">是否已收费：</span></td>
+			<td style=" border-bottom:1px #CCCCCC dashed">
+			<label>
+			 <input name="is_money" type="radio" value="1" checked="checked" class="yes_money"/>
+			是</label> &nbsp;&nbsp;&nbsp;<label>
+			<input name="is_money" type="radio" value="0"  class="no_money"/>
+			否</label>		
+			</td>
+      </tr>
+	   <tr class="log_amount">
+        <td align="right"  style=" border-bottom:1px #CCCCCC dashed;"><span style="color:#FF0000">收费金额：</span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="log_amount" type="text" class="input_text_200"  value="{#$setmeal.log_amount#}" maxlength="5"/> 元
+         <span class="admin_note">(请填写收费金额)</span> </td>
+      </tr>
 	  <tr>
       <td width="120" height="30" align="right"   >&nbsp;</td>
       <td height="35"   > 
@@ -314,6 +433,21 @@ $(document).ready(function()
 		   {#/foreach#}
 	
 		</td>
+      </tr>
+		<tr>
+			<td align="right" style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF0000">是否已收费：</span></td>
+			<td style=" border-bottom:1px #CCCCCC dashed">
+			<label>
+			 <input name="is_money" type="radio" value="1" checked="checked" class="yes_money1"/>
+			是</label> &nbsp;&nbsp;&nbsp;<label>
+			<input name="is_money" type="radio" value="0"  class="no_money1"/>
+			否</label>		
+			</td>
+      </tr>
+	   <tr class="log_amount1">
+        <td align="right"  style=" border-bottom:1px #CCCCCC dashed;"><span style="color:#FF0000">收费金额：</span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="log_amount" type="text" class="input_text_200"  value="{#$setmeal.log_amount#}" maxlength="5"/> 元
+         <span class="admin_note">(请填写收费金额)</span> </td>
       </tr>
       <tr>
         <td height="30" align="right"  >&nbsp;</td>

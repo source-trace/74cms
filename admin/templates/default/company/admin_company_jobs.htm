@@ -38,7 +38,14 @@ $(document).ready(function()
 	li.detach();
 	$(this).prepend(htm);
 	});
+	
 		
+	$("#fail").click(function(){
+		$("#reason").show();
+	});
+	$("#success").click(function(){
+		$("#reason").hide();
+	});
 });
 </script>
 <div class="admin_main_nr_dbox">
@@ -262,17 +269,31 @@ $(document).ready(function()
       <td width="20" height="30">&nbsp;</td>
       <td height="30"><strong  style="color:#0066CC; font-size:14px;">将所选职位置为：</strong></td>
     </tr>
+		
 	      <tr>
-      <td width="27" height="25">&nbsp;</td>
+      <td width="40" height="25">&nbsp;</td>
       <td>
-                      <label><input name="audit" type="radio" value="1" checked="checked"  />
+                      <label><input name="audit" type="radio" value="1" checked="checked"  id="success" />
                       审核通过</label></td>
     </tr>
     <tr>
-      <td width="27" height="25">&nbsp;</td>
+      <td width="40" height="25">&nbsp;</td>
       <td>
-                      <label><input type="radio" name="audit" value="3"  />
+                      <label><input type="radio" name="audit" value="3"  id="fail"/>
                        审核未通过</label></td>
+    </tr>
+    <tr>
+      <td width="40" height="25">&nbsp;</td>
+      <td>
+                      <label><input type="checkbox" name="pms_notice" value="1"  checked="checked"/>
+					  站内信通知
+                       </label></td>
+    </tr>
+	<tr style="display:none" id="reason">
+      <td width="40" height="25" >理由：</td>
+      <td>
+         <textarea name="reason" id="reason" cols="50" style="font-size:12px"></textarea>            
+      </td>
     </tr>
     <tr>
       <td height="25">&nbsp;</td>

@@ -34,7 +34,7 @@ li { padding:0px; margin:0px; line-height:180%;list-style-type:none;}
 .head_top_box_right{height:33px; float: right; width:auto; text-align:right}
 .head_top_box_right .lia{ float:right; padding-left:13px; padding-right:13px; display:block; height:20px; padding-top:10px;background: url(../images/26.gif) no-repeat right 2px;}
 .head_top_box_right .lia.t_m{ background-position:9px -48px; cursor:pointer; padding-left:26px;}
-.head_top_box_right .lia.t_so{ background-position:right -21px; cursor:pointer; padding-left:23px; padding-right:15px;}
+.head_top_box_right .lia.t_so{ background-position:right -21px; cursor:pointer; padding-left:23px; padding-right:15px;z-index:1000}
 .head_top_box_right .lia.t_so .op_search{position:absolute; right:0px; top:3px;z-index:10; display:none;}
 .head_top_box_right .lia.t_so .op_search .stit{position:absolute; right:0px;top:0px;background-color:#FFFFFF;border:1px #CCCCCC solid; height:25px; border-bottom:#FFFFFF; z-index:4}
 .head_top_box_right .lia.t_so .op_search .stit div{width:28px; height:15px;background: url(../images/26.gif) 68px -25px; cursor:pointer; padding-left:25px; padding-right:14px; padding-top:6px;}
@@ -153,3 +153,5 @@ p#vtip { display: none; position: absolute; padding: 10px; left: 5px; font-size:
 #pageloadingbox{ position:absolute;width:100px; text-align:center; height:12px; padding:10px; border:3px #FF9900 solid; background-color:#FFFFCC;top:50%; left:45%;z-index:301}
 /*-----navFix--------*/
 .navFix{ position:fixed; left:0;  top:0; _position:absolute;  z-index:2; width:100%;}
+/*-----·µ»Ø¶¥²¿--------*/
+.backToTop { display: none; width: 18px; line-height: 1.2; padding: 5px 0; background-color: #FF6600; color: #fff; font-size: 12px; text-align: center; position: fixed; _position: absolute; right: 10px; bottom: 100px; _bottom: "auto"; cursor: pointer; opacity: .6; filter: Alpha(opacity=60);}

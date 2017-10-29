@@ -121,7 +121,7 @@ success: function(label) {
     else if ( element.is(":checkbox") )
         error.appendTo ( element.next());
     else
-        error.appendTo(element.parent());
+        error.appendTo(element.parent().next());
 	}
     });
 	 //中文字两个字节
@@ -133,11 +133,11 @@ success: function(label) {
 			}
 		}
 	return this.optional(element)	|| (length >= param[0] && length <= param[1]);
-	}, "确保的值在3-18个字节之间(1个中文字算2个字节)");
+	}, "确保的值在3-18个字节之间");
 	 //字符验证
 	jQuery.validator.addMethod("userName", function(value, element) {
 	return this.optional(element) || /^[\u0391-\uFFE5\w]+$/.test(value);
-	}, "用户名只能包括中文、英文字母、数字和下划线");
+	}, "只能包含中英文、数字和下划线");
 	jQuery.validator.addMethod("nomobile", function(value, element) { 
     var tel = /^(13|15|18)\d{9}$/;
 	var $cstr= true;
@@ -165,7 +165,7 @@ function imgcaptcha(inputID,imgdiv)
 		}
 		$(inputID).parent("div").css("position","relative");
 		//设置验证码DIV
-		$(imgdiv).css({ position: "absolute", left:  $(inputID).width(), "bottom": "0px" , "z-index": "10", "background-color": "#FFFFFF", "border": "1px #A3C8DC solid","display": "none","margin-left": "15px"});
+		$(imgdiv).css({ position: "absolute",right: "8px", "top": "32px" , "z-index": "10", "background-color": "#FFFFFF", "border": "1px #A3C8DC solid","display": "none","margin-left": "15px"});
 		$(imgdiv).show();
 		if ($(imgdiv).html()=='')
 		{
@@ -192,95 +192,98 @@ function imgcaptcha(inputID,imgdiv)
 imgcaptcha("#postcaptcha","#imgdiv");
 //验证码结束
 {#/if#}
+//
+$(".but-reg").hover(function(){$(this).addClass("but-reg-hover")},function(){$(this).removeClass("but-reg-hover")});
+$(".but-reg-login").hover(function(){$(this).addClass("but-reg-login-hover")},function(){$(this).removeClass("but-reg-login-hover")});
+//
+
 });
 </script>
 </head>
 <body>
 {#include file="user/header.htm"#}
- <div class="reg_box">
-   <div class="reg_box_tit link_lan">
-   {#if $type eq "1"#}
-   <strong>企业会员注册</strong><span>切换至 <a href="?act=form&type=2">个人会员</a> 注册</span>
-   {#/if#}
-   {#if $type eq "2"#}
-   <strong>个人会员注册</strong><span>切换至 <a href="?act=form&type=1">企业会员</a> 注册</span>
-   {#/if#}
-   </div>
-   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:50px; margin-top:30px;">
-  <tr>
-    <td width="600" style=" border-right:1px #DDDDDD solid">
-	<form id="Form1" name="Form1" method="post" action="?sd">
-  <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0" >
-  <tr>
-    <td width="130" height="40" align="right">用户名：</td>
-    <td><input name="username" type="text"  class="reg_input" id="username"  maxlength="25" /></td>
-    </tr>
-    <tr>
-    <td height="40" align="right">常用电子邮箱：</td>
-    <td><input name="email" type="text"  class="reg_input" id="email"    maxlength="60"/></td>
-    </tr>
-  <tr>
-    <td height="40" align="right">设置登录密码：</td>
-    <td><input name="password" type="password"  class="reg_input" id="password"  maxlength="18"/></td>
-    </tr>
-  <tr>
-    <td height="40" align="right">确认登录密码：</td>
-    <td><input name="password2" type="password"  class="reg_input" id="password2"  maxlength="18"  /></td>
-    </tr>
+<div class="reg-form-box-nav">
+		<a href="?act=form&type=2" {#if $type eq "2"#}class="select"{#/if#}><strong>个人会员注册</strong></a>
+		<a href="?act=form&type=1" {#if $type eq "1"#}class="select"{#/if#}><strong>企业会员注册</strong></a>
+ 		<div class="clear"></div>
+</div>
+<div class="reg-form-box">
+  <div class="leftbox">
+  <form id="Form1" name="Form1" method="post" action="?sd">
+  	<div class="item"><span>*</span>用户名：</div>
+	<div class="item-input-box"><input name="username" type="text" id="username"  maxlength="25"  class="txtinput input-img-user"/></div>
+	<div class="item-tip"></div>
+	<div class="clear"></div>
+	<div class="item"><span>*</span>常用电子邮箱：</div>
+	<div class="item-input-box"><input name="email" type="text"  id="email"  maxlength="60" class="txtinput input-img-email"/></div>
+	<div class="item-tip"></div>
+	<div class="clear"></div>
+	<div class="item"><span>*</span>设置登录密码：</div>
+	<div class="item-input-box"><input name="password" type="password"   id="password"  maxlength="18" class="txtinput input-img-pwd"/></div>
+	<div class="item-tip"></div>
+	<div class="clear"></div>
+	<div class="item"><span>*</span>确认登录密码：</div>
+	<div class="item-input-box"><input name="password2" type="password"  id="password2"  maxlength="18" class="txtinput input-img-pwd"/></div>
+	<div class="item-tip"></div>
+	<div class="clear"></div>
 	{#if $verify_userreg=="1"#}
-	<tr>
-    <td height="40" align="right">输入验证码：</td>
-    <td>
-	<div>
-	<div id="imgdiv"></div>
-	<input  class="reg_input"    name="postcaptcha" id="postcaptcha" type="text" value="点击获取验证码" style="color:#999999"/>
- 
-	
-			</div>
-	</td>
-    </tr>
+	<div class="item"><span>*</span>输入验证码：</div>
+	<div class="item-input-box">
+			<div id="imgdiv"></div>
+			<input  class="txtinput"  name="postcaptcha" id="postcaptcha" type="text" value="点击获取验证码" style="color:#999999"/>			
+	</div>
+	<div class="item-tip"></div>
+	<div class="clear"></div>
 	{#/if#}
-  <tr>
-  
-    <td>
-      <input name="member_type" type="hidden" id="member_type" value="{#$type#}" /></td>
-    <td  class="link_lan"><input name="agreement" id="agreement" type="checkbox" value="1" checked="checked" />
-      我已阅读并同意 <a href="{#$QISHI.site_dir#}agreement/" target="_blank">[注册协议]</a></td>
-    </tr>
-  <tr>
-    <td>&nbsp;</td>
-    <td height="50">
-	<div style="position:relative;">
-      <input name="reg" type="submit" id="reg" class="but100"  value="立即注册" />
-	   <input id="waiting" type="button" value="正在注册" style="display:none;"   class="but100"  disabled="disabled"/>
-	   </div>
-	   </td>
-    </tr>
-</table>
-</form>
-	</td>
-    <td valign="top"><table width="220" border="0" align="center" cellpadding="0" cellspacing="10" style="line-height:180%">
-      <tr>
-        <td   style="font-size:14px;"><strong>已经有帐号？</strong></td>
-      </tr>
-      <tr>
-        <td><input name="reg2" type="submit" class="but100" id="" value="立即登录"  onclick="window.location='{#"QS_login"|qishi_url#}'" /></td>
-      </tr>
-      <tr>
-        <td><strong style="color: #009900">企业会员</strong> <br />
-            发布招聘信息，查看人才简历，搜索简历，在线邀请面试...</td>
-      </tr>
-      <tr>
-        <td><strong style="color:#009900"> 个人会员 </strong> <br />
-填写个人简历，在线投递简历，在线申请职位，搜索职位... </td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-      </tr>
-    </table></td>
-  </tr>
-</table>
- </div>
+	
+	<div class="item" style="height:50px;"> </div>
+	<div class="item-input-box link_lan" style="height:50px;">
+	<input name="member_type" type="hidden" id="member_type" value="{#$type#}" />
+	<input name="agreement" id="agreement" type="checkbox" value="1" checked="checked" />
+      我已阅读并同意 <a href="{#$QISHI.site_dir#}agreement/" target="_blank">[{#$QISHI.site_name#}用户注册协议]</a>
+	  </div>
+	<div class="clear"></div>
+	
+	<div class="item"> </div>
+	<div class="item-input-box" id="reg" >
+	<input name="reg" type="submit"  class="but-reg"  value="" />
+	</div>
+	<div class="item-input-box waiting" id="waiting" style="display:none">
+	正在注册中,请等待...
+	</div>
+	<div class="item-tip"></div>
+	<div class="clear"></div>
+	
+	</form>
+  </div>
+  <div class="rightbox">
+			<div class="tit"><strong>已经有本站帐号?</strong></div>
+			<div class="but">
+			<input name="reg2" type="submit" class="but-reg-login " id="" value=""  onclick="window.location='{#"QS_login"|qishi_url#}'" />
+			</div>	
+			{#if $QISHI.qq_apiopen=="1" || $QISHI.sina_apiopen=="1"  || $QISHI.taobao_apiopen=="1"#}
+ 			<div class="tit"><strong>或者你也可以用以下网站帐号登录</strong></div>
+			{#if $QISHI.qq_apiopen=="1"#}
+			<div class="login_connectbox">
+			<a href="{#$QISHI.site_dir#}user/{#if $QISHI.qq_logintype=='1'#}connect_qq_client.php{#else#}connect_qq_server.php{#/if#}" ><img src="{#$QISHI.site_template#}images/75.gif" align="absmiddle" title="用qq帐号登录"  border="0"/></a>
+			</div>
+			{#/if#}
+			{#if $QISHI.sina_apiopen=="1"#}
+			<div class="login_connectbox">
+			<a href="{#$QISHI.site_dir#}user/connect_sina.php" ><img src="{#$QISHI.site_template#}images/97.gif" align="absmiddle" title="新浪微博帐号登录"  border="0"/></a>
+			</div>
+			{#/if#}
+			{#if $QISHI.taobao_apiopen=="1"#}
+			<div class="login_connectbox">
+			<a href="{#$QISHI.site_dir#}user/connect_taobao.php" ><img src="{#$QISHI.site_template#}images/98.gif" align="absmiddle" title="淘宝帐号登录"  border="0"/></a>
+			</div>
+			{#/if#}
+			<div class="clear"></div>
+			{#/if#}
+  </div>
+  <div class="clear"></div>
+</div>
+
 {#include file="user/footer.htm"#}
 </body>
 </html>

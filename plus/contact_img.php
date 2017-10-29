@@ -106,7 +106,7 @@ elseif($act == 'resume_contact')
 			  break;
 			}
 }
-header("Content-type: image/gif");
+ header("Content-type: image/gif");
 $w=30+(strlen($t)*8);
 $h=20;
 $im = imagecreate($w,$h);
@@ -114,7 +114,7 @@ $white = imagecolorallocate($im, 255,255,255);
 $black = imagecolorallocate($im, 0,0,0);
 if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$t=iconv(QISHI_DBCHARSET,"utf-8",$t);
+	$t=gbk_to_utf8($t);
 	}
 $ttf=QISHI_ROOT_PATH."data/contactimgfont/cn.ttc";
 imagettftext($im, 9, 0, 10, 15, $black, $ttf,$t);

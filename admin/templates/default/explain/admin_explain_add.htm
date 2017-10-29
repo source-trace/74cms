@@ -1,5 +1,7 @@
 {#include file="sys/admin_header.htm"#}
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
 <div class="admin_main_nr_dbox">
 <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
@@ -35,22 +37,17 @@
     <table width="700" border="0" cellpadding="0" cellspacing="0">
       <tr>
         <td width="100" ><textarea id="content" name="content" style="width:700px;height:300px;visibility:hidden;"></textarea>
-         <script>
-			KE.show({
-				id : 'content',
-				shadowMode : false,
-				autoSetDataMode: false,
-				allowPreviewEmoticons : false,
-				//skinType : 'tinymce',
-				urlType : '',
-				//allowFileManager : true,
-				afterCreate : function(id) {
-					KE.event.add(KE.$('FormData'), 'submit', function() {
-						KE.util.setData(id);
-					});
-				}
-			});
-		</script></td>
+        <script>
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="content"]', {
+          allowFileManager : true
+        });
+        K('input[name=Submit2]').click(function(e) {
+          editor.html('');
+        });
+      });
+    </script></td>
       </tr>
       <tr>
         <td height="50" align="center" ><input type="submit" name="Submit" value="确定提交" class="admin_submit"   />
@@ -80,7 +77,20 @@
         加粗</td>
       </tr>
 	  
-	  
+	   {#if $QISHI.subsite=="1"#}
+	  <tr>
+        <td align="right" >显示在：</td>
+        <td colspan="3" >
+		 <label ><input name="subsite_id" type="radio" value="0" {#if $QISHI.subsite_id=="0"#}checked="checked"{#/if#} />全站</label>
+		&nbsp;&nbsp;&nbsp;
+		{#foreach from=$subsite item=li#}
+		<label ><input name="subsite_id" type="radio" value="{#$li.s_id#}"   {#if $QISHI.subsite_id==$li.s_id#}checked="checked"{#/if#}/>{#$li.s_districtname#}</label>
+		&nbsp;&nbsp;&nbsp;
+		{#/foreach#}
+		
+	 </td>
+      </tr>
+	   {#/if#}
 	  
 	  
       <tr>

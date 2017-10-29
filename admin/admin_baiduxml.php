@@ -1,6 +1,6 @@
 <?php
  /*
- * 74cms 生成百度数据
+ * 74cms 生成HTML
  * ============================================================================
  * 版权所有: 骑士网络，并保留所有权利。
  * 网站地址: http://www.74cms.com；
@@ -54,10 +54,6 @@ elseif($act == 'setsave')
 {
 		$_POST['xmlmax']=intval($_POST['xmlmax']);
 		$_POST['xmlpagesize']=intval($_POST['xmlpagesize'])==0?1:intval($_POST['xmlpagesize']);
-		if(substr($_POST['indexname'],-4)<>'.xml')
-		{
-		adminmsg("文档名错误！",1);
-		}		
 		foreach($_POST as $k => $v)
 		{
 		!$db->query("UPDATE ".table('baiduxml')." SET value='{$v}' WHERE name='{$k}'")?adminmsg('保存失败', 1):"";
@@ -77,10 +73,6 @@ elseif($act == 'del')
 	if (!is_array($file_name)) $file_name=array($file_name);
 	foreach($file_name as $f )
 	{
-		if(substr($f,-4)<>'.xml')
-		{
-		adminmsg("文档名错误！",1);
-		}
 	@unlink($xmldir.$f);
 	}
 	adminmsg("删除成功！",2);
@@ -117,9 +109,12 @@ elseif($act == 'make')
 	$com=$db->getone("SELECT * from ".table('company_profile')." where id = '{$row['company_id']}' LIMIT 1");
 	$category=$db->getone("SELECT * FROM ".table('category_jobs')." where id=".$row['category']." LIMIT 1");
 	$subclass=$db->getone("SELECT * FROM ".table('category_jobs')." where id=".$row['subclass']." LIMIT 1");
-	$row['jobs_url']=$_CFG['site_domain'].url_rewrite('QS_jobsshow',array('id'=>$row['id']));
+	$row['jobs_url']=url_rewrite('QS_jobsshow',array('id'=>$row['id']));
 	
 	$x=array($row['jobs_url'],date("Y-m-d",$row['refreshtime']),$row['jobs_name'],date("Y-m-d",$row['deadline']),$row['contents'],$row['nature_cn'],   str_replace('/','',$row['district_cn']),$row['companyname'],$contact['email'],$category['categoryname'],$subclass['categoryname'],$row['education_cn'],$row['experience_cn'],date("Y-m-d",$row['addtime']),date("Y-m-d",$row['deadline']),str_replace('~','-',$row['wage_cn']),$row['trade_cn'],$com['nature_cn'],$_CFG['site_name'],$_CFG['site_domain'].$_CFG['site_dir']);
+	foreach ($x as $key => $value) {
+		$x[$key] = strip_tags(str_replace("&","&amp;",$value));
+	}
 	if (in_array('',$x))
 	{
 	$err++;

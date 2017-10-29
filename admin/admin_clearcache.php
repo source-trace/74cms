@@ -45,7 +45,7 @@ elseif ($act=="clear_cache")
 			refresh_nav_cache();
 			refresh_points_rule_cache();
 			makejs_classify();
-			}
+ 			}
 				$dirs = getsubdirs('../templates');
 				foreach ($dirs as $k=> $val)
 				{

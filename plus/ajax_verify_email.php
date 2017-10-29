@@ -75,14 +75,14 @@ elseif ($act=="verify_code")
 					$setsqlarr['email']=$_SESSION['verify_email'];
 					$setsqlarr['email_audit']=1;
 					updatetable(table('members'),$setsqlarr," uid='{$uid}'");
-					if ($_SESSION['uid']=="2")
+					if ($_SESSION['utype']=="2")
 					{
 					$u['email']=$_SESSION['verify_email'];
 					updatetable(table('resume'),$u," uid='{$uid}'");
 					updatetable(table('resume_tmp'),$u," uid='{$uid}'");
 					}
 					unset($setsqlarr,$_SESSION['verify_email'],$_SESSION['email_rand'],$u);
-					if ($_SESSION['utype']=="1")
+					if ($_CFG['operation_mode']=='1' && $_SESSION['utype']=='1')
 					{
 						$rule=get_cache('points_rule');
 						if ($rule['verifyemail']['value']>0)
@@ -100,7 +100,7 @@ elseif ($act=="verify_code")
 							write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username']," 邮箱通过验证，{$_CFG['points_byname']}({$operator}{$rule['verifyemail']['value']})，(剩余:{$user_points})");
 							}
 						}
-					}
+					} 
 					exit("success");
 			}
 	}

@@ -60,7 +60,10 @@ $(document).ready(function()
   <tr>
     <td class="link_lan">&nbsp;&nbsp;<a href="{#$QISHI.site_domain#}{#$QISHI.site_dir#}">{#$QISHI.site_name#}</a><span  style="color:#999999">&nbsp;&nbsp;({#$QISHI.site_domain#})</span></td>
     <td   class="link_bku top_a">
-	<a href="{#$QISHI.site_domain#}{#$QISHI.site_dir#}">网站首页</a> <a href="javascript:window.print();">打印简历</a>  <a href="javascript:void(0)"  class="add_resume_pool">添加到人才库</a>
+	<a href="{#$QISHI.site_domain#}{#$QISHI.site_dir#}">网站首页</a>
+    <a href="{#$QISHI.site_domain#}{#$QISHI.site_dir#}resume/resume-doc.php?resume_id={#$show.id#}&uid={#$show.uid#}">转为word</a> 
+    <a href="javascript:window.print();">打印简历</a>  
+	<a href="javascript:void(0)"  class="add_resume_pool">添加到人才库</a>
 	 <a href="javascript:void(0)" id="addpms">发短消息</a>
 	<a href="javascript:void(0)" id="newbuddy">加为好友</a>
 	</td>
@@ -69,7 +72,7 @@ $(document).ready(function()
   <table  border="0" align="center" cellpadding="7" cellspacing="1" bgcolor="#CCCCCC" class="resume_show">
   <tr>
     <td  colspan="5"  bgcolor="#FFFFFF"   class="btit">
-	<div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#$QISHI.site_domain#}{#"QS_resumeshow,id:"|cat:$show.id|qishi_url#}" alt="二维码"/></div>
+	<div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#"QS_resumeshow,id:"|cat:$show.id|qishi_url#}" alt="二维码"/></div>
 	
 	<h1>{#$show.fullname#}的个人简历{#if $show.talent=="2"#} <img src="{#$QISHI.site_template#}images/66.gif"   border="0" align="absmiddle"  alt="高级人才"/>{#/if#}</h1>
 	<div class="tip">

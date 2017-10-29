@@ -67,21 +67,18 @@
 		   <tr>
             <td align="right" valign="top">方案说明：</td>
             <td>
-			<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
-			  <textarea name="cat_notes" style="width:500px; height:160px; font-size:12px; line-height:180%"  id="cat_notes">{#$show.cat_notes#}</textarea>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
+			  <textarea name="cat_notes" style="width:700px; height:260px; font-size:12px; line-height:180%"  id="cat_notes">{#$show.cat_notes#}</textarea>
 	   <script>
- KE.show({
-				id : 'cat_notes',
-				resizeMode : 1,
-				allowPreviewEmoticons : false,
-				allowUpload : true,
-				imageUploadJson : '../../upload_json.php',
-				items : [
-				'source','fontname', 'fontsize', '|', 'textcolor', 'bgcolor', 'bold', 'italic', 'underline',
-				'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
-				'insertunorderedlist', '|','link','image','flash','media']
-			});
-		</script>	
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="cat_notes"]', {
+          allowFileManager : true
+        });
+      });
+    </script>
 			
 			
 			

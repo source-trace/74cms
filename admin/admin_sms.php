@@ -145,4 +145,128 @@ elseif($act == 'templates_save')
 	refresh_cache('sms_templates');
 	adminmsg("保存成功！",2,$link);
 }
+elseif($act == 'send')
+{
+	get_token();
+	$smarty->assign('pageheader',"短信营销");
+	
+	require_once(dirname(__FILE__).'/include/admin_smsqueue_fun.php');
+	require_once(QISHI_ROOT_PATH.'include/page.class.php');
+	$uid=intval($_GET['uid']);
+	$mobile=trim($_GET['mobile']);
+	
+	$wheresql=' WHERE s_uid='.$uid.' ORDER BY s_id DESC ';
+	$total_sql="SELECT COUNT(*) AS num FROM ".table('smsqueue').$wheresql;
+	$perpage=10;
+	$page = new page(array('total'=>$db->get_total($total_sql), 'perpage'=>$perpage));
+	$currenpage=$page->nowindex;
+	$offset=($currenpage-1)*$perpage;
+	$sms_log = get_smsqueue($offset,$perpage,$wheresql);
+	
+	$url=trim($_REQUEST['url']);
+	if (empty($url))
+	{
+	$url="?act=send&mobile={$mobile}&uid={$uid}";
+	}
+	$smarty->assign('url',$url);
+	$smarty->assign('smslog',$sms_log);
+	$smarty->assign('page',$page->show(3));
+	$smarty->display('sms/admin_sms_send.htm');
+}
+elseif($act == 'sms_send')
+{
+	check_token();
+	$txt=trim($_POST['txt']);
+	$mobile=trim($_POST['mobile']);
+	$uid=intval($_POST['uid']);
+	$url=trim($_REQUEST['url']);
+	if (!$uid)
+	{
+	adminmsg('用户UID错误！',0);
+	}
+	if (empty($txt))
+	{
+	adminmsg('短信内容不能为空！',0);
+	}
+	if (empty($mobile))
+	{
+	adminmsg('手机不能为空！',0);
+	}
+	if (!preg_match("/^(13|15|18|14)\d{9}$/",$mobile))
+	{
+		$link[0]['text'] = "返回上一页";
+		$link[0]['href'] = "{$url}";
+		adminmsg("发送失败！<strong>{$mobile}</strong> 不是标准的手机号格式",1,$link);
+		
+	}
+	else
+	{
+			$setsqlarr['s_uid']=$uid;
+			$setsqlarr['s_mobile']=$mobile;
+			$setsqlarr['s_body']=$txt;
+			$setsqlarr['s_addtime']=time();
+			$r=send_sms($mobile,$txt);
+			if ($r=="success")
+			{
+				$setsqlarr['s_sendtime']=time();
+				$setsqlarr['s_type']=1;//发送成功
+				inserttable(table('smsqueue'),$setsqlarr);
+				unset($setsqlarr);
+				$link[0]['text'] = "返回上一页";
+				$link[0]['href'] = "{$url}";
+				adminmsg("发送成功！",2,$link);
+			}
+			else
+			{
+				$setsqlarr['s_sendtime']=time();
+				$setsqlarr['s_type']=2;//发送失败
+				inserttable(table('smsqueue'),$setsqlarr);
+				unset($setsqlarr);
+				$link[0]['text'] = "返回上一页";
+				$link[0]['href'] = "{$url}";
+				adminmsg("发送失败，错误未知！",0,$link);
+			}
+	}
+}
+elseif ($act=='again_send')
+{
+	$id=intval($_GET['id']);
+	if (empty($id))
+	{
+	adminmsg("请选择要发送的项目！",1);
+	}
+	$result = $db->getone("SELECT * FROM ".table('smsqueue')." WHERE  s_id = {$id} limit 1");
+	$wheresql=" s_id={$id} ";
+	$r=send_sms($result['s_mobile'],$result['s_body']);
+	if ($r=='success')
+	{
+		$setsqlarr['s_sendtime']=time();
+		$setsqlarr['s_type']=1;//发送成功
+		!updatetable(table('smsqueue'),$setsqlarr,$wheresql);
+		adminmsg('发送成功',2);
+	}else{
+		$setsqlarr['s_sendtime']=time();
+		$setsqlarr['s_type']=2;
+		!updatetable(table('smsqueue'),$setsqlarr,$wheresql);
+		adminmsg('发送失败',0);
+	}
+		
+}
+elseif ($act=='del')
+{
+	$id=$_POST['id'];
+	if (empty($id))
+	{
+	adminmsg("请选择项目！",1);
+	}
+	if(!is_array($id)) $id=array($id);
+	$sqlin=implode(",",$id);
+	if (preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin))
+	{
+	$db->query("Delete from ".table('smsqueue')." WHERE s_id IN ({$sqlin}) ");
+	adminmsg("删除成功",2);
+	}
+}
+
+
 ?>

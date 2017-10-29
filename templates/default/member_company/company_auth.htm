@@ -11,9 +11,16 @@
 <script src="{#$QISHI.site_template#}js/jquery.js" type='text/javascript' language="javascript"></script>
 <script src="{#$QISHI.site_template#}js/jquery.idTabs.min.js" type='text/javascript' language="javascript"></script>
 <script src="{#$QISHI.site_template#}js/jquery.validate.min.js" type='text/javascript' language="javascript"></script>
+		
+<script src="{#$QISHI.site_template#}js/jquery.reasontip-min.js" type='text/javascript' language="javascript"></script>
+
+
 <script type="text/javascript">
 $(document).ready(function()
 {
+		
+	vtip_reason("{#$QISHI.site_dir#}","company_reason");
+
 	//隐藏展开
 	$("#spanshow").click(function(){	$("#why").toggle()});
 //控制图片大小
@@ -85,8 +92,12 @@ $(document).ready(function() {
 <tr id="why" style="display:none">
           <td width="139" height="30" align="right" bgcolor="#EAF4F7" >为什么要上传营业执照：</td>
           <td width="595" bgcolor="#EAF4F7" style="line-height:200%">① 通过认证后您将获得更多权限；<br />
-          ② 通过认证后可额外获得 {#$points.company_auth.value#} {#$QISHI.points_quantifier#}{#$QISHI.points_byname#}；<br />
-          ③ 通过认证后可增加信息的可信度，成为<strong>已认证企业</strong>；<br />
+		{#if $QISHI.operation_mode=="1"#}
+          ② 通过认证后可增加信息的可信度，成为<strong>已认证企业</strong>；<br />
+          ③ 通过认证后可额外获得 {#$points.company_auth.value#} {#$QISHI.points_quantifier#}{#$QISHI.points_byname#}；<br />
+		{#else#}
+          ② 通过认证后可增加信息的可信度，成为<strong>已认证企业</strong>；<br />
+		{#/if#}  
           注：上传营业执照仅供我们审核，绝不会用任何形式对外公开。</td>
         </tr>
         <tr>
@@ -98,8 +109,10 @@ $(document).ready(function() {
 		   已认证通过！
 		  {#elseif $company_profile.audit =="2"#}
 		   认证中,请耐心等待
-		  {#elseif $company_profile.audit =="3"#}
-		   认证失败！请上传正确的营业执照
+		
+	  {#elseif $company_profile.audit =="3"#}
+		   认证失败！请上传正确的营业执照 <img src="{#$QISHI.site_template#}images/99.gif"  border="0"  style="cursor:pointer;" id="{#$company_profile.uid#}"  class="reason" align="absmiddle"/>
+	
 		  {#/if#}&nbsp;		  </td>
         </tr>
 		{#if $company_profile.audit <>"1"#}

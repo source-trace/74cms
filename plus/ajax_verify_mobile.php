@@ -82,7 +82,7 @@ elseif ($act=="verify_code")
 					$setsqlarr['mobile_audit']=1;
 					updatetable(table('members'),$setsqlarr," uid='{$uid}'");
 					unset($setsqlarr,$_SESSION['verify_mobile'],$_SESSION['mobile_rand']);
-					if ($_SESSION['utype']=="1")
+					if ($_SESSION['utype']=="1" && $_CFG['operation_mode']=='1')
 					{
 						$rule=get_cache('points_rule');
 						if ($rule['verifymobile']['value']>0)
@@ -92,7 +92,7 @@ elseif ($act=="verify_code")
 							{
 							$time=time();			
 							$db->query("INSERT INTO ".table('members_handsel')." (uid,htype,addtime) VALUES ('{$_SESSION['uid']}', 'verifymobile','{$time}')");
-							require_once(QISHI_ROOT_PATH.'include/fun_company.php');
+							require_once(QISHI_ROOT_PATH.'include/fun_comapny.php');
 							report_deal($_SESSION['uid'],$rule['verifymobile']['type'],$rule['verifymobile']['value']);
 							$user_points=get_user_points($_SESSION['uid']);
 							$operator=$rule['verifymobile']['type']=="1"?"+":"-";
@@ -100,7 +100,7 @@ elseif ($act=="verify_code")
 							write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username']," 手机通过验证，{$_CFG['points_byname']}({$operator}{$rule['verifymobile']['value']})，(剩余:{$user_points})");
 							}
 						}
-					}
+					} 
 					exit("success");
 			}
 	}

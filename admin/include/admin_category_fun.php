@@ -128,6 +128,7 @@ function del_jobs_category($id)
 	}
 	return $return;
 }
+ 
 function getfirstchar($str)
 {
         $fchar=ord($str{0});   

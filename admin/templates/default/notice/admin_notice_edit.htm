@@ -1,5 +1,7 @@
 {#include file="sys/admin_header.htm"#}
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
 <div class="admin_main_nr_dbox">
  <div class="pagetit">
 	<div class="ptit"> {#$pageheader#}</div>
@@ -7,7 +9,7 @@
   <div class="clear"></div>
 </div>
 <div class="toptit">编辑公告</div>
-  <form action="?act=editsave" method="post" enctype="multipart/form-data" name="FormData" id="FormData" onsubmit="return chk_regform();">
+  <form action="?act=editsave" method="post" enctype="multipart/form-data" name="FormData" id="FormData">
   {#$inputtoken#}
     <table width="100%" border="0" cellpadding="3" cellspacing="0" class="admin_table">
       <tr>
@@ -36,20 +38,16 @@
       <tr>
         <td width="100" ><textarea  id="content" name="content" style="width:700px;height:300px;visibility:hidden;">{#$notice.content#}</textarea>
            <script>
-			KE.show({
-				id : 'content',
-				shadowMode : false,
-				autoSetDataMode: false,
-				allowPreviewEmoticons : false,
-				//skinType : 'tinymce',
-				filterMode : true,
-				afterCreate : function(id) {
-					KE.event.add(KE.$('FormData'), 'submit', function() {
-						KE.util.setData(id);
-					});
-				}
-			});
-		</script></td>
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="content"]', {
+          allowFileManager : true
+        });
+        K('input[name=Submit2]').click(function(e) {
+          editor.html('');
+        });
+      });
+    </script></td>
       </tr>
       <tr>
         <td height="50" align="center" ><input type="submit" name="Submit" value="确定提交" class="admin_submit"   />
@@ -81,7 +79,19 @@
       </tr>
 	  <tr>
 	  </tr>
-	
+	   {#if $QISHI.subsite=="1"#}
+	  <tr>
+        <td height="30" align="right" >添加到：</td>
+        <td colspan="3" >
+		 <label ><input name="subsite_id" type="radio" value="0" {#if $notice.subsite_id=="0"#}checked="checked"{#/if#}/>全站</label>
+		&nbsp;&nbsp;&nbsp;
+		{#foreach from=$subsite item=li#}
+		<label ><input name="subsite_id" type="radio" value="{#$li.s_id#}" {#if $notice.subsite_id==$li.s_id#}checked="checked"{#/if#}/>{#$li.s_districtname#}</label>
+		&nbsp;&nbsp;&nbsp;
+		{#/foreach#}
+		</td>
+      </tr>
+	  {#/if#}
       <tr>
         <td height="30" align="right" >keywords：</td>
         <td colspan="3" ><input name="seo_keywords" type="text" class="input_text_400" id="keywords"  maxlength="30"    value="{#$notice.seo_keywords#}"/></td>

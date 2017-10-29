@@ -202,6 +202,7 @@ function distribution_jobs($id,$uid)
 					{
 						$searchtab['id']=$j['id'];
 						$searchtab['uid']=$j['uid'];
+						$searchtab['subsite_id']=$j['subsite_id'];
 						$searchtab['recommend']=$j['recommend'];
 						$searchtab['emergency']=$j['emergency'];
 						$searchtab['nature']=$j['nature'];
@@ -255,6 +256,7 @@ function distribution_jobs($id,$uid)
 						}
 						$tagsql['id']=$j['id'];
 						$tagsql['uid']=$j['uid'];
+						$tagsql['subsite_id']=$j['subsite_id'];
 						$tagsql['category']=$j['category'];
 						$tagsql['subclass']=$j['subclass'];
 						$tagsql['district']=$j['district'];
@@ -282,7 +284,7 @@ function distribution_jobs_uid($uid)
 function get_points_rule()
 {
 	global $db;
-	$sql = "select * from ".table('members_points_rule')."  ORDER BY id asc";
+	$sql = "select * from ".table('members_points_rule')." WHERE utype='1' ORDER BY id asc";
 	return $db->getall($sql);
 }
 function get_user_points($uid)
@@ -326,7 +328,7 @@ function get_payment_info($typename,$name=false)
 	}
 }
 //增加订单
-function add_order($uid,$oid,$amount,$payment_name,$description,$addtime,$points='',$setmeal='')
+function add_order($uid,$oid,$amount,$payment_name,$description,$addtime,$points='',$setmeal='',$utype='1')
 {
 	global $db;
 	$setsqlarr['uid']=intval($uid);
@@ -337,6 +339,7 @@ function add_order($uid,$oid,$amount,$payment_name,$description,$addtime,$points
 	$setsqlarr['addtime']=$addtime;
 	$setsqlarr['points']=$points;
 	$setsqlarr['setmeal']=$setmeal;
+	$setsqlarr['utype']=$utype;
 	write_memberslog($uid,1,3001,$_SESSION['username'],"添加订单，编号{$oid}，金额{$amount}元");
 	$userinfo=get_user_info($uid);
 		//sendemail
@@ -407,13 +410,21 @@ function order_paid($v_oid)
 		$user=get_user_info($order['uid']);
 		$sql = "UPDATE ".table('order')." SET is_paid= '2',payment_time='{$timestamp}' WHERE oid='{$v_oid}' LIMIT 1 ";
 			if (!$db->query($sql)) return false;
+			if($order['amount']=='0.00'){
+				$ismoney=1;
+			}else{
+				$ismoney=2;
+			}
 			if ($order['points']>0)
 			{
 					report_deal($order['uid'],1,$order['points']);				
 					$user_points=get_user_points($order['uid']);
 					$notes=date('Y-m-d H:i',time())."通过：".get_payment_info($order['payment_name'],true)." 成功充值 ".$order['amount']."元，(+{$order['points']})，(剩余:{$user_points}),订单:{$v_oid}";					
 					write_memberslog($order['uid'],1,9001,$user['username'],$notes);
-				
+
+					//会员套餐变更记录。会员购买成功。2表示：会员自己购买
+					write_setmeallog($order['uid'],$user['username'],$notes,2,$order['amount'],$ismoney,1);
+			
 			}
 			elseif ($order['setmeal']>0)
 			{
@@ -421,6 +432,8 @@ function order_paid($v_oid)
 					$setmeal=get_setmeal_one($order['setmeal']);
 					$notes=date('Y-m-d H:i',time())."通过：".get_payment_info($order['payment_name'],true)." 成功充值 ".$order['amount']."元并开通{$setmeal['setmeal_name']}";
 					write_memberslog($order['uid'],1,9002,$user['username'],$notes);
+					//会员套餐变更记录。会员购买成功。2表示：会员自己购买
+					write_setmeallog($order['uid'],$user['username'],$notes,2,$order['amount'],$ismoney,2,1);
 			}
 		//sendemail
 		$mailconfig=get_cache('mailconfig');
@@ -874,7 +887,21 @@ function set_members_setmeal($uid,$setmealid)
 	$setsqlarr['interview_ordinary']=$setmeal['interview_ordinary'];
 	$setsqlarr['interview_senior']=$setmeal['interview_senior'];
 	$setsqlarr['talent_pool']=$setmeal['talent_pool'];
+
+ 	$setsqlarr['recommend_num']=$setmeal['recommend_num'];
+	$setsqlarr['recommend_days']=$setmeal['recommend_days'];
+	$setsqlarr['stick_num']=$setmeal['stick_num'];
+	$setsqlarr['stick_days']=$setmeal['stick_days'];
+	$setsqlarr['emergency_num']=$setmeal['emergency_num'];
+	$setsqlarr['emergency_days']=$setmeal['emergency_days'];
+	$setsqlarr['highlight_num']=$setmeal['highlight_num'];
+	$setsqlarr['highlight_days']=$setmeal['highlight_days'];
+	$setsqlarr['change_templates']=$setmeal['change_templates'];
+ 	$setsqlarr['map_open']=$setmeal['map_open'];
+
 	$setsqlarr['added']=$setmeal['added'];
+	$setsqlarr['refresh_jobs_space']=$setmeal['refresh_jobs_space'];
+	$setsqlarr['refresh_jobs_time']=$setmeal['refresh_jobs_time'];
 	if (!updatetable(table('members_setmeal'),$setsqlarr," uid='{$uid}'")) return false;
 	$setmeal_jobs['setmeal_deadline']=$setsqlarr['endtime'];
 	$setmeal_jobs['setmeal_id']=$setsqlarr['setmeal_id'];
@@ -1147,15 +1174,7 @@ function promotion_del($id,$uid)
 	write_memberslog($_SESSION['uid'],1,3006,$_SESSION['username'],"删除职位推广，(id:{$id})");
 	return $return;
 }
-function get_gifts($uid)
-{
-	global $db;
-	$uid=intval($uid);
-	$sql = "select * from ".table('members_gifts')." where uid='{$uid}' ORDER BY id desc";
-	$list=$db->getall($sql);
-	return $list;
-}
-function get_pms($offset,$perpage,$get_sql= '')
+ function get_pms($offset,$perpage,$get_sql= '')
 {
 	global $db;
 	if(isset($offset)&&!empty($perpage))
@@ -1199,76 +1218,64 @@ function get_buddy($offset,$perpage,$get_sql= '')
 	}
 	return $row_arr;
 }
-function get_company_news($offset,$perpage,$uid)
+ function delay_jobs($id,$uid,$days,$olddeadline)
+{
+	global $db;
+	$jobs_id=intval($id);
+	$uid=intval($uid);
+	$days=intval($days);
+	if ($days>0)
+	{
+		if (intval($olddeadline)>=time())
+		{
+			 $setsqlarr['deadline']=intval($olddeadline)+($days*(60*60*24));
+		}
+		else
+		{
+			 $setsqlarr['deadline']=strtotime("{$days} day");
+		}
+	}
+	
+	if (!updatetable(table('jobs'), $setsqlarr," id='{$id}' AND uid='{$uid}' ")) return false;
+	if (!updatetable(table('jobs_tmp'), $setsqlarr," id='{$id}' AND uid='{$uid}' ")) return false;
+	distribution_jobs($id,$uid);
+	return true;
+}
+ //主要获取会员的某种推广方案的剩余天数和时间
+function get_setmeal_promotion($uid,$promotionid)
 {
 	global $db;
 	$uid=intval($uid);
-	if(isset($offset)&&!empty($perpage))
-	{
-	$limit=" LIMIT {$offset},{$perpage}";
+	$promotionid=intval($promotionid);
+	$sql = "select * from ".table('members_setmeal')."  WHERE uid='{$uid}' AND  effective=1 LIMIT 1";
+	$result=$db->getone($sql);
+	$total_result=$db->getone("select recommend_num,stick_num,emergency_num,highlight_num  from ".table('setmeal')."  WHERE id='{$result['setmeal_id']}' LIMIT 1");//获取某种套餐某种推广总条数
+	if($promotionid=='1'){
+		$data['total_num']=$total_result['recommend_num'];
+		$data['name']='recommend_num';
+		$data['num']=$result['recommend_num'];
+		$data['days']=$result['recommend_days'];
+		$data['endtime']=$result['endtime'];
+	}elseif($promotionid=='3'){
+		$data['total_num']=$total_result['stick_num'];
+		$data['name']='stick_num';
+		$data['num']=$result['stick_num'];
+		$data['days']=$result['stick_days'];
+		$data['endtime']=$result['endtime'];
+	}elseif($promotionid=='2'){
+		$data['total_num']=$total_result['emergency_num'];
+		$data['name']='emergency_num';
+		$data['num']=$result['emergency_num'];
+		$data['days']=$result['emergency_days'];
+		$data['endtime']=$result['endtime'];
+	}elseif($promotionid=='4'){
+		$data['total_num']=$total_result['highlight_num'];
+		$data['name']='highlight_num';
+		$data['num']=$result['highlight_num'];
+		$data['days']=$result['highlight_days'];
+		$data['endtime']=$result['endtime'];
 	}
-	$result = $db->query("select * from ".table('company_news')." WHERE uid ='{$uid}'  ORDER BY `order` DESC,`id` DESC {$limit}");
-	while($row = $db->fetch_array($result))
-	{
-		$row['news_url']=url_rewrite('QS_companynewsshow',array('id'=>$row['id']));
-		$row['title']=cut_str($row['title'],20,0,"...");
-		$row_arr[] = $row;
-	}
-	return $row_arr;
+	return $data;
 }
-function del_company_news($del_id,$uid)
-{
-	global $db;
-	$uidsql=" AND uid=".intval($uid)."";
-	if (!is_array($del_id)) $del_id=array($del_id);
-	$sqlin=implode(",",$del_id);
-	if (!preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin)) return false;
-	if (!$db->query("Delete from ".table('company_news')." WHERE id IN ({$sqlin}) {$uidsql}")) return false;
-	return $db->affected_rows();;
-}
-function get_company_img($offset,$perpage,$uid)
-{
-	global $db;
-	$uid=intval($uid);
-	if(isset($offset)&&!empty($perpage))
-	{
-	$limit=" LIMIT {$offset},{$perpage}";
-	}
-	$result = $db->query("select * from ".table('company_img')." WHERE uid ='{$uid}'  ORDER BY `id` DESC {$limit}");
-	while($row = $db->fetch_array($result))
-	{
-		$row['title']=cut_str($row['title'],15,0,"...");
-		$row_arr[] = $row;
-	}
-	return $row_arr;
-}
-function get_comment_list($offset,$perpage,$get_sql= '')
-{
-	global $db;
-	$row_arr = array();
-	$offset=intval($offset);
-	$perpage=intval($perpage);
-	$limit=" LIMIT {$offset},{$perpage}";
-	$result = $db->query("SELECT c.*,m.avatars,m.username FROM ".table('comment')." AS c ".$get_sql." ORDER BY c.id DESC ".$limit);
-	while($row = $db->fetch_array($result))
-	{
-	$row['content_']=cut_str($row['content'],40,0,'...');
-	$row_arr[] = $row;
-	}
-	return $row_arr;
-}
-function del_company_comment($del_id,$jobs_id,$company_id)
-{
-	global $db;
-	$jobs_id=intval($jobs_id);
-	$uidsql=" AND company_id=".intval($company_id)."";
-	if (!is_array($del_id)) $del_id=array($del_id);
-	$sqlin=implode(",",$del_id);
-	if (!preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin)) return false;
-	if (!$db->query("Delete from ".table('comment')." WHERE id IN ({$sqlin}) {$uidsql}")) return false;
-	$return=$db->affected_rows();
-	$db->query("update ".table('jobs')." set comment=comment-{$return} WHERE id='{$jobs_id}'  LIMIT 1");
-	$db->query("update ".table('jobs_tmp')." set comment=comment-{$return} WHERE id='{$jobs_id}'  LIMIT 1");
-	return $return;
-}
-?>
+
+ ?>

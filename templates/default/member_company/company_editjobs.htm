@@ -362,31 +362,44 @@ $(document).ready(function()
         </tr>
 		<tr>
           <td height="30" align="right" bgcolor="#FFFFFF" ><span style="color:#FF3300; font-weight:bold">*</span> 联 系 人：</td>
-          <td bgcolor="#FFFFFF" ><input name="contact" type="text" class="input_text_200" id="contact" value="{#$jobs.contact.contact#}" maxlength="20" /></td>
+          <td bgcolor="#FFFFFF" >
+			<input name="contact" type="text" class="input_text_200" id="contact" value="{#$jobs.contact.contact#}" maxlength="20" />
+           <label><input name="contact_show"  type="checkbox" value="1" {#if $jobs.contact.contact_show=="1"#}checked="checked"{#/if#} />联系人在职位详细页中显示
+		  </td>
         </tr>
 		<tr>
           <td height="30" align="right" bgcolor="#FFFFFF" ><span style="color:#FF3300; font-weight:bold"> </span>联系人QQ号：</td>
-          <td bgcolor="#FFFFFF" ><input name="qq" type="text" class="input_text_200" id="qq" maxlength="50"  value="{#$jobs.contact.qq#}"/>
-            <label></label></td>
+          <td bgcolor="#FFFFFF" >
+		  <input name="qq" type="text" class="input_text_200" id="qq" maxlength="50"  value="{#$jobs.contact.qq#}"/>
+		  <label><input name="qq_show"  type="checkbox" value="1"  {#if $jobs.contact.qq_show=="1"#}checked="checked"{#/if#}/>联系qq在职位详细页中显示</label>
+		   </td>
         </tr>
 		<tr>
           <td height="30" align="right" bgcolor="#FFFFFF" ><span style="color:#FF3300; font-weight:bold">*</span> 联系电话：</td>
-          <td bgcolor="#FFFFFF" ><input name="telephone" type="text" class="input_text_200" id="telephone" maxlength="35" value="{#$jobs.contact.telephone#}" /></td>
+          <td bgcolor="#FFFFFF" >
+		  <input name="telephone" type="text" class="input_text_200" id="telephone" maxlength="35" value="{#$jobs.contact.telephone#}" />
+           <label><input name="telephone_show"  type="checkbox" value="1" {#if $jobs.contact.telephone_show=="1"#}checked="checked"{#/if#} />联系电话在职位详细页中显示
+		  </td>
         </tr>
 		<tr>
           <td height="30" align="right" bgcolor="#FFFFFF" ><span style="color:#FF3300; font-weight:bold">*</span> 联系地址：</td>
-          <td bgcolor="#FFFFFF" ><input name="address" type="text" class="input_text_200" id="address" maxlength="100"  value="{#$jobs.contact.address#}"/></td>
+          <td bgcolor="#FFFFFF" >
+		  	<input name="address" type="text" class="input_text_200" id="address" maxlength="100"  value="{#$jobs.contact.address#}"/>
+            <label><input name="address_show"  type="checkbox" value="1" {#if $jobs.contact.address_show=="1"#}checked="checked"{#/if#} />联系地址在职位详细页中显示
+		  </td>
         </tr>
 		<tr>
           <td height="30" align="right" bgcolor="#FFFFFF" ><span style="color:#FF3300; font-weight:bold">*</span> 联系邮箱：</td>
           <td bgcolor="#FFFFFF" ><label>
           <input name="email" type="text" class="input_text_200" id="email" maxlength="80"  value="{#$jobs.contact.email#}"/>
-          </label></td>
-       
+          </label>
+           <label><input name="email_show"  type="checkbox" value="1" {#if $jobs.contact.email_show=="1"#}checked="checked"{#/if#} />联系邮箱在职位详细页中显示
+		  </td>
+		 </tr>
       </table>
 		 	 <input name="audit" type="hidden" value="{#$jobs.audit#}" />
 			  <input name="id" type="hidden" value="{#$jobs.id#}" />
-		   {#if $jobs.add_mode=="2"#}
+		   {#if $QISHI.operation_mode=="2"#}
 			  <!--套餐模式 -->
 			   <input name="add_mode" type="hidden" id="add_mode" value="2" />
 		<table width="100%" border="0" cellspacing="6" cellpadding="5" bgcolor="#F9F9F9">

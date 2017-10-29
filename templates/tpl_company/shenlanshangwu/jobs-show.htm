@@ -69,7 +69,7 @@ $(document).ready(function()
   <div class="snav">
 		<a href="{#"QS_companyshow,id:"|cat:$show.company.id|qishi_url#}" >公司介绍</a>
 		<a href="{#"QS_companyjobs,id:"|cat:$show.company.id|qishi_url#}" class="selected">招聘职位</a>
-		<div class="clear"></div>
+ 		<div class="clear"></div>
   </div>
 </div>
 <div class="jobs-show">
@@ -166,11 +166,10 @@ $(document).ready(function()
 			<div class="remind">防骗提醒： 招聘单位无权向求职者收取任何费用，如有单位在面试过程中向您收取押金、保证金、体检费、材料费、成本费等违规费用，指定医院体检等均为诈骗行为，欢迎举报。</div>
 	  </div>
 	</div>
-
 </div>
   <div class="right">
   	<div class="txtbox">
-	<div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#$QISHI.site_domain#}{#"QS_companyshow,id:"|cat:$show.company.id|qishi_url#}" alt="{#$show.companyname#} - 二维码" /></div>	
+	<div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#"QS_companyshow,id:"|cat:$show.company.id|qishi_url#}" alt="{#$show.companyname#} - 二维码" /></div>	
 		  <div class="tit">企业档案</div>	  
 		  <div class="txt">
 			  <ul class="link_bku">

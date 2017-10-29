@@ -10,7 +10,23 @@
 <link href="{#$QISHI.site_template#}css/user.css" rel="stylesheet" type="text/css" />
 <script src="{#$QISHI.site_template#}js/jquery.js" type='text/javascript' language="javascript"></script>
 <script src="{#$QISHI.site_template#}js/jquery.idTabs.min.js" type='text/javascript' language="javascript"></script>
-</head>
+ <script type="text/javascript">
+$(document).ready(function()
+{
+	{#if $QISHI.operation_mode=="2" && ($setmeal.change_templates=="0" || $setmeal.change_templates=="")#}
+		{#if $setmeal.setmeal_name==""#}
+			var setmeal_name="您没有开通套餐";
+		{#else#}
+			var setmeal_name="你的套餐：{#$setmeal.setmeal_name#}";
+		{#/if#}
+		$("input[name=tpl]").click(function(){
+			alert(setmeal_name+",没有自由切换模板的权限！");
+			return false;
+		})
+	{#/if#}
+});
+</script>
+ </head>
 <body>
 {#include file="header.htm"#}
 <div class="page_location link_bk">
@@ -36,18 +52,18 @@
 		  <tr>
           <td  style="border-bottom:1px #C9D9E7 dashed; padding-left:5px;">
 		  <script type="text/javascript"> 
-$(document).ready(function()
-{
-	$(".tpl_list").hover(
-  function () {
-    $(this).css("background-color","#E4F4FC");
-  },
-  function () {
-    $(this).css("background-color","");
-  }
-);
-});
-</script>
+				$(document).ready(function()
+				{
+					$(".tpl_list").hover(
+				  function () {
+					$(this).css("background-color","#E4F4FC");
+				  },
+				  function () {
+					$(this).css("background-color","");
+				  }
+				);
+				});
+			</script>
 		{#foreach  from=$comtpl item=li#}
 		<div style=" line-height:180%; padding:3px; float:left;"  class="link_lan tpl_list">
 		  <table width="225" border="0" cellspacing="3" cellpadding="0" class="link_lan">
@@ -60,6 +76,7 @@ $(document).ready(function()
 			  <a href="{#$com_url#}&style={#$li.tpl_dir#}"  target="_blank">[预览]</a>
 			  </td>
               </tr>
+ 		{#if $QISHI.operation_mode=="1"#}
 			   <tr>
               <td align="center">
 			  售价：
@@ -68,10 +85,10 @@ $(document).ready(function()
 			  {#else#}
 			 <span style="color: #FF6600"><strong>{#$li.tpl_val#}</strong></span>{#$QISHI.points_quantifier#}{#$QISHI.points_byname#}
 			  {#/if#}
-			
 			  </td>
               </tr>
-			  <tr>
+	    {#/if#}
+ 			  <tr>
               <td align="center">
 			   <label>
 			  <input name="tpl" type="radio" value="{#$li.tpl_dir#}" {#if $mytpl==$li.tpl_dir#}checked="checked"{#/if#}/>

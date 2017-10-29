@@ -38,4 +38,19 @@ function del_syslog($id)
 	}
 	return $delnum;
 }
+function pidel_syslog($l_type,$starttime,$endtime)
+{
+	global $db;
+	$delnum=0;
+	$starttime=intval($starttime);
+	$endtime=intval($endtime);
+	if (!is_array($l_type)) $l_type=array($l_type);
+	$sqlin=implode(",",$l_type);
+	if (preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin) && $starttime && $endtime)
+	{
+		$db->query("Delete from ".table('syslog')." WHERE l_time>{$starttime} and  l_time<{$endtime} and l_type IN (".$sqlin.")");
+		$delnum=$db->affected_rows();
+	}
+	return $delnum;
+}
 ?>

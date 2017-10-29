@@ -56,8 +56,12 @@
 				{#/if#}
 			  </td>
               <td align="center" style="border-bottom:1px #CCCCCC dashed">
+		
+		{#if $QISHI.operation_mode=="1"#}
 			  <a href="?act=promotion_edit&jobsid={#$li.cp_jobid#}&promotionid={#$li.cp_promotionid#}" >编辑</a>
 			  &nbsp;
+		{#/if#}
+	
 			   <a href="?act=promotion_del&id={#$li.cp_id#}" onclick="return confirm('取消将无法恢复，您确认取消吗')">取消</a>
 			  </td>
             </tr>
@@ -82,7 +86,8 @@
           </tr> 
 		  <tr>
           <td >
-		  
+	
+		{#if $QISHI.operation_mode=="1"#}
 		  <table width="98%" border="0" align="center" cellpadding="0" cellspacing="5" style="margin-bottom:30px; margin-top:8px; line-height:180%">
             <tr>
               <td width="40%">方案名称：{#$promotion.cat_name#}</td>
@@ -91,8 +96,7 @@
 			  不限制
 			  {#else#}
 			  {#$promotion.cat_minday#}天
-			  {#/if#}
-			  </td>
+			  {#/if#}			  </td>
             </tr>
             <tr>
               <td>推广期每天消耗积分：
@@ -100,15 +104,43 @@
 			  免费
 			  {#else#}
 			  {#$promotion.cat_points#}{#$QISHI.points_quantifier#}{#$QISHI.points_byname#}
-			  {#/if#}
-			  </td>
+			  {#/if#}			  </td>
               <td>推广天数最多：
 			   {#if $promotion.cat_maxday=="0"#}
 			  不限制
 			  {#else#}
 			  {#$promotion.cat_maxday#}天
-			  {#/if#}
-			  
+			  {#/if#}			  </td>
+            </tr>
+            <tr>
+              <td>方案说明：</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td colspan="2">
+			   {#$promotion.cat_notes#}
+			   </td>
+              </tr>
+          </table>
+		{#elseif $QISHI.operation_mode=="2"#}
+		  <table width="98%" border="0" align="center" cellpadding="0" cellspacing="5" style="margin-bottom:30px; margin-top:8px; line-height:180%">
+            <tr>
+              <td width="30%">方案名称：{#$promotion.cat_name#}</td>
+              <td width="40%">您的套餐：
+			  {#$setmeal.setmeal_name#}
+			  </td>
+              <td width="30%">
+			  </td>
+            </tr>
+            <tr>
+              <td>套餐内{#$promotion.cat_name#}总条数：
+			  {# $data.total_num"#}条
+			  </td>
+              <td>套餐内{#$promotion.cat_name#}剩余：
+			   {# $data.num"#}条
+			  </td>
+              <td>推广有效期：
+			   {# $data.days"#}天
 			  </td>
             </tr>
             <tr>
@@ -118,9 +150,12 @@
             <tr>
               <td colspan="2">
 			   {#$promotion.cat_notes#}
-				</td>
+			   </td>
               </tr>
-          </table></td>
+          </table>
+		{#/if#}		
+	
+       </td>
           </tr>
       </table>
 </div>

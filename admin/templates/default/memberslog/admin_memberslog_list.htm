@@ -16,11 +16,15 @@ $(document).ready(function()
 	li.detach();
 	$(this).prepend(htm);
 	});
-			
+	
 });
 </script>
 <div class="admin_main_nr_dbox">
 
+<div class="pagetit">
+	<div class="ptit"> {#$pageheader#}</div>
+  <div class="clear"></div>
+</div>
 
 <div class="toptip">
 	<h2>提示：</h2>
@@ -50,6 +54,8 @@ $(document).ready(function()
 	 	<a href="{#"log_utype:"|qishi_parse_url#}" {#if $smarty.get.log_utype==""#}class="select"{#/if#}>不限</a>
 		<a href="{#"log_utype:1"|qishi_parse_url#}" {#if $smarty.get.log_utype=="1"#}class="select"{#/if#}>企业会员</a>
 		<a href="{#"log_utype:2"|qishi_parse_url#}" {#if $smarty.get.log_utype=="2"#}class="select"{#/if#}>个人会员</a> 
+		<a href="{#"log_utype:3"|qishi_parse_url#}" {#if $smarty.get.log_utype=="3"#}class="select"{#/if#}>猎头顾问</a> 
+		<a href="{#"log_utype:4"|qishi_parse_url#}" {#if $smarty.get.log_utype=="4"#}class="select"{#/if#}>培训机构</a> 
 	  </div>
     </div>
 	<div class="list">
@@ -83,6 +89,7 @@ $(document).ready(function()
 		<a href="{#"log_type:2004"|qishi_parse_url#}" {#if $smarty.get.log_type=="2004"#}class="select"{#/if#}>刷新职位</a>
 		<a href="{#"log_type:2005"|qishi_parse_url#}" {#if $smarty.get.log_type=="2005"#}class="select"{#/if#}>修改职位状态</a>
 		<a href="{#"log_type:2006"|qishi_parse_url#}" {#if $smarty.get.log_type=="2006"#}class="select"{#/if#}>查看职位申请</a>
+		<a href="{#"log_type:2007"|qishi_parse_url#}" {#if $smarty.get.log_type=="2007"#}class="select"{#/if#}>延期职位</a>
 
 
 		<a href="{#"log_type:3001"|qishi_parse_url#}" {#if $smarty.get.log_type=="3001"#}class="select"{#/if#}>增加订单</a>
@@ -124,15 +131,13 @@ $(document).ready(function()
 		<a href="{#"log_type:1107"|qishi_parse_url#}" {#if $smarty.get.log_type=="1107"#}class="select"{#/if#}>申请高级人才</a>
 		<a href="{#"log_type:1108"|qishi_parse_url#}" {#if $smarty.get.log_type=="1108"#}class="select"{#/if#}>查看邀请面试</a>
 		
+  		
 		<a href="{#"log_type:1201"|qishi_parse_url#}" {#if $smarty.get.log_type=="1201"#}class="select"{#/if#}>添加职位收藏</a>
 		<a href="{#"log_type:1202"|qishi_parse_url#}" {#if $smarty.get.log_type=="1202"#}class="select"{#/if#}>删除职位收藏</a>
-		
-		<a href="{#"log_type:1301"|qishi_parse_url#}" {#if $smarty.get.log_type=="1301"#}class="select"{#/if#}>申请职位</a>
+ 		<a href="{#"log_type:1301"|qishi_parse_url#}" {#if $smarty.get.log_type=="1301"#}class="select"{#/if#}>申请职位</a>
 		<a href="{#"log_type:1302"|qishi_parse_url#}" {#if $smarty.get.log_type=="1302"#}class="select"{#/if#}>删除职位申请</a>
-		
-		<a href="{#"log_type:1401"|qishi_parse_url#}" {#if $smarty.get.log_type=="1401"#}class="select"{#/if#}>预定招聘会展位</a>
- 
- 
+ 		
+  		 
 	  </div>
     </div>
 	
@@ -150,6 +155,7 @@ $(document).ready(function()
 	   <td width="100"  align="center"   class="admin_list_tit">类型</td>
       <td width="13%"     align="center"  class="admin_list_tit">创建时间</td>
       <td width="10%"   align="center" class="admin_list_tit"> IP </td>
+      <td width="10%"   align="center" class="admin_list_tit"> 登录地址 </td>
      
       <td   class="admin_list_tit" >描述</td>
     </tr>
@@ -162,12 +168,15 @@ $(document).ready(function()
 	    </td>
 		 <td  class="admin_list"   align="center">
 		 {#if $li.log_utype=="1"#}企业会员{#/if#}
-	  {#if $li.log_utype=="2"#}个人会员{#/if#}
+	 	 {#if $li.log_utype=="2"#}个人会员{#/if#}
+	 	 {#if $li.log_utype=="3"#}猎头顾问{#/if#}
+	 	 {#if $li.log_utype=="4"#}培训机构{#/if#}
 		</td>
 		 <td    class="admin_list"   align="center">
 		 {#$li.log_addtime|date_format:"%Y-%m-%d %H:%M"#}
 	    </td>
         <td   class="admin_list"  align="center">{#$li.log_ip#}</td>
+        <td   class="admin_list"  align="center">{#$li.log_address#}</td>
         
         <td   class="admin_list vtip"  title="{#$li.log_value#}">{#$li.log_value#}</td>
       </tr>
@@ -176,11 +185,15 @@ $(document).ready(function()
 	{#if !$list#}
 	<div class="admin_list_no_info">没有任何信息！</div>
 	{#/if#}	
+<span id="OpPi"></span>
   </form>
 <table width="100%" border="0" cellspacing="10"  class="admin_list_btm">
 <tr>
-        <td><input name="ButDel" type="button" class="admin_submit" id="ButDel"  value="删除所选"/>
-		</td>
+        <td>
+		<input name="" type="button" class="admin_submit" id="ButDel"  value="删除所选"/>
+				
+		<input name="" type="button" class="admin_submit" id="ButPidel"  value="批量删除" onClick="window.location='?act=pidel_memberslog'"/>
+				</td>
         <td width="305" align="right">
 		
 		
@@ -212,7 +225,7 @@ $(document).ready(function()
 	    </td>
     </tr>
   </table>
-   
+  
 <div class="page link_bk">{#$page#}</div>
 </div>
 {#include file="sys/admin_footer.htm"#}

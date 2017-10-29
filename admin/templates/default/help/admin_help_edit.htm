@@ -1,5 +1,7 @@
 {#include file="sys/admin_header.htm"#}
-<script  charset="utf-8" src="kindeditor/kindeditor.js"></script>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function()
@@ -45,22 +47,16 @@ $(document).ready(function()
         <td align="right" valign="top" >ÄÚÈÝ£º</td>
         <td ><textarea id="content" name="content" style="width:700px;height:300px;visibility:hidden;">{#$help.content#}</textarea>
 		<script>
-			KE.show({
-				id : 'content',
-				shadowMode : false,
-				autoSetDataMode: false,
-				allowPreviewEmoticons : false,
-				//skinType : 'tinymce',
-				urlType : 'absolute',
-				filterMode : true,
-				//allowFileManager : true,
-				afterCreate : function(id) {
-					KE.event.add(KE.$('FormData'), 'submit', function() {
-						KE.util.setData(id);
-					});
-				}
-			});
-		</script></td>
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="content"]', {
+          allowFileManager : true
+        });
+        K('input[name=Submit2]').click(function(e) {
+          editor.html('');
+        });
+      });
+    </script></td>
       </tr>
       <tr>
         <td align="right" ><input name="id" type="hidden" value="{#$help.id#}" /></td>

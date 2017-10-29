@@ -75,6 +75,7 @@ function distribution_resume($id)
 						$searchtab['id']=$j['id'];
 						$searchtab['display']=$j['display'];
 						$searchtab['uid']=$j['uid'];
+						$searchtab['subsite_id']=$j['subsite_id'];
 						$searchtab['sex']=$j['sex'];
 						$searchtab['nature']=$j['nature'];
 						$searchtab['marriage']=$j['marriage'];
@@ -105,6 +106,7 @@ function distribution_resume($id)
 						}
 						$tagsql['id']=$j['id'];
 						$tagsql['uid']=$j['uid'];
+						$tagsql['subsite_id']=$j['subsite_id'];
 						$tagsql['experience']=$j['experience'];
 						$tagsql['district']=$j['district'];
 						$tagsql['sdistrict']=$j['sdistrict'];
@@ -165,7 +167,7 @@ function del_resume_for_uid($uid)
 		}		
 	}
 }
-function edit_resume_audit($id,$audit)
+function edit_resume_audit($id,$audit,$reason,$pms_notice)
 {
 	global $db,$_CFG;
 	$audit=intval($audit);
@@ -176,6 +178,34 @@ function edit_resume_audit($id,$audit)
 		if (!$db->query("update  ".table('resume')." SET audit='{$audit}'  WHERE id IN ({$sqlin}) ")) return false;
 		if (!$db->query("update  ".table('resume_tmp')." SET audit='{$audit}'  WHERE id IN ({$sqlin}) ")) return false;
 		distribution_resume($id);
+		//发送站内信
+		if ($pms_notice=='1')
+		{
+				$result = $db->query("SELECT  fullname,title,uid  FROM ".table('resume')." WHERE id IN ({$sqlin})  UNION ALL  SELECT fullname,title,uid FROM ".table('resume_tmp')." WHERE id IN ({$sqlin})");
+				$reason=$reason==''?'原因：未知':'原因：'.$reason;
+				while($list = $db->fetch_array($result))
+				{
+					$user_info=get_user($list['uid']);
+					$setsqlarr['message']=$audit=='1'?"您创建的简历：{$list['title']},真实姓名：{$list['fullname']},成功通过网站管理员审核！":"您创建的简历：{$list['title']},真实姓名：{$list['fullname']},未通过网站管理员审核,{$reason}";
+					$setsqlarr['msgtype']=1;
+					$setsqlarr['msgtouid']=$user_info['uid'];
+					$setsqlarr['msgtoname']=$user_info['username'];
+					$setsqlarr['dateline']=time();
+					$setsqlarr['replytime']=time();
+					$setsqlarr['new']=1;
+					inserttable(table('pms'),$setsqlarr);
+				 }
+		}
+		//审核未通过增加原因
+		if($audit=='3'){
+			foreach($id as $list){
+				$auditsqlarr['resume_id']=$list;
+				$auditsqlarr['reason']=$reason;
+				$auditsqlarr['addtime']=time();
+				inserttable(table('audit_reason'),$auditsqlarr);
+			}
+		}
+			
 			//发送邮件
 				$mailconfig=get_cache('mailconfig');//获取邮件规则
 				$sms=get_cache('sms_config');
@@ -337,7 +367,7 @@ function delete_member($uid)
 	$sqlin=implode(",",$uid);
 		if (preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin))
 		{
-		if (!$db->query("Delete from ".table('members')." WHERE uid IN (".$sqlin.")")) return false;
+ 		if (!$db->query("Delete from ".table('members')." WHERE uid IN (".$sqlin.")")) return false;
 		if (!$db->query("Delete from ".table('members_info')." WHERE uid IN (".$sqlin.")")) return false;
 		return true;
 		}
@@ -357,4 +387,75 @@ function get_user($uid)
 	$sql = "select * from ".table('members')." where uid = '{$uid}' LIMIT 1";
 	return $db->getone($sql);
 }
-?>
+//获取简历的审核日志
+function get_resumeaudit_one($resume_id){
+	global $db;
+	$sql = "select * from ".table('audit_reason')."  WHERE resume_id='".intval($resume_id)."' ORDER BY id DESC";
+	return $db->getall($sql);
+}
+//获取简历基本信息
+function get_resume_basic($uid,$id)
+{
+	global $db;
+	$id=intval($id);
+	$uid=intval($uid);
+	$info=$db->getone("select * from ".table('resume')." where id='{$id}'  AND uid='{$uid}' LIMIT 1 ");
+	if (empty($info))
+	{
+	$info=$db->getone("select * from ".table('resume_tmp')." where id='{$id}'  AND uid='{$uid}' LIMIT 1 ");
+	}
+	if (empty($info))
+	{
+	return false;
+	}
+	else
+	{
+	$info['age']=date("Y")-$info['birthdate'];
+	$info['number']="N".str_pad($info['id'],7,"0",STR_PAD_LEFT);
+	$info['lastname']=cut_str($info['fullname'],1,0,"**");
+	$info['tagcn']=preg_replace("/\d+/", '',$info['tag']);
+	$info['tagcn']=preg_replace('/\,/','',$info['tagcn']);
+	$info['tagcn']=preg_replace('/\|/','&nbsp;&nbsp;&nbsp;',$info['tagcn']);
+	return $info;
+	}
+}
+//获取教育经历列表
+function get_resume_education($uid,$pid)
+{
+	global $db;
+	if (intval($uid)!=$uid) return false;
+	$sql = "SELECT * FROM ".table('resume_education')." WHERE  pid='".intval($pid)."' AND uid='".intval($uid)."' ";
+	return $db->getall($sql);
+}
+//获取：工作经历
+function get_resume_work($uid,$pid)
+{
+	global $db;
+	$sql = "select * from ".table('resume_work')." where pid='".$pid."' AND uid=".intval($uid)."" ;
+	return $db->getall($sql);
+}
+//获取：培训经历列表
+function get_resume_training($uid,$pid)
+{
+	global $db;
+	$sql = "select * from ".table('resume_training')." where pid='".intval($pid)."' AND  uid='".intval($uid)."' ";
+	return $db->getall($sql);
+}
+//获取意向职位
+function get_resume_jobs($pid)
+{
+	global $db;
+	$pid=intval($pid);
+	$sql = "select * from ".table('resume_jobs')." where pid='{$pid}'  LIMIT 20" ;
+	return $db->getall($sql);
+}
+function reasonaudit_del($id)
+{
+	global $db;
+	if (!is_array($id)) $id=array($id);
+	$sqlin=implode(",",$id);
+	if (!preg_match("/^(\d{1,10},)*(\d{1,10})$/",$sqlin)) return false;
+	if (!$db->query("Delete from ".table('audit_reason')." WHERE id IN ({$sqlin})")) return false;
+	return $db->affected_rows();
+}
+ ?>

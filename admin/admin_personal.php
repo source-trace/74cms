@@ -77,6 +77,11 @@ if($act == 'list')
 			$settr=strtotime("-".intval($_GET['settr'])." day");
 			$wheresql=empty($wheresql)?" WHERE refreshtime> ".$settr:$wheresql." AND refreshtime> ".$settr;
 		}
+		if ($_CFG['subsite']=="1" && $_CFG['subsite_filter_resume']=="1")
+		{
+				$wheresql.=empty($wheresql)?" WHERE ":" AND ";
+				$wheresql.=" (subsite_id=0 OR subsite_id=".intval($_CFG['subsite_id']).") ";
+		}
 	}
 	if ($tablename=="all")
 	{
@@ -130,12 +135,15 @@ elseif($act == 'perform')
 			adminmsg("删除失败！",0);
 			}
 		}
-		if (!empty($_POST['set_audit']))
+				if (!empty($_POST['set_audit']))
 		{
-		check_permissions($_SESSION['admin_purview'],"resume_audit");
-		$audit=$_POST['audit'];
-		!edit_resume_audit($id,$audit)?adminmsg("设置失败！",0):adminmsg("设置成功！",2,$link);
+			check_permissions($_SESSION['admin_purview'],"resume_audit");
+			$audit=$_POST['audit'];
+			$pms_notice=intval($_POST['pms_notice']);
+			$reason=trim($_POST['reason']);
+			!edit_resume_audit($id,$audit,$reason,$pms_notice)?adminmsg("设置失败！",0):adminmsg("设置成功！",2,$link);
 		}
+		
 		if (!empty($_POST['set_talent']))
 		{
 		check_permissions($_SESSION['admin_purview'],"resume_talent");
@@ -306,7 +314,7 @@ elseif($act == 'userpass_edit')
 	$md5password=md5(md5(trim($_POST['password'])).$pwd_hash.$QS_pwdhash);	
 		if ($db->query( "UPDATE ".table('members')." SET password = '{$md5password}'  WHERE uid='{$user_info['uid']}' LIMIT 1"))
 		{
-		$link[0]['text'] = "返回列表";
+ 		$link[0]['text'] = "返回列表";
 		$link[0]['href'] = $_POST['url'];
 		$member=get_member_one($user_info['uid']);
 		write_memberslog($member['uid'],1,1004,$member['username'],"管理员在后台修改登录密码");
@@ -351,7 +359,7 @@ elseif($act == 'members_add_save')
 	{
 	adminmsg('该 Email 已经被注册！',1);
 	}
-	$sql['pwd_hash'] = randstr();
+ 	$sql['pwd_hash'] = randstr();
 	$sql['password'] = md5(md5($sql['password']).$sql['pwd_hash'].$QS_pwdhash);
 	$sql['reg_time']=time();
 	$sql['reg_ip']=$online_ip;
@@ -364,7 +372,44 @@ elseif($act == 'members_add_save')
 		adminmsg('添加成功！',2,$link);
 	}	
 }
-elseif($act == 'management')
+elseif($act == 'resume_show')
+{
+	check_permissions($_SESSION['admin_purview'],"resume_show");
+	$id =!empty($_REQUEST['id'])?intval($_REQUEST['id']):adminmsg("你没有选择简历！",1);
+	$uid =intval($_REQUEST['uid']);
+	$smarty->assign('pageheader',"查看简历");
+	$resume=get_resume_basic($uid,$id);
+	if (empty($resume))
+	{
+	$link[0]['text'] = "返回简历列表";
+	$link[0]['href'] = '?act=list';
+	adminmsg('简历不存在或已经被删除！',1,$link);
+	}
+	$smarty->assign('random',mt_rand());
+	$smarty->assign('time',time());
+	$smarty->assign('url',$_SERVER["HTTP_REFERER"]);
+	$smarty->assign('resume',$resume);
+	$smarty->assign('resume_education',get_resume_education($uid,$id));
+	$smarty->assign('resume_work',get_resume_work($uid,$id));
+	$smarty->assign('resume_training',get_resume_training($uid,$id));
+	$smarty->assign('resumeaudit',get_resumeaudit_one($id));
+	$smarty->display('personal/admin_personal_resume_show.htm');
+}
+elseif($act == 'del_auditreason')
+{	
+	check_permissions($_SESSION['admin_purview'],"resume_audit");
+	$id =!empty($_REQUEST['a_id'])?$_REQUEST['a_id']:adminmsg("你没有选择日志！",1);
+$n=reasonaudit_del($id);
+	if ($n>0)
+	{
+	adminmsg("删除成功！共删除 {$n} 行",2);
+	}
+	else
+	{
+	adminmsg("删除失败！",0);
+	}
+}
+ elseif($act == 'management')
 {	
 	$id=intval($_GET['id']);
 	$u=get_user($id);

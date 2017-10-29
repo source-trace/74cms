@@ -123,4 +123,4 @@ elseif($act == 'set_resumenotallow'){
 			$useremail=get_user_inid($uid);
 			smtp_mail($useremail['email'],$templates_title,$templates);
 }
-?>
+ ?>

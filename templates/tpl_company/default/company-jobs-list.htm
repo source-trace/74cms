@@ -76,7 +76,7 @@ $(document).ready(function()
   <div class="snav">
 		<a href="{#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" >公司介绍</a>
 		<a href="{#"QS_companyjobs,id:"|cat:$company.id|qishi_url#}" class="selected">招聘职位</a>
-		<div class="clear"></div>
+ 		<div class="clear"></div>
   </div>
 </div>
 <div class="company-show">
@@ -110,7 +110,7 @@ $(document).ready(function()
 					<a href="{#"QS_jobslist,category:"|cat:$list.category|cat:"-subclass:"|cat:$list.subclass|qishi_url#}" target="_blank">类似职位</a><br />
 					<a href="javascript:void(0)" class="add_favorites" id="{#$list.id#}">加入收藏</a><br />
 					<a href="javascript:void(0)" class="recommend" url='{#$list.jobs_url|escape:"url"#}|{#$list.jobs_name#}'>推荐给好友</a>
-				</div>
+ 				</div>
 				   </div>
 			       </div>
 				 <div class="clear"></div>
@@ -134,7 +134,7 @@ $(document).ready(function()
   </div>
   <div class="right">
 		  <div class="txtbox">
-		    <div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#$QISHI.site_domain#}{#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" alt="{#$company.companyname#} - 二维码" /></div>
+		    <div class="qrcode"><img src="{#$QISHI.site_dir#}plus/url_qrcode.php?url={#"QS_companyshow,id:"|cat:$company.id|qishi_url#}" alt="{#$company.companyname#} - 二维码" /></div>
 				  <div class="tit">企业档案</div>	  
 				  <div class="txt">
 					  <ul class="link_bku">

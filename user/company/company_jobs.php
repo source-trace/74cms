@@ -62,33 +62,20 @@ if ($act=='jobs')
 	$smarty->assign('points_rule',get_cache('points_rule'));
 	$smarty->display('member_company/company_jobs.htm');
 }
-elseif ($act=='addjobs')
+ elseif ($act=='addjobs')
 {
 		$smarty->assign('user',$user);
 		if ($company_profile['companyname'])
 		{
+			$_SESSION['addrand']=rand(1000,5000);
+			$smarty->assign('addrand',$_SESSION['addrand']);
 			$smarty->assign('title','发布职位 - 企业会员中心 - '.$_CFG['site_name']);
 			$smarty->assign('company_profile',$company_profile);
 			if ($_CFG['operation_mode']=="2")
 			{
 				$setmeal=get_user_setmeal($_SESSION['uid']);
-				if (($setmeal['endtime']>time() || $setmeal['endtime']=="0") &&  $setmeal['jobs_ordinary']>0)
-				{
 				$smarty->assign('setmeal',$setmeal);
 				$smarty->assign('add_mode',2);
-				}
-				elseif($_CFG['setmeal_to_points']=="1")
-				{
-				$smarty->assign('points_total',get_user_points($_SESSION['uid']));
-				$smarty->assign('points',get_cache('points_rule'));
-				$smarty->assign('add_mode',1);
-				}
-				else
-				{
-				$smarty->assign('setmeal',$setmeal);
-				$smarty->assign('add_mode',2);
-				}
-				
 			}
 			elseif ($_CFG['operation_mode']=="1")
 			{
@@ -121,11 +108,11 @@ elseif ($act=='addjobs_save')
 	}
 	$add_mode=trim($_POST['add_mode']);
 	$days=intval($_POST['days']);
-				if ($days<$_CFG['company_add_days_min'])
-				{
-				showmsg("有效时间最少为 ".$_CFG['company_add_days_min']." 天！",1);
-				}
-	if ($add_mode=="1")
+	if ($days<$_CFG['company_add_days_min'])
+	{
+	showmsg("有效时间最少为 ".$_CFG['company_add_days_min']." 天！",1);
+	}
+	if ($_CFG['operation_mode']=='1')
 	{
 					$points_rule=get_cache('points_rule');
 					$user_points=get_user_points($_SESSION['uid']);
@@ -148,7 +135,7 @@ elseif ($act=='addjobs_save')
 					}
 					$setsqlarr['setmeal_deadline']=0;
 	}
-	elseif ($add_mode=="2")
+	elseif ($_CFG['operation_mode']=='2')
 	{
 					$link[0]['text'] = "立即开通服务";
 					$link[0]['href'] = 'company_service.php?act=setmeal_list';
@@ -167,6 +154,9 @@ elseif ($act=='addjobs_save')
 				$setsqlarr['setmeal_id']=$setmeal['setmeal_id'];
 				$setsqlarr['setmeal_name']=$setmeal['setmeal_name'];
 	}
+	$addrand=intval($_POST['addrand']);
+	if($_SESSION['addrand']==$addrand){
+	unset($_SESSION['addrand']);
 	$setsqlarr['add_mode']=intval($add_mode);
 	$setsqlarr['uid']=intval($_SESSION['uid']);
 	$setsqlarr['companyname']=$company_profile['companyname'];
@@ -211,6 +201,7 @@ elseif ($act=='addjobs_save')
 	$sp = new SPWord();
 	$setsqlarr['key']="{$setsqlarr['jobs_name']} {$company_profile['companyname']} ".$sp->extracttag($setsqlarr['key']);
 	$setsqlarr['key']=$sp->pad($setsqlarr['key']);
+	$setsqlarr['subsite_id']=intval($_CFG['subsite_id']);
 	$setsqlarr['tpl']=$company_profile['tpl'];
 	$setsqlarr['map_x']=$company_profile['map_x'];
 	$setsqlarr['map_y']=$company_profile['map_y'];
@@ -229,13 +220,20 @@ elseif ($act=='addjobs_save')
 	$setsqlarr_contact['address']=!empty($_POST['address'])?trim($_POST['address']):showmsg('您没有填写联系地址！',1);
 	$setsqlarr_contact['email']=!empty($_POST['email'])?trim($_POST['email']):showmsg('您没有填写联系邮箱！',1);
 	$setsqlarr_contact['notify']=intval($_POST['notify']);
+	
+	$setsqlarr_contact['contact_show']=intval($_POST['contact_show']);
+	$setsqlarr_contact['email_show']=intval($_POST['email_show']);
+	$setsqlarr_contact['telephone_show']=intval($_POST['telephone_show']);
+	$setsqlarr_contact['address_show']=intval($_POST['address_show']);
+	$setsqlarr_contact['qq_show']=intval($_POST['qq_show']);
+	
 	//添加职位信息
 	$pid=inserttable(table('jobs'),$setsqlarr,true);
 	empty($pid)?showmsg("添加失败！",0):'';
 	//添加联系方式
 	$setsqlarr_contact['pid']=$pid;
 	!inserttable(table('jobs_contact'),$setsqlarr_contact)?showmsg("添加失败！",0):'';
-	if ($add_mode=="1")
+	if ($_CFG['operation_mode']=='1')
 	{
 		if ($points_rule['jobs_add']['value']>0)
 		{
@@ -253,7 +251,7 @@ elseif ($act=='addjobs_save')
 		write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"发布普通职位:<strong>{$_POST['jobs_name']}</strong>，有效期为{$_POST['days']}天，({$operator}{$points_day})，(剩余:{$user_points})");
 		}
 	}
-	elseif ($add_mode=="2")
+	elseif ($_CFG['operation_mode']=='2')
 	{
 		action_user_setmeal($_SESSION['uid'],"jobs_ordinary");
 		$setmeal=get_user_setmeal($_SESSION['uid']);
@@ -261,6 +259,7 @@ elseif ($act=='addjobs_save')
 	}
 	$searchtab['id']=$pid;
 	$searchtab['uid']=$setsqlarr['uid'];
+	$searchtab['subsite_id']=$setsqlarr['subsite_id'];
 	$searchtab['recommend']=$setsqlarr['recommend'];
 	$searchtab['emergency']=$setsqlarr['emergency'];
 	$searchtab['nature']=$setsqlarr['nature'];
@@ -315,6 +314,7 @@ elseif ($act=='addjobs_save')
 		}
 		$tagsql['id']=$pid;
 		$tagsql['uid']=$setsqlarr['uid'];
+		$tagsql['subsite_id']=$setsqlarr['subsite_id'];
 		$tagsql['category']=$setsqlarr['category'];
 		$tagsql['subclass']=$setsqlarr['subclass'];
 		$tagsql['district']=$setsqlarr['district'];
@@ -322,6 +322,7 @@ elseif ($act=='addjobs_save')
 		inserttable(table('jobs_search_tag'),$tagsql);
 	distribution_jobs($pid,$_SESSION['uid']);
 	write_memberslog($_SESSION['uid'],1,2001,$_SESSION['username'],"发布了职位：{$setsqlarr['jobs_name']}");
+	}
 	$link[0]['text'] = "已发布职位";
 	$link[0]['href'] = '?act=jobs';
 	$link[1]['text'] = "继续发布职位";
@@ -333,6 +334,7 @@ elseif ($act=='addjobs_save')
 elseif ($act=='jobs_perform')
 {
 	$yid =!empty($_POST['y_id'])?$_POST['y_id']:$_GET['y_id'];
+    $jobs_num=count($yid);
 	if (empty($yid))
 	{
 	showmsg("你没有选择职位！",1);
@@ -341,25 +343,79 @@ elseif ($act=='jobs_perform')
 	$delete=!empty($_POST['delete'])?$_POST['delete']:$_GET['delete'];
     if ($refresh)
 	{
-		$points_rule=get_cache('points_rule');
-		if($points_rule['jobs_refresh']['value']>0)
-		{
-			$user_points=get_user_points($_SESSION['uid']);
-			if ($points_rule['jobs_refresh']['value']>$user_points && $points_rule['jobs_refresh']['type']=="2")
+		//积分模式
+		if($_CFG['operation_mode']=='1'){
+			//限制刷新时间
+			//最经一次的刷新时间
+			$refrestime=get_last_refresh_date($_SESSION['uid'],"1001");
+			$duringtime=time()-$refrestime['max(addtime)'];
+			$space = $_CFG['com_pointsmode_refresh_space']*60;
+			$refresh_time = get_today_refresh_times($_SESSION['uid'],"1001");
+			if($_CFG['com_pointsmode_refresh_time']!=0&&($refresh_time['count(*)']>=$_CFG['com_pointsmode_refresh_time']))
 			{
-					$link[0]['text'] = "返回上一页";
-					$link[0]['href'] = 'javascript:history.go(-1)';
-					$link[1]['text'] = "立即充值";
-					$link[1]['href'] = 'company_service.php?act=order_add';
-			showmsg("你的".$_CFG['points_byname']."不足，请先充值！",0,$link);
+			showmsg("每天最多只能刷新".$_CFG['com_pointsmode_refresh_time']."次,您今天已超过最大刷新次数限制！",2);	
 			}
-		report_deal($_SESSION['uid'],$points_rule['jobs_refresh']['type'],$points_rule['jobs_refresh']['value']);
-		$user_points=get_user_points($_SESSION['uid']);
-		$operator=$points_rule['jobs_refresh']['type']=="1"?"+":"-";
-		write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"刷新职位({$operator}{$points_rule['jobs_refresh']['value']})，(剩余:{$user_points})");
+			elseif($duringtime<=$space){
+			showmsg($_CFG['com_pointsmode_refresh_space']."分钟内不能重复刷新职位！",2);
+			}
+			else 
+			{
+				$points_rule=get_cache('points_rule');
+				if($points_rule['jobs_refresh']['value']>0)
+				{
+					$user_points=get_user_points($_SESSION['uid']);
+					$total_point=$jobs_num*$points_rule['jobs_refresh']['value'];
+					if ($total_point>$user_points && $points_rule['jobs_refresh']['type']=="2")
+					{
+							$link[0]['text'] = "返回上一页";
+							$link[0]['href'] = 'javascript:history.go(-1)';
+							$link[1]['text'] = "立即充值";
+							$link[1]['href'] = 'company_service.php?act=order_add';
+					showmsg("您的".$_CFG['points_byname']."不足，请先充值！",0,$link);
+					}
+					report_deal($_SESSION['uid'],$points_rule['jobs_refresh']['type'],$total_point);
+					$user_points=get_user_points($_SESSION['uid']);
+					$operator=$points_rule['jobs_refresh']['type']=="1"?"+":"-";
+					write_memberslog($_SESSION['uid'],1,2004,$_SESSION['username'],"刷新了{$jobs_num}条职位，({$operator}{$total_point})，(剩余:{$user_points})");
+				}
+			}
+		}	
+		//套餐模式
+		elseif($_CFG['operation_mode']=='2') 
+		{
+			//限制刷新时间
+			//最经一次的刷新时间
+			$link[0]['text'] = "立即开通服务";
+			$link[0]['href'] = 'company_service.php?act=setmeal_list';
+			$link[1]['text'] = "会员中心首页";
+			$link[1]['href'] = 'company_index.php?act=';
+			$setmeal=get_user_setmeal($_SESSION['uid']);
+			if (empty($setmeal))
+			{					
+				showmsg("您还没有开通服务，请开通",1,$link);
+			}
+			elseif ($setmeal['endtime']<time() && $setmeal['endtime']<>"0")
+			{					
+				showmsg("您的服务已经到期，请重新开通",1,$link);
+			}
+			else
+			{
+				$refrestime=get_last_refresh_date($_SESSION['uid'],"1001");
+				$duringtime=time()-$refrestime['max(addtime)'];
+				$space = $setmeal['refresh_jobs_space']*60;
+				$refresh_time = get_today_refresh_times($_SESSION['uid'],"1001");
+				if($setmeal['refresh_jobs_time']!=0&&($refresh_time['count(*)']>=$setmeal['refresh_jobs_time']))
+				{
+				showmsg("每天最多只能刷新".$setmeal['refresh_jobs_time']."次,您今天已超过最大刷新次数限制！",2);
+				}
+				elseif($duringtime<=$space){
+				showmsg($setmeal['refresh_jobs_space']."分钟内不能重复刷新职位！",2);	
+				}
+			}
 		}
 		refresh_jobs($yid,$_SESSION['uid']);
-		write_memberslog($_SESSION['uid'],1,2004,$_SESSION['username'],"刷新职位");			
+		write_memberslog($_SESSION['uid'],1,2004,$_SESSION['username'],"刷新职位");	
+		write_refresh_log($_SESSION['uid'],1001);			
 		showmsg("刷新职位成功！",2);
 	}
 	elseif ($delete)
@@ -400,7 +456,7 @@ elseif ($act=='editjobs_save')
 	$id=intval($_POST['id']);
 	$add_mode=trim($_POST['add_mode']);
 	$days=intval($_POST['days']);
-	if ($add_mode=="1")
+	if ($_CFG['operation_mode']=='1')
 	{
 					$points_rule=get_cache('points_rule');
 					$user_points=get_user_points($_SESSION['uid']);
@@ -422,7 +478,7 @@ elseif ($act=='editjobs_save')
 					showmsg("你的".$_CFG['points_byname']."不足，请充值后再发布！",0,$link);
 					}
 	}
-	elseif ($add_mode=="2")
+	elseif ($_CFG['operation_mode']=='2')
 	{
 					$link[0]['text'] = "立即开通服务";
 					$link[0]['href'] = 'company_service.php?act=setmeal_list';
@@ -431,7 +487,7 @@ elseif ($act=='editjobs_save')
 				$setmeal=get_user_setmeal($_SESSION['uid']);
 				if ($setmeal['endtime']<time() && $setmeal['endtime']<>"0")
 				{					
-					showmsg("此信息通过服务套餐发布，您的套餐已经到期，请重新开通",1,$link);
+					showmsg("您的套餐已经到期，请重新开通",1,$link);
 				}
 	}
 	$setsqlarr['jobs_name']=!empty($_POST['jobs_name'])?trim($_POST['jobs_name']):showmsg('您没有填写职位名称！',1);
@@ -456,6 +512,16 @@ elseif ($act=='editjobs_save')
 	$setsqlarr['wage']=intval($_POST['wage']);		
 	$setsqlarr['wage_cn']=trim($_POST['wage_cn']);
 	$setsqlarr['graduate']=intval($_POST['graduate']);
+	if ($_CFG['operation_mode']=='1'){
+		$setsqlarr['setmeal_deadline']=0;
+		$setsqlarr['add_mode']=1;
+	}elseif($_CFG['operation_mode']=='2'){
+		$setmeal=get_user_setmeal($_SESSION['uid']);
+		$setsqlarr['setmeal_deadline']=$setmeal['endtime'];
+		$setsqlarr['setmeal_id']=$setmeal['setmeal_id'];
+		$setsqlarr['setmeal_name']=$setmeal['setmeal_name'];
+		$setsqlarr['add_mode']=2;
+	}
 	if ($days>0)
 	{
 		if (intval($_POST['olddeadline'])>=time())
@@ -472,6 +538,7 @@ elseif ($act=='editjobs_save')
 	$sp = new SPWord();
 	$setsqlarr['key']="{$setsqlarr['jobs_name']} {$company_profile['companyname']} ".$sp->extracttag($setsqlarr['key']);
 	$setsqlarr['key']=$sp->pad($setsqlarr['key']);
+	$setsqlarr['subsite_id']=intval($_CFG['subsite_id']);
 	if ($company_profile['audit']=="1")
 	{
 	$_CFG['audit_verifycom_editjob']<>"-1"?$setsqlarr['audit']=intval($_CFG['audit_verifycom_editjob']):'';
@@ -487,10 +554,17 @@ elseif ($act=='editjobs_save')
 	$setsqlarr_contact['address']=!empty($_POST['address'])?trim($_POST['address']):showmsg('您没有填写联系地址！',1);
 	$setsqlarr_contact['email']=!empty($_POST['email'])?trim($_POST['email']):showmsg('您没有填写联系邮箱！',1);
 	$setsqlarr_contact['notify']=trim($_POST['notify']);
+	
+  	$setsqlarr_contact['contact_show']=intval($_POST['contact_show']);
+	$setsqlarr_contact['email_show']=intval($_POST['email_show']);
+	$setsqlarr_contact['telephone_show']=intval($_POST['telephone_show']);
+	$setsqlarr_contact['address_show']=intval($_POST['address_show']);
+	$setsqlarr_contact['qq_show']=intval($_POST['qq_show']);
+ 		
 	if (!updatetable(table('jobs'), $setsqlarr," id='{$id}' AND uid='{$_SESSION['uid']}' ")) showmsg("保存失败！",0);
 	if (!updatetable(table('jobs_tmp'), $setsqlarr," id='{$id}' AND uid='{$_SESSION['uid']}' ")) showmsg("保存失败！",0);
 	if (!updatetable(table('jobs_contact'), $setsqlarr_contact," pid='{$id}' ")) showmsg("保存失败！",0);
-	if ($add_mode=="1")
+	if ($_CFG['operation_mode']=='1')
 	{
 		if ($points_rule['jobs_edit']['value']>0)
 		{
@@ -554,5 +628,5 @@ elseif ($act=='editjobs_save')
 	write_memberslog($_SESSION['uid'],$_SESSION['utype'],2002,$_SESSION['username'],"修改了职位：{$setsqlarr['jobs_name']}，职位ID：{$id}");
 	showmsg("修改成功！",2,$link);
 }
-unset($smarty);
+ unset($smarty);
 ?>

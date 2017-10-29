@@ -32,6 +32,8 @@ if(!get_magic_quotes_gpc())
 }
 $timestamp = time();
 $online_ip = getip();
+$ip_address=convertip($online_ip);
+
 $_PAGE=get_cache('page');
 $_NAV =get_cache('nav');
 $_CFG=get_cache('config');
@@ -53,6 +55,7 @@ if (empty($_GET['perpage']))
 $_GET['perpage']=10;
 }
 $perpage=intval($_GET['perpage']);
+$_CFG['subsite_id']=0;
 require_once(ADMIN_ROOT_PATH.'include/admin_tpl.inc.php');
 date_default_timezone_set("PRC");
 if(empty($_SESSION['admin_id']) && $_REQUEST['act'] != 'login' && $_REQUEST['act'] != 'do_login' && $_REQUEST['act'] != 'logout')

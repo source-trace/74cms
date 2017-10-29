@@ -114,10 +114,32 @@ elseif($act == 'set_meal_add_save')
 	$setsqlarr['interview_ordinary']=intval($_POST['interview_ordinary']);
 	$setsqlarr['interview_senior']=intval($_POST['interview_senior']);
 	$setsqlarr['talent_pool']=intval($_POST['talent_pool']);
+ 
+ 
+	$setsqlarr['recommend_num']=intval($_POST['recommend_num']);
+	$setsqlarr['recommend_days']=intval($_POST['recommend_days']);
+	$setsqlarr['stick_num']=intval($_POST['stick_num']);
+	$setsqlarr['stick_days']=intval($_POST['stick_days']);
+	$setsqlarr['emergency_num']=intval($_POST['emergency_num']);
+	$setsqlarr['emergency_days']=intval($_POST['emergency_days']);
+	$setsqlarr['highlight_num']=intval($_POST['highlight_num']);
+	$setsqlarr['highlight_days']=intval($_POST['highlight_days']);
+	$setsqlarr['change_templates']=intval($_POST['change_templates']);
+	$setsqlarr['map_open']=intval($_POST['map_open']);
+
 	$setsqlarr['show_order']=intval($_POST['show_order']);
 	$setsqlarr['display']=intval($_POST['display']);
 	$setsqlarr['apply']=intval($_POST['apply']);
 	$setsqlarr['added']=trim($_POST['added']);
+
+	/**
+	 * 2014-01-26新增start
+	 */
+	$setsqlarr['refresh_jobs_space']=intval($_POST['refresh_jobs_space']);
+	$setsqlarr['refresh_jobs_time']=intval($_POST['refresh_jobs_time']);
+	/**
+	 * 2014-01-26新增end
+	 */
 	if (inserttable(table('setmeal'),$setsqlarr))
 		{
 		$link[0]['text'] = "返回套餐设置";
@@ -148,10 +170,28 @@ elseif($act == 'set_meal_edit_save')
 	$setsqlarr['interview_ordinary']=intval($_POST['interview_ordinary']);
 	$setsqlarr['interview_senior']=intval($_POST['interview_senior']);
 	$setsqlarr['talent_pool']=intval($_POST['talent_pool']);
+ 	$setsqlarr['recommend_num']=intval($_POST['recommend_num']);
+	$setsqlarr['recommend_days']=intval($_POST['recommend_days']);
+	$setsqlarr['stick_num']=intval($_POST['stick_num']);
+	$setsqlarr['stick_days']=intval($_POST['stick_days']);
+	$setsqlarr['emergency_num']=intval($_POST['emergency_num']);
+	$setsqlarr['emergency_days']=intval($_POST['emergency_days']);
+	$setsqlarr['highlight_num']=intval($_POST['highlight_num']);
+	$setsqlarr['highlight_days']=intval($_POST['highlight_days']);
+	$setsqlarr['change_templates']=intval($_POST['change_templates']);
+	$setsqlarr['map_open']=intval($_POST['map_open']);
 	$setsqlarr['show_order']=intval($_POST['show_order']);
 	$setsqlarr['display']=intval($_POST['display']);
 	$setsqlarr['apply']=intval($_POST['apply']);
 	$setsqlarr['added']=trim($_POST['added']);
+	/**
+	 * 2014-01-26新增start
+	 */
+	$setsqlarr['refresh_jobs_space']=intval($_POST['refresh_jobs_space']);
+	$setsqlarr['refresh_jobs_time']=intval($_POST['refresh_jobs_time']);
+	/**
+	 * 2014-01-26新增end
+	 */
 	if (updatetable(table('setmeal'),$setsqlarr," id=".intval($_POST['id'])))
 		{
 		$link[0]['text'] = "返回套餐设置";

@@ -10,6 +10,7 @@
  * ============================================================================
 */
 if(!defined('IN_QISHI')) die('Access Denied!');
+if(!defined('IN_QISHI')) die('Access Denied!');
 function addslashes_deep($value)
 {
     if (empty($value))
@@ -20,7 +21,7 @@ function addslashes_deep($value)
     {
 		if (!get_magic_quotes_gpc())
 		{
-		$value=is_array($value) ? array_map('addslashes_deep', $value) : addslashes($value);
+		$value=is_array($value) ? array_map('addslashes_deep', $value) : mystrip_tags(addslashes($value));
 		}
 		else
 		{
@@ -31,8 +32,40 @@ function addslashes_deep($value)
 }
 function mystrip_tags($string)
 {
+	$string = new_html_special_chars($string);
+	$string = remove_xss($string);
+	return $string;
+}
+function new_html_special_chars($string) {
 	$string = str_replace(array('&amp;', '&quot;', '&lt;', '&gt;'), array('&', '"', '<', '>'), $string);
 	$string = strip_tags($string);
+	return $string;
+}
+function remove_xss($string) { 
+    $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S', '', $string);
+
+    $parm1 = Array('javascript', 'union','vbscript', 'expression', 'applet', 'xml', 'blink', 'link', 'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound', 'title', 'base');
+
+    $parm2 = Array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onblur', 'onbounce', 'oncellchange', 'onchange', 'onclick', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavailable', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterchange', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onkeydown', 'onkeypress', 'onkeyup', 'onlayoutcomplete', 'onload', 'onlosecapture', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowenter', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onsubmit', 'onunload');
+	
+	$parm3 = Array('alert','sleep','load_file','confirm','prompt','benchmark','select','update','insert','delete','create','alter','drop','truncate');
+
+    $parm = array_merge($parm1, $parm2, $parm3); 
+
+	for ($i = 0; $i < sizeof($parm); $i++) { 
+		$pattern = '/'; 
+		for ($j = 0; $j < strlen($parm[$i]); $j++) { 
+			if ($j > 0) { 
+				$pattern .= '('; 
+				$pattern .= '(&#[x|X]0([9][a][b]);?)?'; 
+				$pattern .= '|(&#0([9][10][13]);?)?'; 
+				$pattern .= ')?'; 
+			}
+			$pattern .= $parm[$i][$j]; 
+		}
+		$pattern .= '/i';
+		$string = preg_replace($pattern, '****', $string); 
+	}
 	return $string;
 }
 function table($table)
@@ -119,6 +152,55 @@ function getip()
 	preg_match("/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/",$onlineip,$match);
 	return $onlineip = $match[0] ? $match[0] : 'unknown';
 }
+
+function convertip($ip) {
+	if(preg_match("/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/", $ip)) {
+		$iparray = explode('.', $ip);
+		if($iparray[0] == 10 || $iparray[0] == 127 || ($iparray[0] == 192 && $iparray[1] == 168) || ($iparray[0] == 172 && ($iparray[1] >= 16 && $iparray[1] <= 31))) {
+			$return = '- LAN';
+		} elseif($iparray[0] > 255 || $iparray[1] > 255 || $iparray[2] > 255 || $iparray[3] > 255) {
+			$return = '- Invalid IP Address';
+		} else {
+			$tinyipfile = QISHI_ROOT_PATH.'data/tinyipdata.dat';
+			if(@file_exists($tinyipfile)) {
+				$return = convertip_tiny($ip, $tinyipfile);
+			} 
+		}
+	}
+	return $return;
+}
+function convertip_tiny($ip, $ipdatafile) {
+	static $fp = NULL, $offset = array(), $index = NULL;
+	$ipdot = explode('.', $ip);
+	$ip    = pack('N', ip2long($ip));
+	$ipdot[0] = (int)$ipdot[0];
+	$ipdot[1] = (int)$ipdot[1];
+	if($fp === NULL && $fp = @fopen($ipdatafile, 'rb')) {
+		$offset = @unpack('Nlen', @fread($fp, 4));
+		$index  = @fread($fp, $offset['len'] - 4);
+	} elseif($fp == FALSE) {
+		return  '- Invalid IP data file';
+	}
+	$length = $offset['len'] - 1028;
+	$start  = @unpack('Vlen', $index[$ipdot[0] * 4] . $index[$ipdot[0] * 4 + 1] . $index[$ipdot[0] * 4 + 2] . $index[$ipdot[0] * 4 + 3]);
+
+	for ($start = $start['len'] * 8 + 1024; $start < $length; $start += 8) {
+
+		if ($index{$start} . $index{$start + 1} . $index{$start + 2} . $index{$start + 3} >= $ip) {
+			$index_offset = @unpack('Vlen', $index{$start + 4} . $index{$start + 5} . $index{$start + 6} . "\x0");
+			$index_length = @unpack('Clen', $index{$start + 7});
+			break;
+		}
+	}
+	@fseek($fp, $offset['len'] + $index_offset['len'] - 1024);
+	if($index_length['len']) {
+		return '- '.@fread($fp, $index_length['len']);
+	} else {
+		return '- Unknown';
+	}
+}
+
+
 function inserttable($tablename, $insertsqlarr, $returnid=0, $replace = false, $silent=0) {
 	global $db;
 	$insertkeysql = $insertvaluesql = $comma = '';
@@ -383,7 +465,6 @@ function dfopen($url,$limit = 0, $post = '', $cookie = '', $bysocket = FALSE	, $
 		} else {
 			$fp = false;
 		}
-
 		if(!$fp) {
 			return '';
 		} else {
@@ -438,7 +519,7 @@ function get_tpl($type,$id)
 {
 	global $db,$_CFG,$smarty;
 	$id=intval($id);
-	$tarr=array("jobs","company_profile","resume","companycommentshow","companynewsshow");
+	$tarr=array("jobs","company_profile","resume","companycommentshow","companynewsshow",'course','train_profile');
 	if (!in_array($type,$tarr)) exit();
 	if ($type=='companynewsshow')
 	{
@@ -453,12 +534,18 @@ function get_tpl($type,$id)
 	{
 	$thistpl=$_GET['style'];
 	}
-	if (empty($thistpl))
+ 	if (empty($thistpl))
 	{
 		if ($type=='resume')
 		{
 		$thistpl="../tpl_resume/{$_CFG['tpl_personal']}/";
 		$smarty->assign('user_tpl',$_CFG['site_dir']."templates/tpl_resume/{$_CFG['tpl_personal']}/");
+		return $thistpl;
+		}
+		elseif ($type=='course' || $type=='train_profile' || $type=='trainnewsshow')
+		{
+		$thistpl="../tpl_train/{$_CFG['tpl_train']}/";
+		$smarty->assign('user_tpl',$_CFG['site_dir']."templates/tpl_train/{$_CFG['tpl_train']}/");
 		return $thistpl;
 		}
 		else
@@ -496,11 +583,11 @@ function url_rewrite($alias=NULL,$get=NULL,$rewrite=true)
 				}
 			}
 			$url=!empty($url)?"?".rtrim($url,'&'):'';
-			return $_CFG['site_dir'].$_PAGE[$alias]['file'].$url;
+			return $_CFG['site_domain'].$_CFG['site_dir'].$_PAGE[$alias]['file'].$url;
 	}
 	else 
 	{
-			$url =$_CFG['site_dir'].$_PAGE[$alias]['rewrite'];
+			$url =$_CFG['site_domain'].$_CFG['site_dir'].$_PAGE[$alias]['rewrite'];
 			if ($_PAGE[$alias]['pagetpye']=='2' && empty($get['page']))
 			{
 			$get['page']=1;
@@ -509,7 +596,13 @@ function url_rewrite($alias=NULL,$get=NULL,$rewrite=true)
 			{
 			$url=str_replace('($'.$k.')',$v,$url);
 			}
-			return preg_replace('/\(\$(.+?)\)/','',$url);
+			
+			$url=preg_replace('/\(\$(.+?)\)/','',$url);
+			if(substr($url,-5)=='?key=')
+			{
+			$url=rtrim($url,'?key=');
+			}
+			return $url;
 	}
 }
 function get_member_url($type,$dirname=false)
@@ -528,6 +621,14 @@ function get_member_url($type,$dirname=false)
 	{
 	$return=$_CFG['site_dir']."user/personal/personal_index.php";
 	}
+	elseif ($type===3) 
+	{
+	$return=$_CFG['site_dir']."user/hunter/hunter_index.php";
+	}
+	elseif ($type===4) 
+	{
+	$return=$_CFG['site_dir']."user/train/train_index.php";
+	}
 	if ($dirname)
 	{
 	return dirname($return).'/';
@@ -535,6 +636,46 @@ function get_member_url($type,$dirname=false)
 	else
 	{
 	return $return;
+	}
+}
+function subsiteinfo(&$_CFG)
+{
+	if ($_CFG['subsite']=="0")
+	{
+	return false;
+	}
+	else
+	{
+		$_SUBSITE=get_cache('subsite');
+			foreach($_SUBSITE as $key=> $sub)
+			{
+			$_CFG['district_array'][]=array('subsite'=>$sub['districtname'],'url'=>"http://".$key);
+			}
+		$host=$_SERVER['HTTP_HOST'];
+		if (array_key_exists($host,$_SUBSITE))
+		{
+			$subsite=$_SUBSITE[$host];
+			$_CFG['site_domain']="http://".$host;
+			$_CFG['subsite_districtname']=$subsite['districtname'];
+			$_CFG['site_name']=$subsite['sitename'];
+			if (empty($_GET['district_cn']))
+			{
+			$_GET['district_cn']=$_CFG['subsite_districtname'];
+			}
+			$_CFG['subsite_id']=$subsite['id'];
+			$subsite['logo']?$_CFG['web_logo']=$subsite['logo']:'';
+			$subsite['tpl']?$_CFG['template_dir']=$subsite['tpl'].'/':'';
+			$subsite['filter_notice']?$_CFG['subsite_filter_notice']=$subsite['filter_notice']:'';
+			$subsite['filter_jobs']?$_CFG['subsite_filter_jobs']=$subsite['filter_jobs']:'';
+			$subsite['filter_resume']?$_CFG['subsite_filter_resume']=$subsite['filter_resume']:'';
+			$subsite['filter_ad']?$_CFG['subsite_filter_ad']=$subsite['filter_ad']:'';
+			$subsite['filter_links']?$_CFG['subsite_filter_links']=$subsite['filter_links']:'';
+			$subsite['filter_news']?$_CFG['subsite_filter_news']=$subsite['filter_news']:'';
+			$subsite['filter_explain']?$_CFG['subsite_filter_explain']=$subsite['filter_explain']:'';
+			$subsite['filter_jobfair']?$_CFG['subsite_filter_jobfair']=$subsite['filter_jobfair']:'';
+			$subsite['filter_simple']?$_CFG['subsite_filter_simple']=$subsite['filter_simple']:'';
+			$subsite['filter_course']?$_CFG['subsite_filter_course']=$subsite['filter_course']:'';
+		}
 	}
 }
 function fulltextpad($str)
@@ -561,20 +702,28 @@ function asyn_userkey($uid)
 	$user=$db->getone($sql);
 	return md5($user['username'].$user['pwd_hash'].$user['password']);
 }
+
 function write_syslog($type,$type_name,$str)
 {
- 	global $db,$online_ip;
+ 	global $db,$online_ip,$ip_address;
 	$l_page = addslashes(request_url());
 	$str = addslashes($str);
- 	$sql = "INSERT INTO ".table('syslog')." (l_type, l_type_name, l_time,l_ip,l_page,l_str) VALUES ('{$type}', '{$type_name}', '".time()."','{$online_ip}','{$l_page}','{$str}')"; 
+ 	$sql = "INSERT INTO ".table('syslog')." (l_type, l_type_name, l_time,l_ip,l_address,l_page,l_str) VALUES ('{$type}', '{$type_name}', '".time()."','{$online_ip}','{$ip_address}','{$l_page}','{$str}')"; 
 	return $db->query($sql);
 }
 function write_memberslog($uid,$utype,$type,$username,$str)
 {
- 	global $db,$online_ip;
- 	$sql = "INSERT INTO ".table('members_log')." (log_uid,log_username,log_utype,log_type,log_addtime,log_ip,log_value) VALUES ( '{$uid}','{$username}','{$utype}','{$type}', '".time()."','{$online_ip}','{$str}')";
+ 	global $db,$online_ip,$ip_address;
+ 	$sql = "INSERT INTO ".table('members_log')." (log_uid,log_username,log_utype,log_type,log_addtime,log_ip,log_address,log_value) VALUES ( '{$uid}','{$username}','{$utype}','{$type}', '".time()."','{$online_ip}','{$ip_address}','{$str}')";
 	return $db->query($sql);
 }
+function write_setmeallog($uid,$username,$value,$type,$amount='0.00',$is_money='1',$log_mode='1',$log_utype='1')
+{
+ 	global $db;
+ 	$sql = "INSERT INTO ".table('members_charge_log')." (log_uid,log_username,log_type,log_addtime,log_value,log_amount,log_ismoney,log_mode,log_utype) VALUES ( '{$uid}','{$username}','{$type}', '".time()."','{$value}','{$amount}','{$is_money}','{$log_mode}','{$log_utype}')";
+	return $db->query($sql);
+}
+
 function request_url()
 {     
   	if (isset($_SERVER['REQUEST_URI']))     
@@ -608,6 +757,10 @@ function label_replace($templates)
 	$templates=str_replace('{paymenttpye}',$_GET['paymenttpye'],$templates);
 	$templates=str_replace('{amount}',$_GET['amount'],$templates);
 	$templates=str_replace('{oid}',$_GET['oid'],$templates);
+	$templates=str_replace('{trainname}',$_GET['trainname'],$templates);
+	$templates=str_replace('{coursename}',$_GET['coursename'],$templates);
+	$templates=str_replace('{teachername}',$_GET['teachername'],$templates);
+	$templates=str_replace('{huntername}',$_GET['huntername'],$templates);
 	return $templates;
 }
 function make_dir($path)
@@ -619,4 +772,161 @@ function make_dir($path)
 	@chmod($path,0777);
 	}
 }
+
+function write_pmsnotice($touid,$toname,$message){
+	global $db;
+	$setsqlarr['message']=trim($message);
+	$setsqlarr['msgtype']=1;
+	$setsqlarr['msgtouid']=intval($touid);
+	$setsqlarr['msgtoname']=trim($toname);
+	$setsqlarr['dateline']=time();
+	$setsqlarr['replytime']=time();
+	$setsqlarr['new']=1;
+	inserttable(table('pms'),$setsqlarr);
+}
+//查看会员的日志
+function get_last_refresh_date($uid,$type)
+{
+	global $db;
+	$sql = "select max(addtime) from ".table('refresh_log')." where uid=".intval($uid).' and ' . "`type`='".$type."'";
+	return $db->getone($sql);
+}
+function get_today_refresh_times($uid,$type)
+{
+	global $db;
+	$today = strtotime(date('Y-m-d'));
+	$tomorrow = $today+3600*24;
+	$sql = "select count(*) from ".table('refresh_log')." where uid=".intval($uid).' and ' . "`type`='".$type."' and addtime>".$today." and addtime<".$tomorrow;
+	return $db->getone($sql);
+}
+function write_refresh_log($uid,$type){
+	$setsqlarr['uid'] = $uid;
+	$setsqlarr['type'] = $type;
+	$setsqlarr['addtime'] = time();
+	inserttable(table('refresh_log'),$setsqlarr);
+}
+/**
+ * utf8转gbk
+ * @param $utfstr
+ */
+function utf8_to_gbk($utfstr) {
+	global $UC2GBTABLE;
+	$okstr = '';
+	if(empty($UC2GBTABLE)) {
+		define('CODETABLEDIR', dirname(__FILE__).DIRECTORY_SEPARATOR.'encoding'.DIRECTORY_SEPARATOR);
+		$filename = CODETABLEDIR.'gb-unicode.table';
+		$fp = fopen($filename, 'rb');
+		while($l = fgets($fp,15)) {        
+			$UC2GBTABLE[hexdec(substr($l, 7, 6))] = hexdec(substr($l, 0, 6));
+		}
+		fclose($fp);
+	}
+	$okstr = '';
+	$ulen = strlen($utfstr);
+	for($i=0; $i<$ulen; $i++) {
+		$c = $utfstr[$i];
+		$cb = decbin(ord($utfstr[$i]));
+		if(strlen($cb)==8) { 
+			$csize = strpos(decbin(ord($cb)),'0');
+			for($j = 0; $j < $csize; $j++) {
+				$i++; 
+				$c .= $utfstr[$i];
+			}
+			$c = utf8_to_unicode($c);
+			if(isset($UC2GBTABLE[$c])) {
+				$c = dechex($UC2GBTABLE[$c]+0x8080);
+				$okstr .= chr(hexdec($c[0].$c[1])).chr(hexdec($c[2].$c[3]));
+			} else {
+				$okstr .= '&#'.$c.';';
+			}
+		} else {
+			$okstr .= $c;
+		}
+	}
+	$okstr = trim($okstr);
+	return $okstr;
+}
+/**
+ * gbk转utf8
+ * @param $gbstr
+ */
+function gbk_to_utf8($gbstr) {
+	global $CODETABLE;
+	if(empty($CODETABLE)) {
+		define('CODETABLEDIR', dirname(__FILE__).DIRECTORY_SEPARATOR.'encoding'.DIRECTORY_SEPARATOR);
+		$filename = CODETABLEDIR.'gb-unicode.table';
+		$fp = fopen($filename, 'rb');
+		while($l = fgets($fp,15)) { 
+			$CODETABLE[hexdec(substr($l, 0, 6))] = substr($l, 7, 6); 
+		}
+		fclose($fp);
+	}
+	$ret = '';
+	$utf8 = '';
+	while($gbstr) {
+		if(ord(substr($gbstr, 0, 1)) > 0x80) {
+			$thisW = substr($gbstr, 0, 2);
+			$gbstr = substr($gbstr, 2, strlen($gbstr));
+			$utf8 = '';
+			@$utf8 = unicode_to_utf8(hexdec($CODETABLE[hexdec(bin2hex($thisW)) - 0x8080]));
+			if($utf8 != '') {
+				for($i = 0; $i < strlen($utf8); $i += 3) $ret .= chr(substr($utf8, $i, 3));
+			}
+		} else {
+			$ret .= substr($gbstr, 0, 1);
+			$gbstr = substr($gbstr, 1, strlen($gbstr));
+		}
+	}
+	return $ret;
+}
+/**
+ * utf8转unicode
+ * @param  $c
+ */
+function utf8_to_unicode($c) {
+	switch(strlen($c)) {
+		case 1:
+		  return ord($c);
+		case 2:
+		  $n = (ord($c[0]) & 0x3f) << 6;
+		  $n += ord($c[1]) & 0x3f;
+		  return $n;
+		case 3:
+		  $n = (ord($c[0]) & 0x1f) << 12;
+		  $n += (ord($c[1]) & 0x3f) << 6;
+		  $n += ord($c[2]) & 0x3f;
+		  return $n;
+		case 4:
+		  $n = (ord($c[0]) & 0x0f) << 18;
+		  $n += (ord($c[1]) & 0x3f) << 12;
+		  $n += (ord($c[2]) & 0x3f) << 6;
+		  $n += ord($c[3]) & 0x3f;
+		  return $n;
+	}
+}
+/**
+ * unicode转utf8
+ * @param  $c
+ */
+function unicode_to_utf8($c) {
+	$str = '';
+	if($c < 0x80) {
+		$str .= $c;
+	} elseif($c < 0x800) {
+		$str .= (0xC0 | $c >> 6);
+		$str .= (0x80 | $c & 0x3F);
+	} elseif($c < 0x10000) {
+		$str .= (0xE0 | $c >> 12);
+		$str .= (0x80 | $c >> 6 & 0x3F);
+		$str .= (0x80 | $c & 0x3F);
+	} elseif($c < 0x200000) {
+		$str .= (0xF0 | $c >> 18);
+		$str .= (0x80 | $c >> 12 & 0x3F);
+		$str .= (0x80 | $c >> 6 & 0x3F);
+		$str .= (0x80 | $c & 0x3F);
+	}
+	return $str;
+}
+
+
 ?>

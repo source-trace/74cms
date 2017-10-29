@@ -35,6 +35,33 @@ function get_userreg_30_days()
 		write_xml($xml,$datelist);
 	}	 
 }
+function meal_log_pie($pie_type='1',$utype='1')
+{
+	global $db,$_CFG;
+	$xml="meal_log_pie.xml";
+	$datelist=array();
+	$nowtime=mktime(0,0,0,0,0,date('Y'));//获取当前年的时间戳
+	$result = $db->query("SELECT log_amount,log_addtime FROM ".table('members_charge_log')." WHERE log_mode={$_CFG['operation_mode']} AND  log_ismoney=2 AND log_addtime>{$nowtime} AND log_utype={$utype}");
+	while($row = $db->fetch_array($result))
+	{
+		if($pie_type=='1'){
+			$date=date("Y/m",$row['log_addtime']);
+			$datelist[$date]+=$row['log_amount'];
+		}elseif($pie_type=='2'){
+			$date=date('n',$row['log_addtime']);
+			if($date>=1 && $date<4){
+				$datelist['第一季度']+=$row['log_amount'];
+			}elseif($date>=4 && $date<=6){
+				$datelist['第二季度']+=$row['log_amount'];
+			}elseif($date>6 && $date<=9){
+				$datelist['第三季度']+=$row['log_amount'];
+			}elseif($date>9 && $date<=12){
+				$datelist['第四季度']+=$row['log_amount'];
+			}
+		}
+	}		
+	write_client($xml,$datelist);
+}
 function check_xml($xml)
 {
 	$xmlname=ADMIN_ROOT_PATH."statement/{$xml}";
@@ -84,4 +111,28 @@ function write_xml($xml, $array)
 		@fclose($fp);
 	}
 }
+function write_client($xml,$array)
+{
+	$content = '<chart ShowAboutMenuItem="0"  numberPrefix=" "  exportEnabled="1" exportShowMenuItem="1" exportAtClient="1" exportHandler="fcExporter1" baseFont="宋体"  baseFontSize="14" bgColor="#FFFFFF" shadowAlpha="100" canvasBgColor="#FFFFFF"  >\n';
+	foreach($array as $key => $value)
+	{
+	$content .= "<set name='{$key}' value='{$value}' /> \n";
+	}
+	$content .= "</chart>\n";
+	$xmlname=ADMIN_ROOT_PATH."statement/{$xml}";
+	if (!file_put_contents($xmlname, $content, LOCK_EX))
+	{
+		$fp = @fopen($xmlname, 'wb+');
+		if (!$fp)
+		{
+			exit('生xml文件失败，请设置后台目录“statement”的读写权限');
+		}
+		if (!@fwrite($fp, trim($content)))
+		{
+			exit('生xml文件失败，请设置后台目录“statement”的读写权限');
+		}
+		@fclose($fp);
+	}
+}
+
 ?>

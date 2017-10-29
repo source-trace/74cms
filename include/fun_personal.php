@@ -197,6 +197,7 @@ function distribution_resume($id,$uid)
 						$searchtab['id']=$j['id'];
 						$searchtab['display']=$j['display'];
 						$searchtab['uid']=$j['uid'];
+						$searchtab['subsite_id']=$j['subsite_id'];
 						$searchtab['sex']=$j['sex'];
 						$searchtab['nature']=$j['nature'];
 						$searchtab['marriage']=$j['marriage'];
@@ -227,6 +228,7 @@ function distribution_resume($id,$uid)
 						}
 						$tagsql['id']=$j['id'];
 						$tagsql['uid']=$j['uid'];
+						$tagsql['subsite_id']=$j['subsite_id'];
 						$tagsql['experience']=$j['experience'];
 						$tagsql['district']=$j['district'];
 						$tagsql['sdistrict']=$j['sdistrict'];
@@ -279,6 +281,7 @@ function refresh_resume($uid)
 	if (!$db->query("update  ".table('resume_search_rtime')."  SET refreshtime='{$time}'  WHERE uid='{$uid}'")) return false;
 	if (!$db->query("update  ".table('resume_search_key')."  SET refreshtime='{$time}'  WHERE uid='{$uid}'")) return false;
 	write_memberslog($_SESSION['uid'],2,1102,$_SESSION['username'],"刷新了简历");
+	write_refresh_log($_SESSION['uid'],2001);	
 	return true;
 }
 //删除简历
@@ -398,6 +401,7 @@ function check_resume($uid,$pid)
 		}
 		$tagsql['id']=$j['id'];
 		$tagsql['uid']=$j['uid'];
+		$tagsql['subsite_id']=$j['subsite_id'];
 		$tagsql['experience']=$j['experience'];
 		$tagsql['district']=$j['district'];
 		$tagsql['sdistrict']=$j['sdistrict'];
@@ -739,4 +743,12 @@ function get_buddy($offset,$perpage,$get_sql= '')
 	}
 	return $row_arr;
 }
+function count_personal_resume_down($uid)
+{
+	global $db;
+	$wheresql=" WHERE resume_uid='{$uid}' ";
+	$num=$db->get_total("SELECT COUNT(*) AS num FROM ".table('company_down_resume').$wheresql);
+	return $num;
+}
+
 ?>

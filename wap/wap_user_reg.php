@@ -53,7 +53,7 @@ elseif ($act == 'do_reg')
 	{
 	$err="电子邮箱格式错误";
 	}
-	$ck_username=get_user_inusername($username);
+ 	$ck_username=get_user_inusername($username);
 	if (!empty($ck_username))
 	{
 	$err="用户名已经存在";

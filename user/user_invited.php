@@ -42,24 +42,7 @@ $setmeal=get_user_setmeal($_SESSION['uid']);
 $resume=$db->getone("select * from ".table('resume')." WHERE id ='{$id}'  LIMIT 1");
 if ($_CFG['operation_mode']=="2")
 {
-	if ($_CFG['setmeal_to_points']=="1")
-	{
-		if (empty($setmeal) || ($setmeal['endtime']<time() && $setmeal['endtime']<>"0"))
-		{
-		$_CFG['operation_mode']="1";
-		}
-		elseif ($resume['talent']=='2' && $setmeal['interview_senior']<=0)
-		{
-		$_CFG['operation_mode']="1";
-		}
-		elseif ($resume['talent']=='1' && $setmeal['interview_ordinary']<=0)
-		{
-		$_CFG['operation_mode']="1";
-		}
-	}
-	if ($_CFG['operation_mode']=="2")
-	{
-			if (empty($setmeal) || ($setmeal['endtime']<time() && $setmeal['endtime']<>"0"))
+ 			if (empty($setmeal) || ($setmeal['endtime']<time() && $setmeal['endtime']<>"0"))
 			{
 				$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
 				exit("您的服务已到期。您可以 {$str}");
@@ -74,7 +57,6 @@ if ($_CFG['operation_mode']=="2")
 				$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
 				exit("你邀请面试次数已经超出了限制。您可以{$str}");
 			}
-	}		
 }
 if ($act=="invited")
 {			
@@ -97,15 +79,7 @@ if ($act=="invited")
 				if  ($mypoints<$points)
 				{
 					$str="<a href=\"".get_member_url(1,true)."company_service.php?act=order_add\">[充值{$_CFG['points_byname']}]</a>&nbsp;&nbsp;&nbsp;&nbsp;";
-					$str1="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
-					if (!empty($setmeal) && $_CFG['setmeal_to_points']=="1")
-					{
-						exit("你的服务已到期或超出服务条数。您可以".$str.$str1);
-					}
-					else
-					{
-						exit("你的 {$_CFG['points_byname']} 不足，请充值后下载。".$str);
-					}
+ 					exit("你的 {$_CFG['points_byname']} 不足，请充值后下载。".$str);
 				}
 				$tip="邀请面试将扣除<span> {$points} </span>{$_CFG['points_quantifier']}{$_CFG['points_byname']}，您目前共有<span> {$mypoints}</span>{$_CFG['points_quantifier']}{$_CFG['points_byname']}";
 	}
@@ -124,8 +98,11 @@ $("#but_invited").click(function()
 			$("#but_invited").val("处理中...");
 			$("#but_invited").attr("disabled","disabled");
 			var tsTimeStamp= new Date().getTime();
-			$.get("<?php echo $_CFG['site_dir'] ?>user/user_invited.php", {"jobs_id": $("#ajax_invited_table :radio[checked]").val(),"id":id,"notes":$("#notes").val(),"time":tsTimeStamp,"act":"invited_save"},
-			function (data,textStatus)
+			$("#ajax_download_r").attr("disabled","disabled");
+ 			 var pms_notice=$("#pms_notice").attr("checked");
+			 if(pms_notice) pms_notice=1;else pms_notice=0;
+			$.get("<?php echo $_CFG['site_dir'] ?>user/user_invited.php", {"jobs_id": $("#ajax_invited_table :radio[checked]").val(),"id":id,"notes":$("#notes").val(),"pms_notice":pms_notice,"time":tsTimeStamp,"act":"invited_save"},
+ 			function (data,textStatus)
 			 {
 				if (data=="ok")
 				{
@@ -186,7 +163,16 @@ function DialogClose()
 	
 	</td>
   </tr>
-  <tr>
+		
+ <tr>
+    <td align="right" >站内信通知对方：</td>
+    <td>
+		  <label><input type="checkbox" name="pms_notice" id="pms_notice" value="1"  checked="checked"/>
+		  站内信通知
+		   </label>
+	</td>
+  </tr>
+   <tr>
     <td align="right">&nbsp;</td>
     <td><input type="button" name="Submit2"    class="but100" value="提交"  id="but_invited"/></td>
   </tr>
@@ -211,10 +197,11 @@ function DialogClose()
 </table>
 <?php
 }
-elseif ($act=="invited_save")
+ elseif ($act=="invited_save")
 {
 	$jobs_id=isset($_GET['jobs_id'])?intval($_GET['jobs_id']):exit("err");
 	$notes=isset($_GET['notes'])?trim($_GET['notes']):"";
+	$pms_notice=intval($_GET['pms_notice']);
 	if (check_interview($id,$jobs_id,$_SESSION['uid']))
 	{
 	exit("repeat");
@@ -245,7 +232,7 @@ elseif ($act=="invited_save")
 	$addarr['notes']= $notes;
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-		$addarr['notes']=iconv("utf-8",QISHI_DBCHARSET,$addarr['notes']);
+		$addarr['notes']=utf8_to_gbk($addarr['notes']);
 	}
 	$addarr['personal_look']= 1;
 	$addarr['interview_addtime']=time();
@@ -300,7 +287,15 @@ elseif ($act=="invited_save")
 	{
 		dfopen("{$_CFG['site_domain']}{$_CFG['site_dir']}plus/asyn_sms.php?uid={$_SESSION['uid']}&key=".asyn_userkey($_SESSION['uid'])."&act=set_invite&companyname={$jobs['companyname']}&mobile={$resume_user['mobile']}");		
 	}
+	//站内信
+	if($pms_notice=='1'){
+		$user=$db->getone("select username from ".table('members')." where uid ={$resume['uid']} limit 1");
+		$jobs_url=url_rewrite('QS_jobsshow',array('id'=>$jobs['id']));
+		$company_url=url_rewrite('QS_companyshow',array('id'=>$jobs['company_id']));
+		$message=$jobs['companyname']."邀请您参加公司面试，面试职位：<a href=\"{$jobs_url}\" target=\"_blank\"> {$jobs['jobs_name']} </a>，<a href=\"{$company_url}\" target=\"_blank\">点击查看公司详情</a>";
+		write_pmsnotice($resume['uid'],$user['username'],$message);
+	}
 	exit("ok");
-	//sms
 }
+ 
 ?>

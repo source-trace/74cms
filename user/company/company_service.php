@@ -105,7 +105,8 @@ elseif ($act=='order_add_save')
 		showmsg("请先填写您的企业资料！",1,$link);
 		}
 	$myorder=get_user_order($_SESSION['uid'],1);
-	if (count($myorder)>=5)
+	$order_num=count($myorder);
+	if (count($order_num)>=5)
 	{
 	$link[0]['text'] = "立即查看";
 	$link[0]['href'] = '?act=order_list&is_paid=1';
@@ -121,7 +122,7 @@ elseif ($act=='order_add_save')
 	$order['v_url']=$_CFG['site_domain'].$_CFG['site_dir']."include/payment/respond_".$paymenttpye['typename'].".php";
 	$order['v_amount']=$amount+$fee; 
 	$points=$amount*$_CFG['payment_rate'];
-	$order_id=add_order($_SESSION['uid'],$order['oid'],$amount,$payment_name,"充值积分:".$points,$timestamp,$points);
+	$order_id=add_order($_SESSION['uid'],$order['oid'],$amount,$payment_name,"充值积分:".$points,$timestamp,$points,'',1);
 		if ($order_id)
 			{
 			$link[0]['text'] = "现在去付款";
@@ -202,7 +203,7 @@ elseif ($act=='setmeal_order_add_save'  && $_CFG['operation_mode']=="2")
 		$order['oid']= date('Ymd',time())."-".$paymenttpye['partnerid']."-".date('His',time());//订单号
 		$order['v_url']=$_CFG['site_domain'].$_CFG['site_dir']."include/payment/respond_".$paymenttpye['typename'].".php";
 		$order['v_amount']=$setmeal['expense']+$fee;//金额
-		$order_id=add_order($_SESSION['uid'],$order['oid'],$setmeal['expense'],$payment_name,"开通服务:".$setmeal['setmeal_name'],$timestamp,"",$setmeal['id']);
+		$order_id=add_order($_SESSION['uid'],$order['oid'],$setmeal['expense'],$payment_name,"开通服务:".$setmeal['setmeal_name'],$timestamp,"",$setmeal['id'],1);
 			if ($order_id)
 			{
 				if ($order['v_amount']==0)//0元套餐

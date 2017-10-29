@@ -12,7 +12,7 @@
 define('IN_QISHI', true);
 require_once(dirname(__FILE__).'/../include/common.inc.php');
 $act = !empty($_GET['act']) ? trim($_GET['act']) :trim($_POST['act']);
-require_once(QISHI_ROOT_PATH.'include/mysql.class.php');
+ require_once(QISHI_ROOT_PATH.'include/mysql.class.php');
 $db = new mysql($dbhost,$dbuser,$dbpass,$dbname);
 if ($_SESSION['uid']=='' || $_SESSION['username']=='')
 {
@@ -22,7 +22,7 @@ if ($_SESSION['uid']=='' || $_SESSION['username']=='')
 	exit();
 }
 $uid=intval($_SESSION['uid']);
-$user=$db->getone("select * from ".table('members')." where uid ='{$uid}' LIMIT 1");
+ $user=$db->getone("select * from ".table('members')." where uid ='{$uid}' LIMIT 1");
 if ($user['email_audit']=="0")
 {
 $verifyurl=$_SESSION['utype']=="1"?'/company_user.php?act=user_email':'/personal_user.php?act=user_email';
@@ -35,6 +35,8 @@ if ($act=='recommendjobs')
 	$smarty->assign('info',$info);
 	$smarty->assign('user',$user);
 	$smarty->assign('job',explode('|',$_GET['job']));
+	$captcha=get_cache('captcha');
+	$smarty->assign('verify_recommendjobs',$captcha['verify_recommendjobs']);
 	$smarty->display('plus/recommend/recommend_jobs.htm');
 	exit();
 }
@@ -45,17 +47,35 @@ elseif ($act=='send_recommendjobs')
 	$message=trim($_POST['message']);
 	$jobname=trim($_POST['jobname']);
 	$joburl=trim($_POST['joburl']);
+	
+
+	$captcha=get_cache('captcha');
+	if ($captcha['verify_recommendjobs']=="1")
+	{
+		$postcaptcha=$_POST['postcaptcha'];
+		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
+		{
+		$postcaptcha=utf8_to_gbk($postcaptcha);
+		}
+		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
+		{
+		unset($_SESSION['imageCaptcha_content']);
+		exit("errcaptcha_false");
+		}
+	}
+
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$realname=iconv("utf-8",QISHI_DBCHARSET,$realname);
-	$message=iconv("utf-8",QISHI_DBCHARSET,$message);
-	$jobname=iconv("utf-8",QISHI_DBCHARSET,$jobname);
+	$realname=utf8_to_gbk($realname);
+	$message=utf8_to_gbk($message);
+	$jobname=utf8_to_gbk($jobname);
 	}
+	
 	$uid=intval($_SESSION['uid']);
 	$user=$db->getone("select * from ".table('members')." where uid ='{$uid}' LIMIT 1");
 	if ($user['email_audit']=="0")
 	{
-	exit("false");
+	exit("email_audit_false");
 	}
 	$send_title="{$realname}向您推荐了职位，赶快看看吧！";
 	$send_body="我在<a href=\"{$_CFG['site_domain']}{$_CFG['site_dir']}\" target=\"_blank\">{$_CFG['site_name']}</a>上看到一个招聘信息：\"<a href=\"{$joburl}\" target=\"_blank\">{$jobname}</a>\"，向你强烈推荐！";
@@ -65,20 +85,22 @@ elseif ($act=='send_recommendjobs')
 	}
 	if(smtp_mail($sendemail,$send_title,$send_body,$user['email'],$realname))
 	{
-	exit("true");
+	exit("mail_true");
 	}
 	else
 	{
-	exit("false");
-	}	
+	exit("mail_false");
+	}
+
 }
 elseif ($act=='recommendresume')
 {
-	
 	$info=$db->getone("select * from ".table('members_info')." where uid ='{$uid}' LIMIT 1");
 	$smarty->assign('info',$info);
 	$smarty->assign('user',$user);
 	$smarty->assign('resume',explode('|',$_GET['resume']));
+	$captcha=get_cache('captcha');
+	$smarty->assign('verify_recommendresume',$captcha['verify_recommendresume']);
 	$smarty->display('plus/recommend/recommend_resume.htm');
 	exit();
 }
@@ -89,11 +111,27 @@ elseif ($act=='send_recommendresume')
 	$message=trim($_POST['message']);
 	$resumename=trim($_POST['resumename']);
 	$resumeurl=trim($_POST['resumeurl']);
+
+	$captcha=get_cache('captcha');
+	if ($captcha['verify_recommendresume']=="1")
+	{
+		$postcaptcha=$_POST['postcaptcha'];
+		if ($captcha['captcha_lang']=="cn" && strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
+		{
+		$postcaptcha=utf8_to_gbk($postcaptcha);
+		}
+		if (empty($postcaptcha) || empty($_SESSION['imageCaptcha_content']) || strcasecmp($_SESSION['imageCaptcha_content'],$postcaptcha)!=0)
+		{
+		unset($_SESSION['imageCaptcha_content']);
+		exit("errcaptcha_false");
+		}
+	}
+
 	if (strcasecmp(QISHI_DBCHARSET,"utf8")!=0)
 	{
-	$realname=iconv("utf-8",QISHI_DBCHARSET,$realname);
-	$message=iconv("utf-8",QISHI_DBCHARSET,$message);
-	$resumename=iconv("utf-8",QISHI_DBCHARSET,$resumename);
+	$realname=utf8_to_gbk($realname);
+	$message=utf8_to_gbk($message);
+	$resumename=utf8_to_gbk($resumename);
 	}
 	$uid=intval($_SESSION['uid']);
 	$user=$db->getone("select * from ".table('members')." where uid ='{$uid}' LIMIT 1");

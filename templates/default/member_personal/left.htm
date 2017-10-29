@@ -3,6 +3,7 @@
 $(document).ready(function()
 {
 //
+$('#chk').click(function(){$("#form1 :checkbox").attr('checked',$("#chk").attr('checked'))});
 $("#preview").click(function(){
 	dialog("请选择要预览的简历","id:previewbox","400px","auto","");
 });
@@ -19,6 +20,13 @@ $(".left_menu_bg").click(function(){
 		tb.css("display","block");
 		$(this).find("img").attr("src","{#$QISHI.site_template#}images/07.gif");
 		}
+	});
+	
+	$("input[type='text'],input[type='password']").focus(function(){
+	$(this).css("border-color","#0066CC #9DCEFF #9DCEFF #0066CC");
+	});
+	$("input[type='text'],input[type='password']").blur(function(){
+	$(this).css("border-color","");
 	});
 
 });
@@ -62,7 +70,7 @@ $(".left_menu_bg").click(function(){
 	  </ul>
 	</div>
 </div>
-<div class="left_menu_box">
+ <div class="left_menu_box">
 	<div class="left_menu_bg">
 		<div class="left_menu_tit">求职管理</div>
 		<div class="left_menu_img"><img src="{#$QISHI.site_template#}images/07.gif"  border="0" /></div>
@@ -79,7 +87,7 @@ $(".left_menu_bg").click(function(){
 	  </ul>
 	</div>
 </div>
-<div class="left_menu_box" style="border-bottom:1px;">
+ <div class="left_menu_box" style="border-bottom:1px;">
 	<div class="left_menu_bg">
 		<div class="left_menu_tit">账户管理</div>
 		<div class="left_menu_img"><img src="{#$QISHI.site_template#}images/07.gif"  border="0" /></div>
@@ -97,7 +105,8 @@ $(".left_menu_bg").click(function(){
 			<li><a href="personal_user.php?act=user_status">帐号状态</a></li>
 			<li><a href="personal_user.php?act=password_edit">密码修改</a></li>
 			<li><a  href="personal_user.php?act=feedback">意见建议</a></li>
-			<li><a href="{#"QS_login"|qishi_url#}?act=logout">安全退出</a></li>
+ 			<li><a href="personal_user.php?act=login_log">登录日志</a></li>
+ 			<li><a href="{#"QS_login"|qishi_url#}?act=logout">安全退出</a></li>
 		<div class="clear"></div>
 	  </ul>
 	</div>

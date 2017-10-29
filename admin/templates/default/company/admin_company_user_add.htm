@@ -19,6 +19,12 @@ $(document).ready(function()
 		$("#regpointsshow").hide();
 		}
 	}
+	$(".no_money3").click(function(){
+		$(".log_amount3").hide();
+	});
+	$(".yes_money3").click(function(){
+		$(".log_amount3").show();
+	});
 });
 </script>
 <div class="pagetit">
@@ -46,6 +52,8 @@ $(document).ready(function()
       <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">再次输入密码：</td>
       <td  style=" border-bottom:1px #CCCCCC dashed" ><input name="password1" type="password" class="input_text_200" id="password1" maxlength="25" value=""/></td>
     </tr>
+		
+	{#if $QISHI.operation_mode=="1"#}
 	    <tr>
       <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">是否赠送积分：</td>
       <td  style=" border-bottom:1px #CCCCCC dashed"  ><label>
@@ -59,6 +67,8 @@ $(document).ready(function()
       <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">赠送数量：</td>
       <td  style=" border-bottom:1px #CCCCCC dashed" ><input name="regpoints_num" type="text" class="input_text_200" id="regpoints_num" maxlength="25" value="{#$points.reg_points.value#}" onkeyup="if(event.keyCode !=37 && event.keyCode != 39) value=value.replace(/\D/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/\D/g,''))"/></td>
     </tr>
+		{#/if#}
+
 	{#if $QISHI.operation_mode=='2'#}  
 	<tr>
       <td height="30" align="right"  style=" border-bottom:1px #CCCCCC dashed">赠送服务套餐：</td>
@@ -75,6 +85,21 @@ $(document).ready(function()
 	  </td>
 	    </tr>
 		{#/if#}
+		<tr>
+			<td align="right" style=" border-bottom:1px #CCCCCC dashed"><span style="color:#FF0000">是否已收费：</span></td>
+			<td style=" border-bottom:1px #CCCCCC dashed">
+			<label>
+			 <input name="is_money" type="radio" value="1" checked="checked" class="yes_money3"/>
+			是</label> &nbsp;&nbsp;&nbsp;<label>
+			<input name="is_money" type="radio" value="0"  class="no_money3"/>
+			否</label>		
+			</td>
+      </tr>
+	   <tr class="log_amount3">
+        <td align="right"  style=" border-bottom:1px #CCCCCC dashed;"><span style="color:#FF0000">收费金额：</span></td>
+        <td style=" border-bottom:1px #CCCCCC dashed"><input name="log_amount" type="text" class="input_text_200"  value="{#$setmeal.log_amount#}" maxlength="5"/> 元
+         <span class="admin_note">(请填写收费金额)</span> </td>
+      </tr>
     <tr>
       <td height="30" align="right"  >&nbsp;</td>
       <td height="60"  ><span style="font-size:14px;">

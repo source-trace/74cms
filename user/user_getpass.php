@@ -62,7 +62,7 @@ elseif ($act=='get_pass')
 					{
 					showmsg('ÃÜÂëĞŞ¸ÄÊ§°Ü',1);
 					}
-					$smarty->assign('step',"2");
+ 					$smarty->assign('step',"2");
 					$smarty->assign('email',$userinfo['email']);
 					$smarty->assign('title','ÕÒ»ØÃÜÂë - '.$_CFG['site_name']);
 					$smarty->display('user/getpass.htm');

@@ -59,42 +59,24 @@ else
 {
 $resumeshow['resume_name']=$resumeshow['fullname'];
 }
-$setmeal=get_user_setmeal($_SESSION['uid']);
 if ($_CFG['operation_mode']=="2")
 {
-	if ($_CFG['setmeal_to_points']=="1")
+	$setmeal=get_user_setmeal($_SESSION['uid']);
+ 	if (empty($setmeal) || ($setmeal['endtime']<time() && $setmeal['endtime']<>"0"))
 	{
-		if (empty($setmeal) || ($setmeal['endtime']<time() && $setmeal['endtime']<>"0"))
-		{
-		$_CFG['operation_mode']="1";
-		}
-		elseif ($resumeshow['talent']=='2' && $setmeal['download_resume_senior']<=0)
-		{
-		$_CFG['operation_mode']="1";
-		}
-		elseif ($resumeshow['talent']=='1' && $setmeal['download_resume_ordinary']<=0)
-		{
-		$_CFG['operation_mode']="1";
-		}
+		$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
+		exit("您的服务已到期。您可以 {$str}");
 	}
-	if ($_CFG['operation_mode']=="2")
+	elseif ($resumeshow['talent']=='2' && $setmeal['download_resume_senior']<=0)
 	{
-			if (empty($setmeal) || ($setmeal['endtime']<time() && $setmeal['endtime']<>"0"))
-			{
-				$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
-				exit("您的服务已到期。您可以 {$str}");
-			}
-			elseif ($resumeshow['talent']=='2' && $setmeal['download_resume_senior']<=0)
-			{
-				$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
-				exit("你下载高级人才简历数量已经超出了限制。您可以{$str}");
-			}
-			elseif ($resumeshow['talent']=='1' && $setmeal['download_resume_ordinary']<=0)
-			{
-				$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
-				exit("你下载简历数量已经超出了限制。您可以{$str}");
-			}
-	}		
+		$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
+		exit("你下载高级人才简历数量已经超出了限制。您可以{$str}");
+	}
+	elseif ($resumeshow['talent']=='1' && $setmeal['download_resume_ordinary']<=0)
+	{
+		$str="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
+		exit("你下载简历数量已经超出了限制。您可以{$str}");
+	}
 }
 if ($act=="download")
 {
@@ -118,16 +100,7 @@ if ($act=="download")
 				if  ($mypoints<$points)
 				{
 					$str="<a href=\"".get_member_url(1,true)."company_service.php?act=order_add\">[充值{$_CFG['points_byname']}]</a>&nbsp;&nbsp;&nbsp;&nbsp;";
-					$str1="<a href=\"".get_member_url(1,true)."company_service.php?act=setmeal_list\">[申请服务]</a>";
-					if (!empty($setmeal) && $_CFG['setmeal_to_points']=="1")
-					{
-						exit("你的服务已到期或超出服务条数。您可以".$str.$str1);
-					}
-					else
-					{
-						exit("你的".$_CFG['points_byname']."不足，请充值后下载。".$str);
-					}
-				
+ 					exit("你的".$_CFG['points_byname']."不足，请充值后下载。".$str);				
 				}
 				$tip="下载此份简历将扣除<span> {$points}</span>{$_CFG['points_quantifier']}{$_CFG['points_byname']}，您目前共有<span> {$mypoints}</span>{$_CFG['points_quantifier']}{$_CFG['points_byname']}";
 	}
@@ -140,8 +113,10 @@ $("#ajax_download_r").click(function() {
 		var tsTimeStamp= new Date().getTime();
 			$("#ajax_download_r").val("处理中...");
 			$("#ajax_download_r").attr("disabled","disabled");
-		$.get("<?php echo $_CFG['site_dir'] ?>user/user_download_resume.php", { "id":id,"time":tsTimeStamp,"act":"download_save"},
-	 	function (data,textStatus)
+ 			 var pms_notice=$("#pms_notice").attr("checked");
+			 if(pms_notice) pms_notice=1;else pms_notice=0;
+		$.get("<?php echo $_CFG['site_dir'] ?>user/user_download_resume.php", { "id":id,"pms_notice":pms_notice,"time":tsTimeStamp,"act":"download_save"},
+ 	 	function (data,textStatus)
 	 	 {
 			if (data=="ok")
 			{
@@ -182,9 +157,17 @@ function DialogClose()
 }
 </script>
 <div class="ajax_download_tip"><?php echo $tip?></div>
-<table width="100%" border="0" cellspacing="0" cellpadding="15" id="ajax_download_table">
+<table width="100%" border="0" cellspacing="0" cellpadding="5" id="ajax_download_table">
   <tr>
-    <td align="center"><input type="button" name="Submit"  id="ajax_download_r" class="but100" value="下载简历" /></td>
+    <td align="right" >站内信通知对方：</td>
+    <td>
+		  <label><input type="checkbox" name="pms_notice" id="pms_notice" value="1"  checked="checked"/>
+		  站内信通知
+		   </label>
+	</td>
+  </tr>
+   <tr>
+    <td align="center" colspan="2"><input type="button" name="Submit"  id="ajax_download_r" class="but100" value="下载简历" /></td>
   </tr>
 </table>
 <table width="100%" border="0" cellspacing="8" cellpadding="0" id="download_ok"  style="display:none">
@@ -203,9 +186,10 @@ function DialogClose()
 </table>
 <?php
 }
-elseif ($act=="download_save")
+ elseif ($act=="download_save")
 {
 	$ruser=get_user_info($resumeshow['uid']);
+	$pms_notice=intval($_GET['pms_notice']);
 	if ($_CFG['operation_mode']=="2")
 	{	
 			if ($resumeshow['talent']=='2')
@@ -216,6 +200,15 @@ elseif ($act=="download_save")
 					$setmeal=get_user_setmeal($_SESSION['uid']);
 					write_memberslog($_SESSION['uid'],1,9002,$_SESSION['username'],"下载了 {$ruser['username']} 发布的高级简历,还可以下载 {$setmeal['download_resume_senior']} 份高级简历");
 					write_memberslog($_SESSION['uid'],1,4001,$_SESSION['username'],"下载了 {$ruser['username']} 发布的简历");
+					//站内信
+					if($pms_notice=='1'){
+						$company=$db->getone("select id,companyname  from ".table('company_profile')." where uid ={$_SESSION['uid']} limit 1");
+						$user=$db->getone("select username from ".table('members')." where uid ={$resumeshow['uid']} limit 1");
+						$resume_url=url_rewrite('QS_resumeshow',array('id'=>$id));
+						$company_url=url_rewrite('QS_companyshow',array('id'=>$company['id']));
+						$message=$_SESSION['username']."下载了您发布的简历：<a href=\"{$resume_url}\" target=\"_blank\">{$resumeshow['resume_name']}</a>，<a href=\"$company_url\" target=\"_blank\">点击查看公司详情</a>";
+						write_pmsnotice($resumeshow['uid'],$user['username'],$message);
+					}
 					exit("ok");
 					}
 			}
@@ -227,6 +220,15 @@ elseif ($act=="download_save")
 					$setmeal=get_user_setmeal($_SESSION['uid']);
 					write_memberslog($_SESSION['uid'],1,9002,$_SESSION['username'],"下载了 {$ruser['username']} 发布的普通简历,还可以下载 {$setmeal['download_resume_ordinary']} 份普通简历");
 					write_memberslog($_SESSION['uid'],1,4001,$_SESSION['username'],"下载了 {$ruser['username']} 发布的简历");
+					//站内信
+					if($pms_notice=='1'){
+						$company=$db->getone("select id,companyname  from ".table('company_profile')." where uid ={$_SESSION['uid']} limit 1");
+						$user=$db->getone("select username from ".table('members')." where uid ={$resumeshow['uid']} limit 1");
+						$resume_url=url_rewrite('QS_resumeshow',array('id'=>$id));
+						$company_url=url_rewrite('QS_companyshow',array('id'=>$company['id']));
+						$message=$_SESSION['username']."下载了您发布的简历：<a href=\"{$resume_url}\" target=\"_blank\">{$resumeshow['resume_name']}</a>，<a href=\"$company_url\" target=\"_blank\">点击查看公司详情</a>";
+						write_pmsnotice($resumeshow['uid'],$user['username'],$message);
+					}
 					exit("ok");
 					}
 			}
@@ -251,9 +253,20 @@ elseif ($act=="download_save")
 					$operator=$ptype=="1"?"+":"-";
 					write_memberslog($_SESSION['uid'],1,9001,$_SESSION['username'],"下载了 {$ruser['username']} 发布的简历({$operator}{$points}),(剩余:{$user_points})");
 					write_memberslog($_SESSION['uid'],1,4001,$_SESSION['username'],"下载了 {$ruser['username']} 发布的简历");
+					//站内信
+					if($pms_notice=='1'){
+						$company=$db->getone("select id,companyname  from ".table('company_profile')." where uid ={$_SESSION['uid']} limit 1");
+						$user=$db->getone("select username from ".table('members')." where uid ={$resumeshow['uid']} limit 1");
+						$resume_url=url_rewrite('QS_resumeshow',array('id'=>$id));
+						$company_url=url_rewrite('QS_companyshow',array('id'=>$company['id']));
+						$message=$_SESSION['username']."下载了您发布的简历：<a href=\"{$resume_url}\" target=\"_blank\">{$resumeshow['resume_name']}</a>，<a href=\"$company_url\" target=\"_blank\">点击查看公司详情</a>";
+						write_pmsnotice($resumeshow['uid'],$user['username'],$message);
+					}
+
 					}
 					exit("ok");
 				}
 	}
 }
+ 
 ?>
